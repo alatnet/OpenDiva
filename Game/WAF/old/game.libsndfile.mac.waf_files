@@ -1,0 +1,9 @@
+{
+	"auto":
+	{
+		"Core/Sound/libsndfile":
+		[
+			"Core/Sound/libsndfile/include/sndfile.h"
+		]
+	}
+}
