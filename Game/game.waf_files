@@ -1,0 +1,115 @@
+{
+  "none": {
+    "Root": [
+      "StdAfx.cpp",
+      "StdAfx.h"
+    ]
+  },
+  "auto": {
+    "Core": [
+      "Core/EditorGame.h",
+      "Core/EditorGame.cpp",
+      "Core/OpenDivaGame.h",
+      "Core/OpenDivaGame.cpp",
+      "Core/Util.h",
+      "Core/Util.cpp",
+      "Core/CommonEnums.h",
+      "Core/CommonDefines.h"
+    ],
+    "System": [
+      "System/GameStartup.cpp",
+      "System/GameStartup.h",
+      "System/dirent.h"
+    ],
+    "Core/Loaders": [
+      "Core/Loaders/StageLoader.h",
+      "Core/Loaders/StageLoader.cpp"
+    ],
+    "Core/Files": [
+      "Core/Files/NoteFile.h",
+      "Core/Files/NoteFile.cpp",
+      "Core/Files/NoteFileEntries.h",
+      "Core/Files/NoteFileEntries.cpp",
+      "Core/Files/NoteFileEntryFactory.h",
+      "Core/Files/NoteFileEntryFactory.cpp",
+      "Core/Files/SongList.h",
+      "Core/Files/SongList.cpp",
+      "Core/Files/SongInfo.h",
+      "Core/Files/SongInfo.cpp",
+      "Core/Files/LyricsFile.h",
+      "Core/Files/LyricsFile.cpp"
+    ],
+    "Core/Graphics": [
+      "Core/Graphics/OD_Draw2d.h",
+      "Core/Graphics/OD_Draw2d.cpp",
+      "Core/Graphics/NoteImage.h",
+      "Core/Graphics/NoteImage.cpp",
+      "Core/Graphics/Particles.h",
+      "Core/Graphics/Particles.cpp"
+    ],
+    "Core/Graphics/Tails": [
+      "Core/Graphics/Tails/CometTail.h",
+      "Core/Graphics/Tails/CometTail.cpp",
+      "Core/Graphics/Tails/HoldTail.h",
+      "Core/Graphics/Tails/HoldTail.cpp"
+    ],
+    "Core/Graphics/Resources": [
+      "Core/Graphics/Resources/NoteResource.h",
+      "Core/Graphics/Resources/NoteResource.cpp",
+      "Core/Graphics/Resources/TailResource.h",
+      "Core/Graphics/Resources/TailResource.cpp",
+      "Core/Graphics/Resources/EffectResource.h",
+      "Core/Graphics/Resources/EffectResource.cpp",
+      "Core/Graphics/Resources/FontResource.h",
+      "Core/Graphics/Resources/FontResource.cpp",
+      "Core/Graphics/Resources/ResourceCollection.h"
+    ],
+    "Core/Input": [
+      "Core/Input/InputSystem.h",
+      "Core/Input/InputSystem.cpp"
+    ],
+    "Core/Input/Listeners": [
+      "Core/Input/InputFlowgraphListener.h"
+    ],
+    "Core/CryMovie/Node": [
+      "Core/CryMovie/Node/DivaSequence.h",
+      "Core/CryMovie/Node/DivaSequence.cpp",
+      "Core/CryMovie/Node/IDivaSequence.h",
+      "Core/CryMovie/Node/DSFGEventListener.h",
+      "Core/CryMovie/Node/DSFGEventListener.cpp"
+    ],
+    "Core/CryMovie/Node/Note": [
+      "Core/CryMovie/Node/Note/DivaNoteNodes.h",
+      "Core/CryMovie/Node/Note/DivaNoteBaseNode.h",
+      "Core/CryMovie/Node/Note/DivaNoteBaseNode.cpp",
+      "Core/CryMovie/Node/Note/DivaNoteSingleNode.h",
+      "Core/CryMovie/Node/Note/DivaNoteSingleNode.cpp",
+      "Core/CryMovie/Node/Note/DivaNoteHoldNode.h",
+      "Core/CryMovie/Node/Note/DivaNoteHoldNode.cpp",
+      "Core/CryMovie/Node/Note/DivaNoteNodeFactory.h",
+      "Core/CryMovie/Node/Note/DivaNoteNodeFactory.cpp"
+    ],
+    "Core/Judge": [
+      "Core/Judge/IDivaJudge.h",
+      "Core/Judge/IDivaJudge.cpp",
+      "Core/Judge/DivaJudgeFactory.h",
+      "Core/Judge/DivaJudgeFactory.cpp"
+    ],
+    "Core/Judge/Judges": [
+      "Core/Judge/OpenDivaJudge.h",
+      "Core/Judge/OpenDivaJudge.cpp"
+    ],
+    "Core/Judge/Listeners": [
+      "Core/Judge/Flownode_Judge_Listener.h",
+      "Core/Judge/Flownode_Judge_Listener.cpp"
+    ],
+    "Core/Flowgraph": [
+      "Core/Flowgraph/Flownodes_OpenDiva.cpp"
+    ],
+    "Core/Flowgraph/Bus": [
+      "Core/Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+    ],
+    "Core/Scripting": [
+    ]
+  }
+}
