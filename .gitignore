@@ -1,0 +1,10 @@
+Editor/
+Ideas\ and\ Data/
+Game/Not\ Used/
+Game/Core/Sound/audio\ src\ files/
+Game/Core/Sound/libsndfile/Changelog
+Game/Core/Sound/libsndfile/NEWS
+Game/Core/Sound/libsndfile/doc/
+Game/Core/Sound/libsndfile/bin/*.exe
+Game/Core/Sound/libsndfile/lib/pkgconfig/
+Game/Core/Steamworks
