@@ -34,7 +34,7 @@ def build(bld):
 			#for lyswing code.
 			#'WAF/game.lyswing.waf_files'
 		],
-        platforms = ['win_x64','linux','darwin'],
+        platforms = ['win_x64', 'win_x64_vs2015', 'win_x64_vs2013','linux','darwin'],
         configurations = ['debug', 'profile', 'performance', 'release'],
         pch         = 'StdAfx.cpp',
         use         = ['AzGameFramework'],
@@ -46,6 +46,7 @@ def build(bld):
         includes    = [ '.' ,
 			bld.Path('Code/CryEngine/CryCommon'),
 			bld.Path('Code/CryEngine/CryAction'),
+			bld.Path('Code/Engine/LmbrCentral/include'),
 			bld.Path('Code/OpenDiva/Game/Core/Sound/libsndfile/include'),
 			bld.Path('Code/OpenDiva/Game/Core/Sound/libsamplerate/include'),
 			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/include'),
@@ -91,7 +92,10 @@ def build(bld):
 			'WAF/game.audiolibs.win.waf_files'
 		],
 
-		win_defines = [ 'WX_DISABLE' ],
+		win_defines = [
+			'WX_DISABLE', #custom define, used to bypass /WX warnings as errors.
+			'NOMINMAX'    #disable windows.h min/max definitions.
+		],
 
         debug_win_linkflags = [ '/VERBOSE:LIB' ],
 
@@ -187,5 +191,4 @@ def build(bld):
         #==============================
         #ios_output_file_name = 'OpenDivaLauncher',
         #ios_file_list = ['WAF/game_ios.waf_files'],
-
     )

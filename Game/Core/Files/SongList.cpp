@@ -85,7 +85,10 @@ namespace LYGame {
 
 	void SongEntry::Log() {
 		CryLog("---Name: %s", this->m_info.name);
-		CryLog("---Author: %s", this->m_info.author);
+		CryLog("---Authors:");
+		for each (std::pair<string, SongFileInfo::Author> auth in this->m_info.authors) {
+			CryLog("---- %s, %s, %s", auth.second.name, auth.second.nameE, auth.second.nameR);
+		}
 		CryLog("---Number of notemaps: %i", this->m_notemaps.size());
 		CryLog("---Number of translations: %i", this->m_translations.size());
 	}

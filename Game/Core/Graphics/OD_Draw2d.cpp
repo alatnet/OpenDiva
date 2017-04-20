@@ -14,7 +14,7 @@ namespace LYGame {
 
 	void OD_Draw2d::BeginDraw2d(int width, int height, float znear, float zfar) {
 		OD_Draw2d::renderer->SetCullMode(R_CULL_DISABLE);
-		OD_Draw2d::renderer->Set2DMode(true, width, height, znear, zfar);
+		OD_Draw2d::renderer->Set2DMode(width, height, prevMat, znear, zfar);
 
 		OD_Draw2d::renderer->SetColorOp(eCO_MODULATE, eCO_MODULATE, DEF_TEXARG0, DEF_TEXARG0);
 		OD_Draw2d::renderer->SetState(OD_Draw2d::g_defaultBlendState | GS_NODEPTHTEST);
@@ -110,7 +110,7 @@ namespace LYGame {
 	void OD_Draw2d::DeferDraw(int width, int height, float znear, float zfar) {
 		// Set up the 2D drawing state
 		OD_Draw2d::renderer->SetCullMode(R_CULL_DISABLE);
-		OD_Draw2d::renderer->Set2DMode(true, width, height, znear, zfar);
+		OD_Draw2d::renderer->Set2DMode(width, height, this->prevMat, znear, zfar);
 
 		OD_Draw2d::renderer->SetColorOp(eCO_MODULATE, eCO_MODULATE, DEF_TEXARG0, DEF_TEXARG0);
 		OD_Draw2d::renderer->SetState(OD_Draw2d::g_defaultBlendState | GS_NODEPTHTEST);
@@ -124,7 +124,7 @@ namespace LYGame {
 		this->m_dPrims.clear();
 
 		// End the 2D drawing state
-		OD_Draw2d::renderer->Set2DMode(false, 0, 0);
+		OD_Draw2d::renderer->Unset2DMode(prevMat);
 
 	}
 

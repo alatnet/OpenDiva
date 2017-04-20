@@ -50,7 +50,7 @@ namespace LYGame {
 		string m_stage;
 		string m_dance;
 		std::vector<std::pair<int, string>> m_models;
-	private:
+	public:
 		static SongFileInfo GetInfo(const char * filename);
 	public:
 		static SongFileInfo GetInfo(XmlNodeRef node);

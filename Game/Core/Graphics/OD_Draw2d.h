@@ -9,7 +9,7 @@ namespace LYGame {
 	class OD_Draw2d {
 	public:
 		void BeginDraw2d(int width = OD_Draw2d::renderer->GetOverlayWidth(), int height = OD_Draw2d::renderer->GetOverlayHeight(), float znear = -1e10f, float zfar = 1e10f);
-		void EndDraw2d() { OD_Draw2d::renderer->Set2DMode(false, 0, 0); }
+		void EndDraw2d() { OD_Draw2d::renderer->Unset2DMode(this->prevMat); }
 		void SetDefer(bool defer) { this->m_deferDraw = defer; }
 		void DeferDraw(int width = OD_Draw2d::renderer->GetOverlayWidth(), int height = OD_Draw2d::renderer->GetOverlayHeight(), float znear = -1e10f, float zfar = 1e10f);
 	public:
@@ -89,6 +89,7 @@ namespace LYGame {
 
 		bool m_deferDraw;
 		std::vector<DeferredPrim*> m_dPrims;
+		TransformationMatrices prevMat;
 	private:
 		OD_Draw2d();
 		OD_Draw2d(const OD_Draw2d&) = delete;
