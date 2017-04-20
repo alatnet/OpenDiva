@@ -20,7 +20,7 @@ def build(bld):
         target      = 'OpenDiva',
         vs_filter   = 'Game/OpenDiva',
         file_list   = [
-			'WAF/game.waf_files',
+			'game.waf_files',
 			'WAF/game.portaudiosystem.waf_files',
                    
 			#steamworks build files.

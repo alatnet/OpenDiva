@@ -1,7 +1,7 @@
 {
    "NoUberFile":{
       "Resource Files":[
-         "../Resources/MacLauncher/Info.plist"
+         "../../Resources/MacLauncher/Info.plist"
       ]
    }
 }

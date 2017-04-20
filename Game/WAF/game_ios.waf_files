@@ -1,7 +1,7 @@
 {
    "NoUberFile":{
       "Resource Files":[
-         "../Resources/IOSLauncher/Info.plist"
+         "../../Resources/IOSLauncher/Info.plist"
       ]
    }
 }
