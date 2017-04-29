@@ -106,8 +106,8 @@
     "Core/Flowgraph": [
       "Core/Flowgraph/Flownodes_OpenDiva.cpp"
     ],
-    "Core/Flowgraph/Bus": [
-      "Core/Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+    "Core/Bus": [
+      "Core/Bus/OpenDiva_Bus.h"
     ],
     "Core/Scripting": [
     ]

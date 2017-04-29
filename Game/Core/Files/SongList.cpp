@@ -9,6 +9,9 @@
 #include "SongList.h"
 
 namespace LYGame {
+}
+
+namespace LYGame {
 	//----------------------------------------------
 	//Song Entry
 	//----------------------------------------------
@@ -21,7 +24,7 @@ namespace LYGame {
 	}
 
 	void SongEntry::Process() {
-		this->m_notemaps.clear(); //clear the list of notemaps.
+		/*this->m_notemaps.clear(); //clear the list of notemaps.
 		this->m_translations.clear(); //clear the list of translations.
 
 		//load song info file.
@@ -74,13 +77,17 @@ namespace LYGame {
 			tEntry = readdir(tDir);
 		}
 
-		closedir(tDir);
+		closedir(tDir);*/
+
+		//load songinfo.xml
+		//list note files
+		//list translations
 	}
 
 	void SongEntry::GetMemoryUsage(ICrySizer* pSizer) const {
 		pSizer->AddObject(this, sizeof(*this));
 		pSizer->AddObject(this->m_notemaps);
-		pSizer->AddObject(this->m_translations);
+		//pSizer->AddObject(this->m_translations);
 	}
 
 	void SongEntry::Log() {
@@ -90,7 +97,7 @@ namespace LYGame {
 			CryLog("---- %s, %s, %s", auth.second.name, auth.second.nameE, auth.second.nameR);
 		}
 		CryLog("---Number of notemaps: %i", this->m_notemaps.size());
-		CryLog("---Number of translations: %i", this->m_translations.size());
+		//CryLog("---Number of translations: %i", this->m_translations.size());
 	}
 	//----------------------------------------------
 
@@ -110,7 +117,7 @@ namespace LYGame {
 	void SongGroup::Process() {
 		this->m_entries.clear(); //clear the entries.
 
-		DIR * sdir = opendir(this->m_path.c_str()); //open up the directory.
+		/*DIR * sdir = opendir(this->m_path.c_str()); //open up the directory.
 		
 		dirent *entry = readdir(sdir); //read the first entry.
 
@@ -131,7 +138,28 @@ namespace LYGame {
 			entry = readdir(sdir); //read the next directory entry.
 		}
 
-		closedir(sdir); //close the directory.
+		closedir(sdir); //close the directory.*/
+
+		//load group info
+
+		//list folders in group.
+		gEnv->pFileIO->FindFiles(this->m_path, "*.*",
+			[&](const char* filePath) -> bool {
+				if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
+					if (gEnv->pFileIO->Exists(string(filePath) + "/SongInfo.xml")) { //if the songinfo.xml exists in that directory
+						string spath = filePath;
+						size_t slash = spath.find_last_of("/\\");
+						//string path = spath.substr(0, slash);
+						string folder = spath.substr(slash + 1);
+
+						SongEntry * newEntry = new SongEntry(folder, filePath); //create a new entry.
+						this->m_entries.push_back(newEntry); //push it to the list of entries.
+						this->StartAsChild(newEntry); //start the processing of the entry.
+					}
+				}
+				return true; // continue iterating
+			}
+		);
 
 		this->WaitForChildren(); //wait until all entries have finished.
 	}
@@ -164,7 +192,7 @@ namespace LYGame {
 	void SongList::Process() {
 		this->m_groups.clear(); //clear the groups.
 
-		DIR * sdir = opendir(this->m_path.c_str()); //open up the directory.
+		/*DIR * sdir = opendir(this->m_path.c_str()); //open up the directory.
 
 		dirent *entry = readdir(sdir); //read the first entry.
 
@@ -185,7 +213,26 @@ namespace LYGame {
 			entry = readdir(sdir); //read the next directory entry.
 		}
 
-		closedir(sdir); //close the directory
+		closedir(sdir); //close the directory*/
+		
+		//list folders
+		gEnv->pFileIO->FindFiles("@songs@", "*.*",
+			[&](const char* filePath) -> bool {
+				if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
+					if (gEnv->pFileIO->Exists(string(filePath) + "/GroupInfo.xml")) { //if the group info xml file exists in that directory
+						string spath = filePath;
+						size_t slash = spath.find_last_of("/\\");
+						//string path = spath.substr(0, slash);
+						string folder = spath.substr(slash + 1);
+
+						SongGroup * newGroup = new SongGroup(folder, filePath);
+						this->m_groups.push_back(newGroup); //push it to the list of groups.
+						this->StartAsChild(newGroup); //start the processing of the group.
+					}
+				}
+				return true; // continue iterating
+			}
+		);
 
 		this->WaitForChildren(); //wait until all the groups have finished.
 	}

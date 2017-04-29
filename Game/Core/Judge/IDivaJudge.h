@@ -5,7 +5,7 @@
 
 #include "../CryMovie/Node/IDivaSequence.h"
 #include "../Files/NoteFileEntries.h"
-#include "../Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+#include "../Bus/OpenDiva_Bus.h"
 
 /*
 enum EHitScore {

@@ -33,7 +33,7 @@ namespace LYGame {
 		for (int i = 0; i < NUMFONTEFFECTS(14); i++) m_textPointSize[i] = 36.0f;
 		m_ImgScale = m_PosScale = Vec2(1.0f,1.0f);
 
-		const char * fontPath = "Fonts/PositecBold.xml";
+		string fontXML = "Fonts/PositecBold.xml";
 
 		for (int i = 0, x = 0; i < eHS_None + 4; i++) {
 			x = i;
@@ -57,8 +57,9 @@ namespace LYGame {
 				//get the font child
 				XmlNodeRef font = config->findChild("font");
 
-				//get the font path
-				fontPath = font->getAttr("path");
+				//get the font xml path
+				fontXML = font->getAttr("path");
+				fontXML.replace("$(Fonts)", folder);
 				//font->getAttr("size", m_textPointSize);
 
 				//CryLog("[FontResource] Font: %s - Size: %f", fontPath, m_textPointSize);
@@ -89,9 +90,22 @@ namespace LYGame {
 			}
 		}
 
+		//copy fonts to cache.
+		Util::CopyToCache(fontXML, "Fonts/Style/"); //copy the xml file
+		string fontXMLCache = Util::GetCachePath(fontXML, "Fonts/Style/");
+		XmlNodeRef fontXMLFile = gEnv->pSystem->LoadXmlFromFile(fontXMLCache); //open the cache xml file version
+		string fontFilePath = fontXMLFile->findChild("font")->getAttr("path"); //get the font path
+		fontXMLFile->findChild("font")->setAttr("path", PathUtil::GetFile(fontFilePath)); //edit the font path to be just the font name itself
+		fontXMLFile->saveToFile(fontXMLCache); //save the cache xml file version
+		Util::CopyToCache(gEnv->pFileIO->GetAlias("@assets@") + string("/")+ fontFilePath,"Fonts/Style/"); //copy the font file itself to the cache
+
+		CryLog("[FontResource] Font XML Cache Path: %s", fontXMLCache);
+		CryLog("[FontResource] Font File Cache Path: %s", Util::GetCachePath(fontFilePath, "Fonts/Style/"));
+		CryLog("[FontResource] Font File Path: %s", gEnv->pFileIO->GetAlias("@assets@") + string("/") + fontFilePath);
+
 		//load font
 		this->m_pFont = gEnv->pSystem->GetICryFont()->NewFont("DivaFontResource");
-		this->m_pFont->Load(fontPath);
+		this->m_pFont->Load(fontXMLCache);
 		this->m_pFont->AddRef();
 
 		//list font effects
@@ -129,6 +143,7 @@ namespace LYGame {
 
 	FontResource::~FontResource() {
 		this->m_pFont->Release();
+		Util::ClearCache("Fonts/Style");
 	}
 
 	void FontResource::setImgScale(Vec2 scale) {

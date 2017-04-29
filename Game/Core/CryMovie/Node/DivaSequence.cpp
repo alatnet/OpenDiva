@@ -61,6 +61,10 @@ namespace LYGame {
 		//setup the zone events track
 		this->m_pZoneEvents = this->CreateNode(EAnimNodeType::eAnimNodeType_Event);
 		this->m_pZoneEvents->CreateDefaultTracks();
+
+		//setup the lyrics events track
+		this->m_pLyricsEvents = this->CreateNode(EAnimNodeType::eAnimNodeType_Event);
+		this->m_pLyricsEvents->CreateDefaultTracks();
 	}
 
 	DivaSequence::~DivaSequence() {
@@ -187,7 +191,7 @@ namespace LYGame {
 			}
 
 			judge->setTotalNotes(this->m_NoteNodes.size());
-			EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaCompletionBus, SetTotalNotes, this->m_NoteNodes.size());
+			EBUS_EVENT(OpenDivaBus::OpenDivaCompletionBus, SetTotalNotes, this->m_NoteNodes.size());
 
 			judge->SetTechZoneNotes(techZoneNotesVector);
 			
@@ -200,6 +204,31 @@ namespace LYGame {
 			return false;
 		}
 
+		return true;
+	}
+	
+	bool DivaSequence::InitLyrics(LyricsFile * lyrics) {
+		IAnimTrack * lyricsTrack = m_pLyricsEvents->GetTrackByIndex(0);
+
+		IEventKey key;
+		key.event = "LyricsEvent";
+		key.eventValue = "l1"; //lyric number
+		key.eventValue = "t1"; //translation number
+		key.time = 0;
+
+		int keyindex = lyricsTrack->CreateKey(key.time);
+		lyricsTrack->SetKey(keyindex, &key);
+
+		for (int i = 0; i < lyrics->GetNumLines(); i++) {
+			LyricsFile::LineEntry entry = lyrics->GetLine(i);
+			IEventKey key;
+			key.event = "LyricsEvent";
+			key.eventValue = "l1"; //lyric number
+			key.time = entry.time;
+
+			int keyindex = lyricsTrack->CreateKey(key.time);
+			lyricsTrack->SetKey(keyindex, &key);
+		}
 		return true;
 	}
 

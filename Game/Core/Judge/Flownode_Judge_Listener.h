@@ -4,7 +4,7 @@
 #pragma once
 
 #include "IDivaJudge.h"
-#include "../Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+#include "../Bus/OpenDiva_Bus.h"
 
 namespace LYGame {
 

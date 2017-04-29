@@ -78,6 +78,11 @@ bool OpenDivaGame::Init(IGameFramework* framework) {
 	// Load actions maps.
 	LoadActionMaps("config/input/actionmaps.xml");
 
+	//set aliases
+	gEnv->pFileIO->SetAlias("@songs@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sSongPath);
+	gEnv->pFileIO->SetAlias("@styles@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sStylesPath);
+	gEnv->pFileIO->SetAlias("@hud@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sHudPath);
+
 	// Register game rules wrapper.
 	/*REGISTER_FACTORY(framework, "OpenDivaGameRules", OpenDivaGameRules, false);
 	IGameRulesSystem* pGameRulesSystem = g_Game->GetIGameFramework()->GetIGameRulesSystem();
@@ -177,6 +182,10 @@ void OpenDivaGame::Shutdown()
 	//delete the moviesystem that uses audio timing
 	//this->audioMovieSys->RemoveAllSequences();
 	//this->audioMovieSys->Release();
+
+	gEnv->pFileIO->ClearAlias("@songs@");
+	gEnv->pFileIO->ClearAlias("@styles@");
+	gEnv->pFileIO->ClearAlias("@hud@");
 
     this->~OpenDivaGame();
 }
@@ -596,16 +605,20 @@ void OpenDivaGame::setupTesting() {
 	//this->m_pNoteResource->setImgScale(Vec2(0.75f, 0.75f));
 	//this->m_pNoteResource->setPosScale(Vec2(1.5f, 1.5f));
 
-	char buff[MAX_PATH + 1];
+	//char buff[MAX_PATH + 1];
 	/*std::string path(getcwd(buff, MAX_PATH + 1));
 	path += "/OpenDiva/Resources/Styles/PPDXXX/";*/
 
-	string path(getcwd(buff, MAX_PATH + 1));
+	string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
+	string path(assetsPath);
+
+	//string path(getcwd(buff, MAX_PATH + 1));
 	path += OpenDiva::Paths::sStylesPath + "/PPDXXX/";
 
 	string noteR(path + OpenDiva::Folders::sNoteFolder);
 	string effectR(path + OpenDiva::Folders::sEffectsFolder);
 	string tailsR(path + OpenDiva::Folders::sTailFolder);
+	string fontsR(path + OpenDiva::Folders::sFontsFolder);
 	//std::string ratingR(path + "Ratings");
 
 	/*this->m_pNoteResource = new NoteResource(noteR.c_str());
@@ -620,9 +633,10 @@ void OpenDivaGame::setupTesting() {
 	//this->m_pRC->p_EffectResource = new EffectResource(effectR.c_str());
 	this->m_pRC->p_EffectResource = new EffectResource(effectR.c_str());
 	//this->m_pRC->p_RatingResource = new RatingResource(ratingR.c_str());
-	this->m_pRC->p_FontResource = new FontResource(path.c_str());
+	this->m_pRC->p_FontResource = new FontResource(fontsR.c_str());
 
-	this->m_pRC->p_FontResource->setScale(Vec2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f));
+	Vec2 scale = Vec2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
+	this->m_pRC->p_FontResource->setScale(scale);
 
 	//float avgscale = ((gEnv->pRenderer->GetWidth() / 1280.0f) + (gEnv->pRenderer->GetHeight() / 720.0f)) / 2;
 
@@ -667,10 +681,10 @@ void OpenDivaGame::setupTesting() {
 
 	//music testing
 
-	string songpath(getcwd(buff, MAX_PATH + 1));
+	string songpath(assetsPath);
 	songpath += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/testSong.ogg";
 
-	string songpath2(getcwd(buff, MAX_PATH + 1));
+	string songpath2(assetsPath);
 	songpath2 += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/testSong3.flac";
 	//CryLog("SongPath: %s", songpath);
 	//CryLog("SongPath c_str: %s", songpath.c_str());
@@ -727,6 +741,38 @@ void OpenDivaGame::setupTesting() {
 	//gEnv->pCryPak->OpenPack("/Paks/Styles/[name].pak");
 
 	//this->testLyShine();
+
+	CryLog("Alias Paths:");
+	CryLog("-Root: %s", gEnv->pFileIO->GetAlias("@root@"));
+	CryLog("-User: %s", gEnv->pFileIO->GetAlias("@user@"));
+	CryLog("-Log: %s", gEnv->pFileIO->GetAlias("@log@"));
+	CryLog("-Cache: %s", gEnv->pFileIO->GetAlias("@cache@"));
+	CryLog("-Assets: %s", gEnv->pFileIO->GetAlias("@assets@"));
+	CryLog("-Dev Root: %s", gEnv->pFileIO->GetAlias("@devroot@"));
+	CryLog("-Dev Assets: %s", gEnv->pFileIO->GetAlias("@devassets@"));
+	CryLog("Custom Alias Paths:");
+	CryLog("-Songs: %s", gEnv->pFileIO->GetAlias("@songs@"));
+	CryLog("-Styles: %s", gEnv->pFileIO->GetAlias("@styles@"));
+	CryLog("-Hud: %s", gEnv->pFileIO->GetAlias("@hud@"));
+
+	/*gEnv->pFileIO->FindFiles("@songs@", "*.*", 
+		[&](const char* filePath) -> bool {
+			CryLog("File Found: %s", filePath);
+			gEnv->pFileIO->FindFiles(filePath, "*.*",
+				[&](const char* filePath) -> bool {
+					CryLog("-File Found: %s", filePath);
+					gEnv->pFileIO->FindFiles(filePath, "*.xml",
+						[&](const char* filePath) -> bool {
+							CryLog("--File Found: %s", filePath);
+							return true;
+						}
+					);
+					return true;
+				}
+			);
+			return true; // continue iterating
+		}
+	);*/
 }
 
 void OpenDivaGame::setupFlowgraph() {
@@ -791,19 +837,19 @@ void OpenDivaGame::renderTesting() {
 
 	this->iDraw2d->DrawText(hud, { 10, 10 }, 32);*/
 
-	this->iDraw2d->DrawText(std::to_string(gEnv->pTimer->GetFrameTime()).c_str(), { 10, 40 }, 16);
-	this->iDraw2d->DrawText(std::to_string(this->paSystem->GetDeltaTime()).c_str(), { 10, 60 }, 16);
+	this->iDraw2d->DrawText(std::to_string(gEnv->pTimer->GetFrameTime()).c_str(), AZ::Vector2(10, 40), 16);
+	this->iDraw2d->DrawText(std::to_string(this->paSystem->GetDeltaTime()).c_str(), AZ::Vector2(10, 60), 16);
 
 	if (this->testAudioFileID != -1) {
 		AudioSourceTime currTime = this->paSystem->GetTime(this->testAudioFileID);
 		if (this->m_prevTime.totalSec != currTime.totalSec) {
-			this->iDraw2d->DrawText(std::to_string(currTime.totalSec-this->m_prevTime.totalSec).c_str(), { 10, 80 }, 16);
+			this->iDraw2d->DrawText(std::to_string(currTime.totalSec-this->m_prevTime.totalSec).c_str(), AZ::Vector2(10, 80), 16);
 			this->m_prevTime = currTime;
 		} else {
-			this->iDraw2d->DrawText(std::to_string(0).c_str(), { 10, 80 }, 16);
+			this->iDraw2d->DrawText(std::to_string(0).c_str(), AZ::Vector2(10, 80), 16);
 		}
 	} else {
-		this->iDraw2d->DrawText("waiting...", { 10, 80 }, 16);
+		this->iDraw2d->DrawText("waiting...", AZ::Vector2(10, 80), 16);
 	}
 
 	OD_Draw2d::getDraw2D().EndDraw2d();
@@ -908,8 +954,7 @@ void OpenDivaGame::loadSequences() {
 
 	this->iSys->AddListener(this->testDivaSeq);
 
-	char buff[MAX_PATH + 1];
-	string songpath(getcwd(buff, MAX_PATH + 1));
+	string songpath(gEnv->pFileIO->GetAlias("@assets@"));
 	songpath += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/NoteMaps/test.xml";
 	NoteFile noteFile(songpath);
 
@@ -1063,11 +1108,9 @@ void OpenDivaGame::musicStartStop() {
 void OpenDivaGame::setupLua(){
 	IScriptSystem* iScript = gEnv->pScriptSystem;
 
-	/*
-	CryLog("Testing Scripting:");
-	char buff[MAX_PATH + 1];
-	string scriptpath(getcwd(buff, MAX_PATH + 1));
-	scriptpath += "/" + OpenDiva::Folders::sOpenDivaFolder + "/Scripts/testScript.lua";
+	/*CryLog("Testing Scripting:");
+	string scriptpath(gEnv->pFileIO->GetAlias("@assets@"));
+	scriptpath += "/Scripts/testScript.lua";
 
 	CryLog("-Loading");
 	iScript->ExecuteFile(scriptpath);
@@ -1076,8 +1119,7 @@ void OpenDivaGame::setupLua(){
 	iScript->PushFuncParam(0);
 	iScript->EndCall();
 	CryLog("-Unloading");
-	iScript->UnloadScript("testScript.lua");
-	*/
+	iScript->UnloadScript("testScript.lua");*/
 
 	/*IScriptTable * table = iScript->CreateTable(true);
 	table->BeginSetGetChain();

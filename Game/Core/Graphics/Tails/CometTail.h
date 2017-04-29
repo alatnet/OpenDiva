@@ -12,7 +12,7 @@ namespace LYGame {
 
 	class CometTail {
 	public:
-		CometTail(ColorF color) : m_PackCol(color.pack_argb8888()), m_Color(color), m_size(1.0f) {}
+		CometTail(ColorF color) : m_PackCol(color.pack_argb8888()), m_Color(color), m_size(1.0f), m_scale(1.0f,1.0f) {}
 		~CometTail() {}
 	public:
 		//bcurve
@@ -37,6 +37,9 @@ namespace LYGame {
 
 		float getSize() { return this->m_size; }
 		static float getRSize() { return CometTail::m_rsize; }
+
+		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_scale = scale; }
+		static void setRScale(Vec2 scale = Vec2(1.0f, 1.0f)) { CometTail::m_rscale = scale; }
 	public:
 		void SetColor(ColorF color) { this->m_PackCol = color.pack_argb8888(); this->m_Color = color; }
 	private:
@@ -45,6 +48,9 @@ namespace LYGame {
 
 		float m_size;
 		static float m_rsize;
+
+		Vec2 m_scale;
+		static Vec2 m_rscale;
 	};
 }
 

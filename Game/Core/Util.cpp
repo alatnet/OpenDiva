@@ -457,6 +457,19 @@ namespace LYGame {
 		return Vec2();
 	}
 
+	bool Util::CopyToCache(string src, string cacheDest) {
+		return gEnv->pFileIO->Copy(src, GetCachePath(src,cacheDest)) == AZ::IO::ResultCode::Success;
+	}
+
+	bool Util::ClearCache(string cacheDest) {
+		AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
+		return fileIO->DestroyPath(fileIO->GetAlias("@cache@") + string("/") + cacheDest) == AZ::IO::ResultCode::Success;
+	}
+
+	string Util::GetCachePath(string src, string cacheDest) {
+		return gEnv->pFileIO->GetAlias("@cache@") + string("/") + cacheDest + PathUtil::GetFile(src);
+	}
+
 	#ifdef WX_DISABLE
 		#pragma warning(default : 4244)
 	#endif

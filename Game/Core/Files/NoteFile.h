@@ -6,25 +6,25 @@
 #include "string"
 
 namespace LYGame {
-	struct NoteFileInfo {
-		string author;
-		unsigned int version, difficulty;
-		string desc;
-		bool valid;
-		NoteFileInfo() :
-			author(""),
-			version(1),
-			difficulty(0),
-			desc(""),
-			valid(false)
-		{}
-
-		void GetMemoryUsage(ICrySizer* pSizer) const {
-			pSizer->AddObject(this, sizeof(*this));
-		}
-	};
-
 	class NoteFile {
+	public:
+		struct NoteFileInfo {
+			string author;
+			unsigned int version, difficulty;
+			string desc;
+			bool valid;
+			NoteFileInfo() :
+				author(""),
+				version(1),
+				difficulty(0),
+				desc(""),
+				valid(false) {
+			}
+
+			void GetMemoryUsage(ICrySizer* pSizer) const {
+				pSizer->AddObject(this, sizeof(*this));
+			}
+		};
 	public:
 		NoteFile(const char * filename);
 	public:

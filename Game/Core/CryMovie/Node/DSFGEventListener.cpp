@@ -1,6 +1,6 @@
 #include <StdAFX.h>
 #include <../CryCommon/IMovieSystem.h>
-#include "../../Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+#include "../../Bus/OpenDiva_Bus.h"
 #include "DSFGEventListener.h"
 
 namespace LYGame {
@@ -9,10 +9,10 @@ namespace LYGame {
 			if (string(event).compare("ZoneEvent") == 0) {
 				string sparam((const char *)pUserData);
 
-				if (sparam.compare("ChanceEnter") == 0) EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaZoneEventsBus, OnChanceEnter);
-				else if (sparam.compare("ChanceExit") == 0) EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaZoneEventsBus, OnChanceExit);
-				else if (sparam.compare("TechEnter") == 0) EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaZoneEventsBus, OnTechEnter);
-				else if (sparam.compare("TechExit") == 0) EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaZoneEventsBus, OnTechExit);
+				if (sparam.compare("ChanceEnter") == 0) EBUS_EVENT(OpenDivaBus::OpenDivaZoneEventsBus, OnChanceEnter);
+				else if (sparam.compare("ChanceExit") == 0) EBUS_EVENT(OpenDivaBus::OpenDivaZoneEventsBus, OnChanceExit);
+				else if (sparam.compare("TechEnter") == 0) EBUS_EVENT(OpenDivaBus::OpenDivaZoneEventsBus, OnTechEnter);
+				else if (sparam.compare("TechExit") == 0) EBUS_EVENT(OpenDivaBus::OpenDivaZoneEventsBus, OnTechExit);
 			}
 		}
 	}

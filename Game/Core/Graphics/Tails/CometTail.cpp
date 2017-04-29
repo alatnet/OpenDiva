@@ -3,6 +3,7 @@
 
 namespace LYGame {
 	float CometTail::m_rsize = 1.0f;
+	Vec2 CometTail::m_rscale = Vec2(1.0f, 1.0f);
 
 	void CometTail::Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		if (tStart >= tEnd) return;
@@ -31,19 +32,19 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[3].x, points[3].y, 1);
+			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[4].x, points[4].y, 1);
+			tmp.xyz = Vec3(points[4].x * this->m_scale.x, points[4].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 		}
 
@@ -54,19 +55,19 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[3].x, points[3].y, 1);
+			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[4].x, points[4].y, 1);
+			tmp.xyz = Vec3(points[4].x * this->m_scale.x, points[4].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 		}
 
@@ -115,12 +116,12 @@ namespace LYGame {
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * CometTail::m_rscale.x, points[2].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -138,12 +139,12 @@ namespace LYGame {
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * CometTail::m_rscale.x, points[2].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -189,19 +190,19 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[0].x, points[0].y, 1);
+			tmp.xyz = Vec3(points[0].x * this->m_scale.x, points[0].y * this->m_scale.y, 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[3].x, points[3].y, 1);
+			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 		}
 
@@ -213,19 +214,19 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[0].x, points[0].y, 1);
+			tmp.xyz = Vec3(points[0].x * this->m_scale.x, points[0].y * this->m_scale.y, 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[3].x, points[3].y, 1);
+			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
 			line2.push_back(tmp);
 		}
 
@@ -275,12 +276,12 @@ namespace LYGame {
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[0].x, points[0].y, 1);
+			tmp.xyz = Vec3(points[0].x * CometTail::m_rscale.x, points[0].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -299,12 +300,12 @@ namespace LYGame {
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[0].x, points[0].y, 1);
+			tmp.xyz = Vec3(points[0].x * CometTail::m_rscale.x, points[0].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);

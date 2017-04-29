@@ -4,7 +4,7 @@
 #include <LyShine/Bus/UiCanvasBus.h>
 #include <FlowSystem\Nodes\FlowBaseNode.h>
 
-#include "Bus\Flownodes_OpenDiva_Bus.h"
+#include "../Bus/OpenDiva_Bus.h"
 
 #include "../OpenDivaGame.h"
 
@@ -26,7 +26,7 @@ namespace LYGame {
 	#define BusConnectC() if(!this->m_busConnected) { BusConnect(); this->m_busConnected = true; }
 	#define BusDisconnectC() if(this->m_busConnected) { BusDisconnect(); this->m_busConnected = false; }
 
-	class CFlowNode_OpenDiva_Song : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaSongBus::Handler {
+	class CFlowNode_OpenDiva_Song : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaSongBus::Handler {
 	public:
 		CFlowNode_OpenDiva_Song(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -145,7 +145,7 @@ namespace LYGame {
 		LyShine::CanvasId m_canvasId;
 	};
 
-	class CFlowNode_Lyrics : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaLyricsBus::Handler {
+	class CFlowNode_Lyrics : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaLyricsBus::Handler {
 	public:
 		CFlowNode_Lyrics(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -229,7 +229,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_HP : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaHPBus::Handler {
+	class CFlowNode_HP : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaHPBus::Handler {
 	public:
 		CFlowNode_HP(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -314,7 +314,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_Score : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaScoreBus::Handler {
+	class CFlowNode_Score : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaScoreBus::Handler {
 	public:
 		CFlowNode_Score(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -394,7 +394,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_Completion : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaCompletionBus::Handler {
+	class CFlowNode_Completion : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaCompletionBus::Handler {
 	public:
 		CFlowNode_Completion(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -493,7 +493,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_ZoneEvents : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaZoneEventsBus::Handler {
+	class CFlowNode_ZoneEvents : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaZoneEventsBus::Handler {
 	public:
 		CFlowNode_ZoneEvents(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -571,7 +571,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_TechnicalZoneInfo : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaTechnicalZoneInfoBus::Handler {
+	class CFlowNode_TechnicalZoneInfo : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaTechnicalZoneInfoBus::Handler {
 	public:
 		CFlowNode_TechnicalZoneInfo(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -655,7 +655,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_Hitscore : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaHitScoreBus::Handler {
+	class CFlowNode_Hitscore : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaHitScoreBus::Handler {
 	public:
 		CFlowNode_Hitscore(SActivationInfo* pActInfo) {
 			this->m_actInfo = *pActInfo; //used for async action
@@ -715,7 +715,7 @@ namespace LYGame {
 		bool m_busConnected = false;
 	};
 
-	class CFlowNode_UiInput : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaFlowgraphBus::OpenDivaUiInputBus::Handler {
+	class CFlowNode_UiInput : public CFlowBaseNode<eNCT_Instanced>, public OpenDivaBus::OpenDivaUiInputBus::Handler {
 	public:
 		CFlowNode_UiInput(SActivationInfo* pActInfo){
 			this->m_actInfo = *pActInfo; //used for async action

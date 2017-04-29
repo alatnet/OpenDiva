@@ -12,8 +12,9 @@
 #include "../../../Graphics/Resources/ResourceCollection.h"
 #include "../../../Graphics/Particles.h"
 #include "../../CryEngine/CryMovie/AnimSequence.h"
-#include "../../Flowgraph/Bus/Flownodes_OpenDiva_Bus.h"
+#include "../../Bus/OpenDiva_Bus.h"
 #include "IDivaSequence.h"
+#include "../../Files/LyricsFile.h"
 
 
 namespace LYGame {
@@ -28,6 +29,7 @@ namespace LYGame {
 		~DivaSequence();
 	public:
 		bool Init(NoteFile *noteFile, IDivaJudge * judge);
+		bool InitLyrics(LyricsFile * lyrics);
 	public: //all the stuff we do need.
 		void Animate(SAnimContext &ec);
 		void GetMemoryUsage(ICrySizer *pSizer) const;
@@ -70,6 +72,7 @@ namespace LYGame {
 		void OnSwipeR(int mode, float value);
 	private:
 		IAnimNode * m_pZoneEvents;
+		IAnimNode * m_pLyricsEvents;
 	public: //all the stuff we dont need.
 		/*void SetName(const char *name) {}
 		const char * GetName() { return "DivaSequence"; }

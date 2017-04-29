@@ -4,70 +4,99 @@
 #pragma once
 
 namespace LYGame {
-	struct TranslationFileInfo {
+	struct LyricsFileInfo {
+		string locale;
 		string author;
-		unsigned int version;
 		string desc;
+		int version;
 		bool valid;
-		TranslationFileInfo() :
+
+		LyricsFileInfo() :
+			locale("us-en"),
 			author(""),
-			version(1),
 			desc(""),
+			version(0),
 			valid(false)
 		{}
-
-		void GetMemoryUsage(ICrySizer* pSizer) const {
-			pSizer->AddObject(this, sizeof(*this));
-		}
 	};
 
-	class TranslationFileFont {
+	class LyricsFile {
 	public:
-		TranslationFileFont(string name, string fontPath);
-		~TranslationFileFont();
+		struct LineEntry {
+			string text;
+			string romaji;
+			float time;
+			int effect;
+			string color;
+			string font;
+
+			void GetMemoryUsage(ICrySizer* pSizer) const {
+				pSizer->AddObject(this, sizeof(*this));
+			}
+		};
 	public:
-		void DrawText(string text, Vec2 pos, Vec2 size, ColorF color, unsigned int effect, float rotation);
+		LyricsFile(const char * file);
+		~LyricsFile();
+	public:
+		static LyricsFileInfo GetInfo(const char * filename);
+		LyricsFileInfo GetInfo() { return this->m_info; }
+		unsigned int GetNumLines() { return this->m_lyrics.size(); }
+		LineEntry GetLine(unsigned int index) { return this->m_lyrics[index]; }
+	public:
+		void GetMemoryUsage(ICrySizer* pSizer) const;
 	private:
-		IFFont * m_pFont;
-		STextDrawContext m_context;
+		LyricsFileInfo m_info;
+	private:
+		std::unordered_map<std::string, IFFont *> m_fonts;
+		std::unordered_map<std::string, ColorF> m_colors;
+		std::vector<LineEntry> m_lyrics;
+	private:
+		static bool lyricsSort(LineEntry a, LineEntry b);
+		static LyricsFileInfo GetInfo(XmlNodeRef xmlNode);
 	};
 
-	struct TranslationFileSetup {
-		std::unordered_map<std::string, TranslationFileFont *> fonts; //fonts[font name] = font
-		std::unordered_map<std::string, ColorF> colors; //colors[color name] = ColorF
-		std::unordered_map<std::string, Vec2> textSizes; //textSize[size name] = Vec2
-	};
-	//setup.fonts[font name]->DrawText(text, pos, textSizes[size name], colors[color name], effect, rotation);
-
-	struct TranslationFileLine {
-		float time;
-		std::string font;
-		unsigned int fontEffect;
-		std::string color;
-		string data;
-	};
-
-	struct TranslationFileSubtitle {
-		float sTime, eTime;
-		Vec2 pos;
-		float rotation;
-		std::string font;
-		unsigned int fontEffect;
-		std::string color;
-		string data;
-	};
-
+	/*
 	class TranslationFile {
 	public:
-		TranslationFile(string path);
+		struct LineEntry {
+			string text;
+			double time;
+			int effect;
+			string color;
+			string font;
+		};
+
+		struct SubtitleEntry {
+			string text;
+			double start, end;
+			Vec2 pos;
+			double rot;
+			string font;
+			int effect;
+			string color;
+			double size;
+		};
+	public:
+		TranslationFile();
 		~TranslationFile();
 	public:
-		static TranslationFileInfo GetInfo(const char * filename);
+		static LyricsFileInfo GetInfo(const char * filename);
+		LyricsFileInfo GetInfo() { return this->m_info; }
+		unsigned int GetNumLines() { return this->m_lyrics.size(); }
+		LineEntry GetLine(unsigned int index) { return this->m_lyrics[index]; }
+		string toString();
 	private:
-		std::vector<TranslationFileLine> lines; //sort by time
-		std::vector<TranslationFileSubtitle> subtitles; //sort by sTime
-		TranslationFileSetup setup;
+		LyricsFileInfo m_info;
+	private:
+		std::unordered_map<std::string, IFFont *> m_fonts;
+		std::unordered_map<std::string, ColorF> m_colors;
+		std::vector<LineEntry> m_lyrics;
+		std::vector<SubtitleEntry> m_subtitles;
+	private:
+		static bool lyricsSort(LineEntry a, LineEntry b);
+		static LyricsFileInfo GetInfo(XmlNodeRef xmlNode);
 	};
+	*/
 }
 
 #endif

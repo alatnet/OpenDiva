@@ -14,8 +14,8 @@ namespace LYGame {
 	protected:
 		void Process();
 	private:
-		std::vector<std::pair<string, NoteFileInfo>> m_notemaps;
-		std::vector<std::pair<string, TranslationFileInfo>> m_translations;
+		std::vector<std::pair<string, NoteFile::NoteFileInfo>> m_notemaps;
+		//std::vector<std::pair<string, TranslationFileInfo>> m_translations;
 		string m_name;
 		string m_path;
 		SongFileInfo m_info;

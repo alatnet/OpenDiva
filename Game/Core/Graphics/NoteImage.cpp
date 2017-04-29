@@ -27,8 +27,8 @@ namespace LYGame {
 
 		NoteImage::iDraw2d->DrawImageAligned(
 			this->m_pNote->GetTextureID(),
-			pos,
-			Vec2(this->m_sizes.note.x*m_ImgScale.x, this->m_sizes.note.y*m_ImgScale.y),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_sizes.note.x*m_ImgScale.x, this->m_sizes.note.y*m_ImgScale.y),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center
 			);
 	}
@@ -40,15 +40,15 @@ namespace LYGame {
 
 		NoteImage::iDraw2d->DrawImageAligned(
 			this->m_pNoteE->GetTextureID(),
-			pos,
-			Vec2(this->m_sizes.noteE.x*this->m_ImgScale.x*scale, this->m_sizes.noteE.y*this->m_ImgScale.y*scale),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_sizes.noteE.x*this->m_ImgScale.x*scale, this->m_sizes.noteE.y*this->m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center
 			);
 
 		NoteImage::iDraw2d->DrawImageAligned(
 			this->m_pTimeArrow->GetTextureID(),
-			pos,
-			Vec2(this->m_sizes.timeArrow.x*this->m_ImgScale.x*scale, this->m_sizes.timeArrow.y*this->m_ImgScale.y*scale),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_sizes.timeArrow.x*this->m_ImgScale.x*scale, this->m_sizes.timeArrow.y*this->m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center,
 			1.0f,
 			timeArrowRot
@@ -71,8 +71,8 @@ namespace LYGame {
 
 		NoteImage::iDraw2d->DrawImageAligned(
 			this->m_pNoteE->GetTextureID(),
-			pos,
-			Vec2(this->m_sizes.noteE.x*this->m_ImgScale.x*scale, this->m_sizes.noteE.y*this->m_ImgScale.y*scale),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_sizes.noteE.x*this->m_ImgScale.x*scale, this->m_sizes.noteE.y*this->m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center,
 			opacity,
 			rot
@@ -80,8 +80,8 @@ namespace LYGame {
 
 		NoteImage::iDraw2d->DrawImageAligned(
 			this->m_pTimeArrow->GetTextureID(),
-			pos,
-			Vec2(this->m_sizes.timeArrow.x*this->m_ImgScale.x*scale, this->m_sizes.timeArrow.y*this->m_ImgScale.y*scale),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_sizes.timeArrow.x*this->m_ImgScale.x*scale, this->m_sizes.timeArrow.y*this->m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center,
 			opacity,
 			timeArrowRot+rot

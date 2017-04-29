@@ -2,55 +2,133 @@
 #include "LyricsFile.h"
 
 namespace LYGame {
-	TranslationFileFont::TranslationFileFont(string name, string fontPath) {
-		this->m_pFont = gEnv->pSystem->GetICryFont()->NewFont("Translation Font: " + name);
-		this->m_pFont->Load(fontPath);
-		this->m_pFont->AddRef();
+	LyricsFile::LyricsFile(const char * folder) {
+		string file(folder);
+		file += "/lyrics.xml";
 
-		this->m_context.SetFlags(eDrawText_Center | eDrawText_CenterV | eDrawText_2D | eDrawText_FixedSize);
-		this->m_context.SetSizeIn800x600(false);
-		this->m_context.SetProportional(true);
+		string fontpath(folder);
+		fontpath += "/Fonts/";
+
+		XmlNodeRef lyrics = gEnv->pSystem->LoadXmlFromFile(file);
+
+		this->m_info = LyricsFile::GetInfo(lyrics);
+
+		if (this->m_info.valid) {
+			//load fonts and setup colors
+			XmlNodeRef setup = lyrics->findChild("setup");
+			for (int i = 0; i < setup->getChildCount(); i++) {
+				XmlNodeRef entry = setup->getChild(i);
+				std::string tag = entry->getTag();
+
+				if (entry->haveAttr("xml")) {
+					string fontxml = entry->getAttr("xml");
+					std::string fontname = "lf-";
+					fontname += tag;
+
+					//copy fonts to cache.
+					Util::CopyToCache(fontpath + fontxml, "Fonts/Lyrics/"); //copy the xml file
+					string fontXMLCache = Util::GetCachePath(fontpath + fontxml, "Fonts/Lyrics/");
+					XmlNodeRef fontXMLFile = gEnv->pSystem->LoadXmlFromFile(fontXMLCache); //open the cache xml file version
+					string fontFilePath = fontXMLFile->findChild("font")->getAttr("path"); //get the font path
+					fontXMLFile->findChild("font")->setAttr("path", PathUtil::GetFile(fontFilePath)); //edit the font path to be just the font name itself
+					fontXMLFile->saveToFile(fontXMLCache); //save the cache xml file version
+					Util::CopyToCache(gEnv->pFileIO->GetAlias("@assets@") + string("/") + fontFilePath, "Fonts/Lyrics/"); //copy the font file itself to the cache
+
+					IFFont * font = gEnv->pSystem->GetICryFont()->NewFont(fontname.c_str());
+					font->Load(fontXMLCache);
+					font->AddRef();
+
+					this->m_fonts.insert({ tag, font });
+				} else if (entry->haveAttr("rgba")) {
+					Vec4 color;
+					entry->getAttr("rgba", color);
+					this->m_colors.insert({ tag, ColorF(color) });
+				} else {
+					CryLog("(Lyrics File) Unknown setup type: %s", tag);
+				}
+			}
+
+			//get all lines for the lyrics
+			#pragma omp parallel for
+			for (int i = 0; i < lyrics->getChildCount(); i++) {
+				XmlNodeRef entry = lyrics->getChild(i);
+				string tag = entry->getTag();
+
+				if (tag.compare("line") == 0) {
+					XmlNodeRef text = entry->findChild("text");
+					XmlNodeRef romaji = entry->findChild("romaji");
+
+					LineEntry lEntry;
+
+					if (text != nullptr) lEntry.text = text->getContent(); else lEntry.text = "";
+					if (romaji != nullptr) lEntry.romaji = romaji->getContent(); else lEntry.romaji = "";
+
+					entry->getAttr("time", lEntry.time);
+					entry->getAttr("effect", lEntry.effect);
+					string font = entry->getAttr("font");
+					string color = entry->getAttr("color");
+					lEntry.font = font;
+					lEntry.color = color;
+
+					#pragma omp critical
+					{
+						this->m_lyrics.push_back(lEntry);
+					}
+				}
+			}
+
+			//sort the lyrics based on time
+			std::stable_sort(this->m_lyrics.begin(), this->m_lyrics.end(), LyricsFile::lyricsSort);
+		}
 	}
 
-	TranslationFileFont::~TranslationFileFont() {
-		this->m_pFont->Release();
+	LyricsFile::~LyricsFile() {
+		for each (std::pair<std::string, IFFont *> entry in this->m_fonts) entry.second->Release();
+		Util::ClearCache("Fonts/Lyrics/");
 	}
 
-
-	void TranslationFileFont::DrawText(string text, Vec2 pos, Vec2 size, ColorF color, unsigned int effect, float rotation) {
-		STextDrawContext context = this->m_context;
-		context.SetSize(size);
-		context.SetEffect(effect);
-		context.SetColor(color);
-		//TODO: deal with rotation.
-		//context.SetTransform(nullptr);
-
-		this->m_pFont->DrawString(pos.x, pos.y, text, false, context);
+	//sort lyrics by time
+	bool LyricsFile::lyricsSort(LineEntry a, LineEntry b) {
+		return a.time < b.time;
 	}
 
-	TranslationFile::TranslationFile(string path) {
-		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path);
-		//read file
-	}
+	LyricsFileInfo LyricsFile::GetInfo(const char * filename){
+		XmlNodeRef xmlNode = gEnv->pSystem->LoadXmlFromFile(filename);
+		LyricsFileInfo info;
 
-	TranslationFile::~TranslationFile() {
-	}
+		if (xmlNode != 0) {
+			info.author = xmlNode->getAttr("author");
+			info.locale = xmlNode->getAttr("locale");
+			xmlNode->getAttr("version", info.version);
 
-	TranslationFileInfo TranslationFile::GetInfo(const char * filename) {
-		TranslationFileInfo ret;
-
-		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(filename);
-
-		if (file != 0) {
-			ret.author = file->getAttr("author");
-			file->getAttr("version", ret.version);
-
-			XmlNodeRef desc = file->findChild("desc");
-			if (desc != 0) ret.desc = desc->getContent();
-
-			ret.valid = true;
+			XmlNodeRef desc = xmlNode->findChild("desc");
+			if (!desc) info.desc = desc->getContent(); else info.desc = "";
+			info.valid = true;
 		}
 
-		return ret;
+		return info;
+	}
+
+	LyricsFileInfo LyricsFile::GetInfo(XmlNodeRef xmlNode){
+		LyricsFileInfo info;
+
+		if (xmlNode != 0) {
+			info.author = xmlNode->getAttr("author");
+			info.locale = xmlNode->getAttr("locale");
+			xmlNode->getAttr("version", info.version);
+
+			XmlNodeRef desc = xmlNode->findChild("desc");
+			if (!desc) info.desc = desc->getContent(); else info.desc = "";
+			info.valid = true;
+		}
+
+		return info;
+	}
+	
+	void LyricsFile::GetMemoryUsage(ICrySizer* pSizer) const {
+		pSizer->AddObject(this, sizeof(*this));
+		//pSizer->AddObject(this->m_colors);
+		//pSizer->AddObject(this->m_fonts);
+		pSizer->AddObject(this->m_lyrics);
 	}
 }

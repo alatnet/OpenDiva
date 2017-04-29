@@ -26,7 +26,7 @@
 #include "Core\Judge\OpenDivaJudge.h"
 
 //flownode communication
-#include "Flowgraph\Bus\Flownodes_OpenDiva_Bus.h"
+#include "Bus\OpenDiva_Bus.h"
 
 #include "Sound\Port Audio System\Source\AudioSources.h"
 #include "Sound\Port Audio System\PortAudioSystem.h"

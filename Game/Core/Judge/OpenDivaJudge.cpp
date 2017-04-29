@@ -37,7 +37,7 @@ namespace LYGame {
 		CryLog("[DivaJudgeCallback] Begin");
 
 		//tech zone section update
-		if (this->m_currSection != params.sType) {
+		if (this->m_currSection != params.sType && m_currTechZone < this->m_techZoneNotes.size()) {
 			IDivaJudgeTechZone * currTechZone = this->m_techZoneNotes.at(this->m_currTechZone);
 			//if (this->m_currSection == eST_Norm && params.sType == eST_Tech) { //entering techzone from normal
 			/*} else*/ if (this->m_currSection == eST_Tech && params.sType == eST_Norm) { //exiting techzone to normal

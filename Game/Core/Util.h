@@ -96,6 +96,10 @@ namespace LYGame {
 		//get a point at the edge of a box based on a point and an angle.
 		//https://www.desmos.com/calculator/2ysl6hklqg
 		static Vec2 GetEdgePoint(Vec2 point, float angle, float x_min, float x_max, float y_min, float y_max);
+	public:
+		static bool CopyToCache(string src, string cacheDest);
+		static bool ClearCache(string cacheDest);
+		static string GetCachePath(string src, string cacheDest);
 	};
 
 }

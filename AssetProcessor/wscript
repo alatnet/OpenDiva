@@ -11,9 +11,7 @@
 ########################################################################################
 
 SUBFOLDERS = [
-    'Game',
-    #'Editor',
-	'AssetProcessor'
+	'OpenDivaBuilder'
 ]
 
 def build(bld):

@@ -318,4 +318,18 @@ namespace LYGame {
 
 		this->m_pHStyles[0].m_pHoldTails[eNT_Triangle] = new HoldTail(geom, 2);
 	}*/
+
+	void TailResource::setScale(Vec2 scale) {
+		this->setCScale(scale);
+		this->setHScale(scale);
+	}
+
+	void TailResource::setCScale(Vec2 scale) {
+		CometTail::setRScale(scale);
+		for (int i = 0; i < eNT_Count; i++) this->m_pCometTails[i]->setScale(scale);
+	}
+
+	void TailResource::setHScale(Vec2 scale) {
+		for (int i = 0; i < 4; i++) this->m_pHoldTails[i]->setScale(scale);
+	}
 }

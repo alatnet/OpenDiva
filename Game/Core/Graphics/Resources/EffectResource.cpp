@@ -108,8 +108,8 @@ namespace LYGame {
 	void EffectImage::Draw(Vec2 pos, float scale, float rot, float opacity) {
 		EffectImage::iDraw2d->DrawImageAligned(
 			this->m_pImg->GetTextureID(),
-			pos,
-			Vec2(this->m_size.x*m_ImgScale.x*scale, this->m_size.y*m_ImgScale.y*scale),
+			AZ::Vector2(pos.x, pos.y),
+			AZ::Vector2(this->m_size.x*m_ImgScale.x*scale, this->m_size.y*m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center,
 			opacity,
 			rot
@@ -146,6 +146,7 @@ namespace LYGame {
 
 			//load the effect configuration
 			XmlNodeRef effects = config->findChild("effects");
+			#pragma omp parallel for
 			for (int i = 0; i < eEL_Count; i++) { //for each effect
 				m_pEffects[i] = new EffectDef(); //create a new effect definition
 				m_pEffects[i]->name = sEffectsNamesV2[i]; //assign the effect name (not really needed but eh.)
@@ -175,7 +176,6 @@ namespace LYGame {
 								effectEntry.anim.push_back(anim); //push back the animation data
 							}
 						}
-
 						m_pEffects[i]->effects.push_back(effectEntry); //push back the effect entry
 					}
 				}

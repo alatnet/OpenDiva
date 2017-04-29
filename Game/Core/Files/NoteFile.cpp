@@ -40,7 +40,7 @@ namespace LYGame {
 					}
 				//	break;
 				//}
-			} else if (tag.compare("description")==0){
+			} else if (tag.compare("desc")==0){
 				//do nothing
 			} else {
 				string err;
@@ -86,7 +86,7 @@ namespace LYGame {
         }
 	}
 
-	NoteFileInfo NoteFile::GetInfo(const char * filename) {
+	NoteFile::NoteFileInfo NoteFile::GetInfo(const char * filename) {
 		//TODO: Error checking needed
 		XmlNodeRef xmlFile = gEnv->pSystem->LoadXmlFromFile(filename);
 
@@ -106,7 +106,7 @@ namespace LYGame {
 		return ret;
 	}
 
-	NoteFileInfo NoteFile::GetInfo(XmlNodeRef xmlNode) {
+	NoteFile::NoteFileInfo NoteFile::GetInfo(XmlNodeRef xmlNode) {
 		//TODO: Error checking needed
 		NoteFileInfo ret;
 

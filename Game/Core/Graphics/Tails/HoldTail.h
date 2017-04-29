@@ -46,7 +46,7 @@ namespace LYGame {
 	//new version (less flexible but uses images)
 	class HoldTail {
 	public:
-		HoldTail(ITexture* holdImg, float width) : m_pTex(holdImg), m_width(width), m_size(1.0f) {}
+		HoldTail(ITexture* holdImg, float width) : m_pTex(holdImg), m_width(width), m_size(1.0f), m_scale(1.0f,1.0f) {}
 		~HoldTail();
 
 		//bcurve
@@ -60,9 +60,12 @@ namespace LYGame {
 		//width of hold tail (scale)
 		void setSize(float size = 1.0f) { this->m_size = size; }
 		float getSize() { return this->m_size; }
+
+		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_scale = scale; }
 	private:
 		ITexture* m_pTex;
 		float m_width, m_size;
+		Vec2 m_scale;
 	};
 }
 

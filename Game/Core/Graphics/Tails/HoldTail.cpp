@@ -184,13 +184,13 @@ namespace LYGame {
 			Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, dists, 2); //calculate the distances at time i.
 
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x, points[1].y, 0);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 0);
 
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 0);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 1);
 			line.push_back(tmp);
@@ -201,12 +201,12 @@ namespace LYGame {
 			Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, dists, 2);
 
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x, points[1].y, 0);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 0);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 1);
 			line.push_back(tmp);
@@ -241,12 +241,12 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back the vectors
-			tmp.xyz = Vec3(points[1].x, points[1].y, 0);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 1);
 			line.push_back(tmp);
@@ -259,12 +259,12 @@ namespace LYGame {
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back the vectors
-			tmp.xyz = Vec3(points[1].x, points[1].y, 1);
+			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x, points[2].y, 1);
+			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 1);
 			line.push_back(tmp);

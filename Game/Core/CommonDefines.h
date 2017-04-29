@@ -23,14 +23,22 @@ namespace LYGame {
 			static const string sEffectsFolder = "Effects";
 			static const string sNoteFolder = "Note";
 			static const string sTailFolder = "Tails";
+			static const string sFontsFolder = "Fonts";
 		}
 		namespace Paths {
+			static const string sSongPath = "/" + Folders::sSongFolder;
+			static const string sResourcesPath = "/" + Folders::sResourcesFolder;
+			static const string sHudPath = sResourcesPath + "/" + Folders::sHudFolder;
+			static const string sStylesPath = sResourcesPath + "/" + Folders::sStylesFolder;
+			static const string sScriptsPath = "/" + Folders::sScriptsFolder;
+		}
+		/*namespace Paths {
 			static const string sSongPath = "/" + Folders::sOpenDivaFolder + "/" + Folders::sSongFolder;
 			static const string sResourcesPath = "/" + Folders::sOpenDivaFolder + "/" + Folders::sResourcesFolder;
 			static const string sHudPath = sResourcesPath + "/" + Folders::sHudFolder;
 			static const string sStylesPath = sResourcesPath + "/" + Folders::sStylesFolder;
 			static const string sScriptsPath = "/" + Folders::sOpenDivaFolder + "/" + Folders::sScriptsFolder;
-		}
+		}*/
 	}
 
 	#ifndef STATIC_CONSTRUCTOR

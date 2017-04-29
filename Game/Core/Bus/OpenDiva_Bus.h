@@ -1,13 +1,14 @@
-#ifndef _H_FLOWNODES_OPENDIVA_BUS
-#define _H_FLOWNODES_OPENDIVA_BUS
+#ifndef _H_OPENDIVA_BUS
+#define _H_OPENDIVA_BUS
 
 #pragma once
 
 #include <AzCore/EBus/EBus.h>
-#include "../../Input/InputSystem.h"
+#include "../Input/InputSystem.h"
+#include "../CommonEnums.h"
 
 namespace LYGame {
-	namespace OpenDivaFlowgraphBus {		
+	namespace OpenDivaBus {
 		class BaseOpenDivaEventGroup : public AZ::EBusTraits {
 		public:
 			virtual void Reset() = 0;
