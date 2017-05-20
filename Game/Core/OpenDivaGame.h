@@ -19,7 +19,7 @@
 //#include "Core/CryMovie/Node/Note/PrototypeNoteNode.h"
 #include "Core/Graphics/Resources/ResourceCollection.h"
 #include "Core\Input\InputSystem.h"
-#include "Core\Input\InputFlowgraphListener.h"
+#include "Core\Input\InputEBusListener.h"
 #include "Core\CryMovie\Node\DivaSequence.h"
 #include "Core\CryMovie\Node\DSFGEventListener.h"
 
@@ -184,7 +184,7 @@ namespace LYGame
 		float audioMovieSysTime;
 		AZ::EntityId m_HudCanvasID;
 	private: //listeners
-		InputFlowgraphListener * inputFlowListener;
+		InputEBusListener * inputBusListener;
 		DSFGEventListener * dsfgEventListener;
 	private: //TESTING FUNCTIONS
 		void constructTesting();
@@ -249,6 +249,8 @@ namespace LYGame
 		UiCanvasInterface* canvas;
 		LYSwing::LYPanel * panel;
 		LYSwing::LYLabel * label, *label2;*/
+
+		AZ::Entity * ent;
     };
 
     SC_API extern OpenDivaGame* g_Game;

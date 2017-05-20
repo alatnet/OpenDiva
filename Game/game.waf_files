@@ -69,7 +69,7 @@
       "Core/Input/InputSystem.cpp"
     ],
     "Core/Input/Listeners": [
-      "Core/Input/InputFlowgraphListener.h"
+      "Core/Input/InputEBusListener.h"
     ],
     "Core/CryMovie/Node": [
       "Core/CryMovie/Node/DivaSequence.h",
@@ -110,6 +110,13 @@
       "Core/Bus/OpenDiva_Bus.h"
     ],
     "Core/Scripting": [
+    ],
+    "Core/Components": [
+      "Core/Components/Components.h",
+      "Core/Components/OpenDivaComponentFactory.h",
+      "Core/Components/OpenDivaComponentFactory.cpp",
+      "Core/Components/OpenDivaBusComponent.h",
+      "Core/Components/OpenDivaBusComponent.cpp"
     ]
   }
 }

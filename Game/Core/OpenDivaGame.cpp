@@ -17,6 +17,15 @@
 //#include "OpenDivaGameRules.h"
 #include <FlowSystem/Nodes/FlowBaseNode.h>
 
+//#include <LyShine/UiComponentTypes.h>
+#include <LyShine/Bus/World/UiCanvasRefBus.h>
+#include <AzFramework\Script\ScriptComponent.h>
+#include <AzCore\Asset\AssetDatabaseBus.h>
+
+//#include <../../../Gems/StartingPointInput/Code/Source/Input.h>
+#include <../../../Gems/InputManagementFramework/Code/Include/InputManagementFramework/InputEventBindings.h>
+#include "Components/Components.h"
+
 using namespace LYGame;
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -95,8 +104,8 @@ bool OpenDivaGame::Init(IGameFramework* framework) {
 	this->iSys = new CInputSystem();
 	this->uiSys = new CUIInputSystem();
 
-	this->inputFlowListener = new InputFlowgraphListener();
-	this->uiSys->AddListener(this->inputFlowListener);
+	this->inputBusListener = new InputEBusListener();
+	this->uiSys->AddListener(this->inputBusListener);
 
 	this->dsfgEventListener = new DSFGEventListener();
 
@@ -126,6 +135,22 @@ bool OpenDivaGame::CompleteInit()
 
 	this->setupFlowgraph();
 	this->setupLua();
+
+	OpenDivaComponentFactory::getFactory().RegisterComponents();
+
+	CryLog("Activating Test Ent.");
+	this->ent->Activate();
+
+	CryLog("Setting Canvas.");
+	AZStd::string canvasPath = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/text test.uicanvas");
+	CryLog("Canvas Path: %s", canvasPath.c_str());
+
+	UiCanvasAssetRefBus::Event(this->ent->GetId(), &UiCanvasAssetRefInterface::SetCanvasPathname, canvasPath);
+	UiCanvasAssetRefBus::Event(this->ent->GetId(), &UiCanvasAssetRefInterface::SetIsAutoLoad, true);
+
+	AZStd::string ret;
+	UiCanvasAssetRefBus::EventResult(ret, this->ent->GetId(), &UiCanvasAssetRefInterface::GetCanvasPathname);
+	CryLog("Canvas Asset Path: %s", ret.c_str());
 
     return true;
 }
@@ -176,7 +201,7 @@ void OpenDivaGame::Shutdown()
 	//shutdown input system
 	delete this->iSys;
 	delete this->uiSys;
-	delete this->inputFlowListener;
+	delete this->inputBusListener;
 	delete this->dsfgEventListener;
 
 	//delete the moviesystem that uses audio timing
@@ -447,6 +472,9 @@ void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is alw
 			while (this->paSystem->HasError()) CryLog("paSystem Error: %s", this->paSystem->GetError().str);
 			while (this->testAudioFile->HasError()) CryLog("testAudioFile Error: %s", this->testAudioFile->GetError().str);
 			//while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);
+
+			CryLog("Broadcasting OnStart");
+			OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnStart);
 		} else {
 			CryLog("paSystem stopping");
 			this->paSystem->Stop();
@@ -458,6 +486,9 @@ void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is alw
 			}
 
 			while (this->paSystem->HasError()) CryLog("paSystem Error: %s", this->paSystem->GetError().str);
+
+			CryLog("Broadcasting OnEnd");
+			OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnEnd);
 		}
 	} else if (pCmdArgs->GetArgCount() == 2) {
 		if (this->testAudioFileID2 == -1) this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
@@ -550,6 +581,9 @@ void OpenDivaGame::destroyTesting() {
 	//this->iRenderer->DestroyRenderTarget(this->renderTarget);
 
 	//if (this->testButtonNode != NULL) delete this->testButtonNode;
+
+	this->ent->Deactivate();
+	delete this->ent;
 
 	this->testFont->Release();
 	//delete this->testFont;
@@ -710,7 +744,11 @@ void OpenDivaGame::setupTesting() {
 
 	/*IFlowGraphPtr graph = gEnv->pFlowSystem->CreateFlowGraph(); //create a graph
 	graph->SerializeXML(XmlNodeRef(), true); //reading from xml
-	graph->SetActive(true);*/
+	graph->SetActive(true);
+
+	graph->SetActive(false);
+	graph->UnregisterFromFlowSystem();
+	graph->Release();*/
 
 	/*
 	ILyShine *ls = gEnv->pLyShine;
@@ -721,6 +759,58 @@ void OpenDivaGame::setupTesting() {
 	ent.Deactivate();
 	*/
 
+	/*AZ::EntityId id = gEnv->pLyShine->LoadCanvas("");
+	AZ::Entity * entC = new AZ::Entity(id);*/
+
+	CryLog("Creating Test Ent.");
+	//AZ::EntityId id = gEnv->pLyShine->LoadCanvas(canvasPath.c_str());
+	this->ent = new AZ::Entity("LyShine Test Entity");
+	//AZ::Component * lyshineComponent = ent->CreateComponent(LyShine::lyShineSystemComponentUuid);
+	AzFramework::ScriptComponent * scriptComponent = this->ent->CreateComponent<AzFramework::ScriptComponent>();
+	AZ::Component * canvasAssetComponent = this->ent->CreateComponent("{05BED4D7-E331-4020-9C17-BD3F4CE4DE85}");
+	//AZ::Component * inputComponent = this->ent->CreateComponent("{3106EE2A-4816-433E-B855-D17A6484D5EC}");
+
+	if (this->ent->GetId().IsValid()) CryLog("Entity is Valid.");
+	if (scriptComponent != nullptr) CryLog("Script Component is Valid.");
+	if (canvasAssetComponent != nullptr) CryLog("Canvas Asset Component is Valid.");
+
+	CryLog("Initializing Test Ent.");
+	this->ent->Init();
+
+	CryLog("Loading Script.");
+	const AZ::Data::AssetType& scriptAssetType = azrtti_typeid<AZ::ScriptAsset>();
+
+	AZ::Data::AssetId assetId;
+	AZStd::string str = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.lua");
+	CryLog("Script Path: %s", str.c_str());
+	//EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, str.c_str(), scriptAssetType, true);
+	AZ::Data::AssetCatalogRequestBus::BroadcastResult(assetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, str.c_str(), scriptAssetType, true);
+
+	AZStd::string retstr;
+	//EBUS_EVENT_RESULT(retstr, AZ::Data::AssetCatalogRequestBus, GetAssetPathById, assetId);
+	AZ::Data::AssetCatalogRequestBus::BroadcastResult(retstr, &AZ::Data::AssetCatalogRequests::GetAssetPathById, assetId);
+	CryLog("Asset Script Path: %s", retstr.c_str());
+
+	if (assetId.IsValid()) {
+		CryLog("Setting Script.");
+		AZ::Data::Asset<AZ::ScriptAsset> scriptAsset(assetId, scriptAssetType);
+		scriptComponent->SetScript(scriptAsset);
+	}
+
+	/*AZ::Data::AssetId inputAssetId;
+	AZStd::string inputStr = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.inputbindings");
+	const AZ::Data::AssetType& inputAssetType = azrtti_typeid<Input::InputEventBindingsAsset>();
+	AZ::Data::AssetCatalogRequestBus::BroadcastResult(inputAssetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, inputStr.c_str(), inputAssetType, true);
+
+	if (inputAssetId.IsValid()) {
+		AZ::Data::Asset<Input::InputEventBindingsAsset> inputAsset(inputAssetId, inputAssetType);
+		AZ::Data::AssetBus::Events::OnAssetReady;
+		AZ::Data::AssetBus::Broadcast(ent->GetId(), &AZ::Data::AssetBus::Events::OnAssetReady, inputAsset);
+	}*/
+
+	/*ent->Deactivate();
+	delete ent;*/
+	
 	/*testRatingResourceFont = new RatingResourceFont("");
 
 	Vec2 scale = Vec2(gEnv->pRenderer->GetWidth()/1280.0f, gEnv->pRenderer->GetHeight()/720.0f);

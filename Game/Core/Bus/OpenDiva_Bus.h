@@ -9,10 +9,10 @@
 
 namespace LYGame {
 	namespace OpenDivaBus {
-		class BaseOpenDivaEventGroup : public AZ::EBusTraits {
+		/*class BaseOpenDivaEventGroup : public AZ::EBusTraits {
 		public:
 			virtual void Reset() = 0;
-		};
+		};*/
 
 		class OpenDivaSongEventGroup : public AZ::EBusTraits {
 		public:
@@ -20,34 +20,18 @@ namespace LYGame {
 			virtual void OnEnd() = 0;
 		};
 
-		class OpenDivaLyricsEventGroup : public BaseOpenDivaEventGroup {
-		public:
-			virtual void SetLyrics(string lyrics, string romaji, string translation) = 0;
-			//virtual void SetLyrics(string lyrics, string font, ColorF color) = 0;
-		};
-
-		class OpenDivaRomajiEventGroup : public BaseOpenDivaEventGroup {
-		public:
-			virtual void SetRomaji(string romaji, string font, ColorF color) = 0;
-		};
-
-		class OpenDivaTranslationEventGroup : public BaseOpenDivaEventGroup {
-		public:
-			virtual void SetTranslation(string romaji, string font, ColorF color) = 0;
-		};
-
-		class OpenDivaHPEventGroup : public BaseOpenDivaEventGroup {
+		class OpenDivaHPEventGroup : public AZ::EBusTraits {
 		public:
 			virtual void SetHP(int value) = 0; //constant update
 			virtual void SetMaxHP(int value) = 0; //set once and forget.
 		};
 
-		class OpenDivaScoreEventGroup : public BaseOpenDivaEventGroup {
+		class OpenDivaScoreEventGroup : public AZ::EBusTraits {
 		public:
 			virtual void SetScore(int value) = 0; //constant update
 		};
 
-		class OpenDivaCompletionEventGroup : public BaseOpenDivaEventGroup {
+		class OpenDivaCompletionEventGroup : public AZ::EBusTraits {
 		public:
 			virtual void SetNotes(int value) = 0; //constant update
 			virtual void SetTotalNotes(int value) = 0; //set once and forget.
@@ -62,7 +46,7 @@ namespace LYGame {
 			virtual void OnTechExit() = 0;
 		};
 
-		class OpenDivaTechnicalZoneInfoGroup : public BaseOpenDivaEventGroup {
+		class OpenDivaTechnicalZoneInfoGroup : public AZ::EBusTraits {
 		public:
 			virtual void SetNumNotes(int value) = 0;
 			virtual void SetActive(bool value) = 0;
@@ -83,28 +67,37 @@ namespace LYGame {
 			virtual void OnUi_Cancel(int mode, float value) = 0;
 		};
 
+		//Redesign
+		class OpenDivaLyricsEventGroup : public AZ::EBusTraits {
+		public:
+			virtual void SetLyrics(string lyrics, string romaji, string translation) = 0;
+			//virtual void SetLyrics(string lyrics, string font, ColorF color) = 0;
+		};
+
+		class OpenDivaRomajiEventGroup : public AZ::EBusTraits {
+		public:
+			virtual void SetRomaji(string romaji, string font, ColorF color) = 0;
+		};
+
+		class OpenDivaTranslationEventGroup : public AZ::EBusTraits {
+		public:
+			virtual void SetTranslation(string romaji, string font, ColorF color) = 0;
+		};
+
 		//--------------------------------------------------
-		typedef AZ::EBus<OpenDivaSongEventGroup> OpenDivaSongBus;
+		using OpenDivaSongBus = AZ::EBus<OpenDivaSongEventGroup>;
+		using OpenDivaHPBus = AZ::EBus<OpenDivaHPEventGroup>;
+		using OpenDivaScoreBus = AZ::EBus<OpenDivaScoreEventGroup>;
+		using OpenDivaCompletionBus = AZ::EBus<OpenDivaCompletionEventGroup>;
+		using OpenDivaZoneEventsBus = AZ::EBus<OpenDivaZoneEventsGroup>;
+		using OpenDivaTechnicalZoneInfoBus = AZ::EBus<OpenDivaTechnicalZoneInfoGroup>;
+		using OpenDivaHitScoreBus = AZ::EBus<OpenDivaHitScoreEventGroup>;
+		using OpenDivaUiInputBus = AZ::EBus<OpenDivaUiInputEventGroup>;
 
-		typedef AZ::EBus<OpenDivaLyricsEventGroup> OpenDivaLyricsBus;
-
-		typedef AZ::EBus<OpenDivaRomajiEventGroup> OpenDivaRomajiBus;
-
-		typedef AZ::EBus<OpenDivaTranslationEventGroup> OpenDivaTranslationBus;
-
-		typedef AZ::EBus<OpenDivaHPEventGroup> OpenDivaHPBus;
-
-		typedef AZ::EBus<OpenDivaScoreEventGroup> OpenDivaScoreBus;
-
-		typedef AZ::EBus<OpenDivaCompletionEventGroup> OpenDivaCompletionBus;
-
-		typedef AZ::EBus<OpenDivaZoneEventsGroup> OpenDivaZoneEventsBus;
-
-		typedef AZ::EBus<OpenDivaTechnicalZoneInfoGroup> OpenDivaTechnicalZoneInfoBus;
-
-		typedef AZ::EBus<OpenDivaHitScoreEventGroup> OpenDivaHitScoreBus;
-
-		typedef AZ::EBus<OpenDivaUiInputEventGroup> OpenDivaUiInputBus;
+		//Redesign
+		using OpenDivaLyricsBus = AZ::EBus<OpenDivaLyricsEventGroup>;
+		using OpenDivaRomajiBus = AZ::EBus<OpenDivaRomajiEventGroup>;
+		using OpenDivaTranslationBus = AZ::EBus<OpenDivaTranslationEventGroup>;
 	}
 }
 

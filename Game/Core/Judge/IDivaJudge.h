@@ -78,7 +78,7 @@ namespace LYGame {
 		IDivaJudgeTechZone() : totalNotes(0), currNotes(0), active(true) {};
 	};
 
-	//communication bus for flownodes
+	//communication bus for diva judge
 	class DivaJudgeEventGroup : public AZ::EBusTraits {
 	public:
 		virtual unsigned int getScore() = 0;
@@ -92,7 +92,7 @@ namespace LYGame {
 		virtual bool isTechZoneActive() = 0;
 	};
 
-	typedef AZ::EBus<DivaJudgeEventGroup> DivaJudgeBus;
+	using DivaJudgeBus = AZ::EBus<DivaJudgeEventGroup>;
 
 	class IDivaJudge : public DivaJudgeBus::Handler {
 	public:

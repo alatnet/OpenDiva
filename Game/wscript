@@ -53,12 +53,17 @@ def build(bld):
 			#this is ONLY used for the public steam builds.
 			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
 			#'WAF/game.steamworks.waf_files',
-                    
-			#for crymovie code.
-			'WAF/game.crymovie.waf_files',
 
 			#for lyswing code.
 			#'WAF/game.lyswing.waf_files'
+		],
+		debug_file_list = [
+			#for crymovie code.
+			'WAF/game.crymovie.waf_files',
+		],
+		release_file_list = [
+			#for crymovie code.
+			'WAF/game.crymovie.headers.waf_files',
 		],
 		features = [ 'copy_audio_dlls' ],
         platforms = ['win_x64', 'win_x64_vs2015', 'win_x64_vs2013','linux','darwin'],

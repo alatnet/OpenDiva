@@ -42,6 +42,7 @@
 #include <GameWarning.h>
 
 #include <LyShine\IDraw2d.h>
+//#include <LyShine\Bus\UiCanvasManagerBus.h>
 
 #include <IMovieSystem.h>
 #include <ITexture.h>
