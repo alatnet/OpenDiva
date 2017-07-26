@@ -6,7 +6,7 @@ namespace LYGame {
 	//handles drawing note images to screen and storing note textures.
 
 	struct NoteImageSizes {
-		Vec2 note, noteE, timeArrow;
+		AZ::Vector2 note, noteE, timeArrow;
 	};
 
 	class NoteImage {
@@ -14,19 +14,19 @@ namespace LYGame {
 		NoteImage(ITexture *note, ITexture *noteE, ITexture *timeArrow, NoteImageSizes sizes);
 		~NoteImage();
 	public:
-		void DrawNote(Vec2 pos);
-		void DrawNoteE(Vec2 pos, float timeArrowRot, float scale = 1.0); //timeArrorRot is in degrees (0-360)!
-		void DrawNoteE(Vec2 pos, float timeArrowRot, float scale = 1.0, float rot = 0.0f, float opacity = 1.0f); //timeArrorRot is in degrees (0-360)!
-		void setImgScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_ImgScale = scale; }
-		void setPosScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_PosScale = scale; }
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->setImgScale(scale); this->setPosScale(scale); }
+		void DrawNote(AZ::Vector2 pos);
+		void DrawNoteE(AZ::Vector2 pos, float timeArrowRot, float scale = 1.0); //timeArrorRot is in degrees (0-360)!
+		void DrawNoteE(AZ::Vector2 pos, float timeArrowRot, float scale = 1.0, float rot = 0.0f, float opacity = 1.0f); //timeArrorRot is in degrees (0-360)!
+		void setImgScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_ImgScale = scale; }
+		void setPosScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_PosScale = scale; }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->setImgScale(scale); this->setPosScale(scale); }
 
 		void setIsHold() { this->m_holdImg = true; }
 
 		NoteImageSizes getSizes() { return this->m_sizes; }
 	private:
 		ITexture *m_pNote, *m_pNoteE, *m_pTimeArrow;
-		Vec2 m_PosScale, m_ImgScale;
+		AZ::Vector2 m_PosScale, m_ImgScale;
 		NoteImageSizes m_sizes;
 		bool m_holdImg;
 	private:

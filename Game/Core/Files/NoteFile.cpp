@@ -1,5 +1,8 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "NoteFile.h"
+
+#include <AzCore/std/sort.h>
 
 namespace LYGame {
 	NoteFile::NoteFile(const char * filename) {
@@ -19,7 +22,7 @@ namespace LYGame {
 		#pragma omp parallel for
 		for (int i = 0; i < numNotes; i++) {
 			XmlNodeRef child = xmlFile->getChild(i);
-			string tag = child->getTag();
+			AZStd::string tag = child->getTag();
 
 			NoteEntrySerializeError error;
 			NoteEntry* note = NoteFileEntryFactory::getFactory().newNoteEntry(tag.c_str());
@@ -33,7 +36,7 @@ namespace LYGame {
 						child->getAttr("id", note->id);
 					}
 					else {
-						string err = "cannot find id attribute";
+						AZStd::string err = "cannot find id attribute";
 						err += " - Line: " + child->getLine();
 						error.errors.push_back(err);
 						error.malformed = true; //error checking
@@ -43,7 +46,7 @@ namespace LYGame {
 			} else if (tag.compare("desc")==0){
 				//do nothing
 			} else {
-				string err;
+				AZStd::string err;
 				err = "invalid notemap tag";
 				err += " - Line: " + child->getLine();
 				error.errors.push_back(err);
@@ -70,7 +73,7 @@ namespace LYGame {
 					}
 					//log the errors
 					while (!error.errors.empty()) { //while we are not empty
-						string str = error.errors.at(error.errors.size() - 1); //get the last error
+						AZStd::string str = error.errors.at(error.errors.size() - 1); //get the last error
 						error.errors.pop_back(); //delete the last error
 						CryLog("- %s",str.c_str()); //log the error
 					}
@@ -79,7 +82,10 @@ namespace LYGame {
 		}
 
 		//sort the notes
-		std::stable_sort(this->m_Notes.begin(), this->m_Notes.end(), NoteFile::noteSort);
+		//AZStd::stable_sort(this->m_Notes.begin(), this->m_Notes.end(), NoteFile::noteSort);
+		//auto sort = [](NoteEntry* a, NoteEntry* b) -> bool { return a->getTime() < b->getTime(); };
+		//AZStd::stable_sort(this->m_Notes.begin(), this->m_Notes.end(), sort);
+		AZStd::stable_sort(this->m_Notes.begin(), this->m_Notes.end(), NoteFile::noteSort, this->m_Notes.get_allocator());
                 
         if (this->m_Notes.at(0)->getClassType() != eNHT_BPM) {
             CryLog("Warning! First entry in notefile is not a bpm entry!");
@@ -138,13 +144,13 @@ namespace LYGame {
 		return a->getTime() < b->getTime();
 	}
 
-	string NoteFile::toString() {
-		string ret = "";
+	AZStd::string NoteFile::toString() {
+		AZStd::string ret = "";
 
 		ret += "Author: ";
 		ret += this->m_FileInfo.author;
-		ret += "\nVersion: " + string(std::to_string(this->m_FileInfo.version).c_str());
-		ret += "\nDifficulty: " + string(std::to_string(this->m_FileInfo.difficulty).c_str());
+		ret += "\nVersion: " + AZStd::string(std::to_string(this->m_FileInfo.version).c_str());
+		ret += "\nDifficulty: " + AZStd::string(std::to_string(this->m_FileInfo.difficulty).c_str());
 		ret += "\nNotes:\n";
 
 		for (NoteEntry* e : this->m_Notes) {

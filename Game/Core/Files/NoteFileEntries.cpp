@@ -1,13 +1,14 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "NoteFileEntries.h"
 
-#define TO_CRY_STRING(x) string(std::to_string(x).c_str())
+#define TO_CRY_STRING(x) AZStd::string(std::to_string(x).c_str())
 
 #define getAttrData(node, tag, variable) \
 	if (##node##->haveAttr(##tag##)) { \
 		node##->getAttr(##tag, variable##); \
 	} else { \
-		string err = "cannot find path attributes: "; \
+		AZStd::string err = "cannot find path attributes: "; \
 		err += tag##; \
 		err += " - Line: " + node##->getLine(); \
 		ret.errors.push_back(err); \
@@ -38,8 +39,8 @@ namespace LYGame {
 		return ret;
 	}
 
-	string NoteEntryBPM::toString() {
-		string ret = "";
+	AZStd::string NoteEntryBPM::toString() {
+		AZStd::string ret = "";
 		ret += "ID: " + TO_CRY_STRING(this->id);
 		ret += "\n- time: " + TO_CRY_STRING(this->time);
 		ret += "\n- bpm: " + TO_CRY_STRING(this->bpm);
@@ -63,12 +64,12 @@ namespace LYGame {
 		NoteEntrySerializeError ret;
                 
         if (node->haveAttr("section")){
-            string section = node->getAttr("section");
+			AZStd::string section = node->getAttr("section");
                     
             if (section.compare("tech") == 0) this->sType = eST_Tech;
             else if (section.compare("chance") == 0) this->sType = eST_Chance;
             else{
-                string err = "invalid section type";
+				AZStd::string err = "invalid section type";
                 err += " - Line: " + node->getLine();
                 ret.errors.push_back(err);
                 ret.malformed = true;
@@ -77,7 +78,7 @@ namespace LYGame {
 
 		if (node->haveAttr("time") && node->haveAttr("type")) {
 			node->getAttr("time", this->time);
-			string type = node->getAttr("type");
+			AZStd::string type = node->getAttr("type");
 
 			if (type.compare("cross") == 0 || type.compare("x") == 0 || type.compare("X") == 0) this->type = eNT_Cross;
 			else if (type.compare("circle") == 0 || type.compare("o") == 0 || type.compare("O") == 0) this->type = eNT_Circle;
@@ -90,7 +91,7 @@ namespace LYGame {
 			else if (type.compare("down") == 0 || type.compare("v") == 0 ||  || type.compare("V") == 0) this->type = eNT_Down;
 			*/
 			else {
-				string err = "invalid note type";
+				AZStd::string err = "invalid note type";
 				err += " - Line: " + node->getLine();
 				ret.errors.push_back(err);
 				ret.malformed = true;
@@ -99,33 +100,37 @@ namespace LYGame {
 			if (!ret.malformed) {
 				if (node->getChildCount() == 1) {
 					XmlNodeRef path = node->getChild(0);
-					string pathTag = path->getTag();
+					AZStd::string pathTag = path->getTag();
 
 					if (pathTag.compare("bcurve") == 0) {
 						this->pType = ePT_BCurve;
-						getAttrData(path,"pos", this->pos)
+						Vec2 position;
+						getAttrData(path, "pos", position)
+						this->pos = AZ::Vector2(position.x, position.y);
 						getAttrData(path,"angle", this->angle)
 						getAttrData(path, "ctrDist1", this->ctrlDist1)
 						getAttrData(path, "ctrDist2", this->ctrlDist2)
 					} else if (pathTag.compare("line") == 0) {
 						this->pType = ePT_Line;
-						getAttrData(path, "pos", this->pos)
+						Vec2 position;
+						getAttrData(path, "pos", position)
+						this->pos = AZ::Vector2(position.x, position.y);
 						getAttrData(path, "angle", this->angle)
 					} else {
-						string err = "invalid path tag";
+							AZStd::string err = "invalid path tag";
 						err += " - Line: " + path->getLine();
 						ret.errors.push_back(err);
 						ret.malformed = true;
 					}
 				} else {
-					string err = "tag doesnt have a path child or has to many childs";
+					AZStd::string err = "tag doesnt have a path child or has to many childs";
 					err += " - Line: " + node->getLine();
 					ret.errors.push_back(err);
 					ret.malformed = true;
 				}
 			}
 		} else {
-			string err = "cannot find time or type attributes";
+			AZStd::string err = "cannot find time or type attributes";
 			err += " - Line: " + node->getLine();
 			ret.errors.push_back(err);
 			ret.malformed = true;
@@ -134,8 +139,8 @@ namespace LYGame {
 		return ret;
 	}
 
-	string NoteEntrySingle::toString() {
-		string ret = "";
+	AZStd::string NoteEntrySingle::toString() {
+		AZStd::string ret = "";
 		ret += "ID: " + TO_CRY_STRING(this->id);
 		ret += "\n- time: " + TO_CRY_STRING(this->time);
 		ret += "\n- type: " + TO_CRY_STRING(this->type);
@@ -145,8 +150,8 @@ namespace LYGame {
 		switch (pType) {
 		case ePT_BCurve:
 			ret += "\n-- Pos:";
-			ret += "\n--- x: " + TO_CRY_STRING(this->pos.x);
-			ret += "\n--- y: " + TO_CRY_STRING(this->pos.y);
+			ret += "\n--- x: " + TO_CRY_STRING(this->pos.GetX());
+			ret += "\n--- y: " + TO_CRY_STRING(this->pos.GetY());
 			ret += "\n-- Angle: " + TO_CRY_STRING(this->angle);
 			ret += "\n-- ctlDists: ";
 			ret += "\n--- 1: " + TO_CRY_STRING(this->ctrlDist1);
@@ -154,8 +159,8 @@ namespace LYGame {
 			break;
 		case ePT_Line:
 			ret += "\n-- Pos:";
-			ret += "\n--- x: " + TO_CRY_STRING(this->pos.x);
-			ret += "\n--- y: " + TO_CRY_STRING(this->pos.y);
+			ret += "\n--- x: " + TO_CRY_STRING(this->pos.GetX());
+			ret += "\n--- y: " + TO_CRY_STRING(this->pos.GetY());
 			ret += "\n-- Angle: " + TO_CRY_STRING(this->angle);
 			break;
 		}
@@ -184,7 +189,7 @@ namespace LYGame {
             if (section.compare("tech") == 0) this->sType = eST_Tech;
             else if (section.compare("chance") == 0) this->sType = eST_Chance;
             else{
-                string err = "invalid section type";
+				AZStd::string err = "invalid section type";
                 err += " - Line: " + node->getLine();
                 ret.errors.push_back(err);
                 ret.malformed = true;
@@ -194,14 +199,14 @@ namespace LYGame {
 		if (node->haveAttr("time1") && node->haveAttr("time2") && node->haveAttr("type")) {
 			node->getAttr("time1", this->hold1);
 			node->getAttr("time2", this->hold2);
-			string type = node->getAttr("type");
+			AZStd::string type = node->getAttr("type");
 
 			if (type.compare("cross") == 0 || type.compare("x") == 0 || type.compare("X") == 0) this->type = eNT_Cross;
 			else if (type.compare("circle") == 0 || type.compare("o") == 0 || type.compare("O") == 0) this->type = eNT_Circle;
 			else if (type.compare("square") == 0 || type.compare("[]") == 0) this->type = eNT_Square;
 			else if (type.compare("triangle") == 0 || type.compare("/\\") == 0) this->type = eNT_Triangle;
 			else {
-				string err = "invalid note type";
+				AZStd::string err = "invalid note type";
 				err += " - Line: " + node->getLine();
 				ret.errors.push_back(err);
 				ret.malformed = true;
@@ -210,33 +215,37 @@ namespace LYGame {
 			if (!ret.malformed) {
 				if (node->getChildCount() == 1) {
 					XmlNodeRef path = node->getChild(0);
-					string pathTag = path->getTag();
+					AZStd::string pathTag = path->getTag();
 
 					if (pathTag.compare("bcurve") == 0) {
 						this->pType = ePT_BCurve;
-						getAttrData(path, "pos", this->pos)
+						Vec2 position;
+						getAttrData(path, "pos", position)
+						this->pos = AZ::Vector2(position.x, position.y);
 						getAttrData(path, "angle", this->angle)
 						getAttrData(path, "ctrDist1", this->ctrlDist1)
 						getAttrData(path, "ctrDist2", this->ctrlDist2)
 					} else if (pathTag.compare("line") == 0) {
 						this->pType = ePT_Line;
-						getAttrData(path, "pos", this->pos)
+						Vec2 position;
+						getAttrData(path, "pos", position)
+						this->pos = AZ::Vector2(position.x, position.y);
 						getAttrData(path, "angle", this->angle)
 					} else {
-						string err = "invalid path tag";
+							AZStd::string err = "invalid path tag";
 						err += " - Line: " + path->getLine();
 						ret.errors.push_back(err);
 						ret.malformed = true;
 					}
 				} else {
-					string err = "tag doesnt have a path child or has to many childs";
+					AZStd::string err = "tag doesnt have a path child or has to many childs";
 					err += " - Line: " + node->getLine();
 					ret.errors.push_back(err);
 					ret.malformed = true;
 				}
 			}
 		} else {
-			string err = "cannot find times or type attributes";
+			AZStd::string err = "cannot find times or type attributes";
 			err += " - Line: " + node->getLine();
 			ret.errors.push_back(err);
 			ret.malformed = true;
@@ -245,8 +254,8 @@ namespace LYGame {
 		return ret;
 	}
 
-	string NoteEntryHold::toString() {
-		string ret = "";
+	AZStd::string NoteEntryHold::toString() {
+		AZStd::string ret = "";
 		ret += "ID: " + TO_CRY_STRING(this->id);
 		ret += "\n- time1: " + TO_CRY_STRING(this->hold1);
 		ret += "\n- time2: " + TO_CRY_STRING(this->hold2);
@@ -257,8 +266,8 @@ namespace LYGame {
 		switch (pType) {
 		case ePT_BCurve:
 			ret += "\n-- Pos:";
-			ret += "\n--- x: " + TO_CRY_STRING(this->pos.x);
-			ret += "\n--- y: " + TO_CRY_STRING(this->pos.y);
+			ret += "\n--- x: " + TO_CRY_STRING(this->pos.GetX());
+			ret += "\n--- y: " + TO_CRY_STRING(this->pos.GetY());
 			ret += "\n-- Angle: " + TO_CRY_STRING(this->angle);
 			ret += "\n-- ctlDists: ";
 			ret += "\n--- 1: " + TO_CRY_STRING(this->ctrlDist1);
@@ -266,8 +275,8 @@ namespace LYGame {
 			break;
 		case ePT_Line:
 			ret += "\n-- Pos:";
-			ret += "\n--- x: " + TO_CRY_STRING(this->pos.x);
-			ret += "\n--- y: " + TO_CRY_STRING(this->pos.y);
+			ret += "\n--- x: " + TO_CRY_STRING(this->pos.GetX());
+			ret += "\n--- y: " + TO_CRY_STRING(this->pos.GetY());
 			ret += "\n-- Angle: " + TO_CRY_STRING(this->angle);
 			break;
 		}

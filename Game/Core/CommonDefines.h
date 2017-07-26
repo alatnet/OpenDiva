@@ -2,35 +2,37 @@
 #define _H_COMMONDEFINES_
 #pragma once
 
+#include <AzCore/std/string/string.h>
+
 namespace LYGame {
 	namespace OpenDiva {
 		namespace Folders {
 			//base game folder
-			static const string sOpenDivaFolder = "OpenDiva";
+			static const AZStd::string sOpenDivaFolder = "OpenDiva";
 
 			//scripts folder
-			static const string sScriptsFolder = "Scripts";
+			static const AZStd::string sScriptsFolder = "Scripts";
 
 			//songs folder
-			static const string sSongFolder = "Songs";
+			static const AZStd::string sSongFolder = "Songs";
 
 			//resources folder
-			static const string sResourcesFolder = "Resources";
-			static const string sHudFolder = "Hud";
+			static const AZStd::string sResourcesFolder = "Resources";
+			static const AZStd::string sHudFolder = "Hud";
 
 			//style folders
-			static const string sStylesFolder = "Styles";
-			static const string sEffectsFolder = "Effects";
-			static const string sNoteFolder = "Note";
-			static const string sTailFolder = "Tails";
-			static const string sFontsFolder = "Fonts";
+			static const AZStd::string sStylesFolder = "Styles";
+			static const AZStd::string sEffectsFolder = "Effects";
+			static const AZStd::string sNoteFolder = "Note";
+			static const AZStd::string sTailFolder = "Tails";
+			static const AZStd::string sFontsFolder = "Fonts";
 		}
 		namespace Paths {
-			static const string sSongPath = "/" + Folders::sSongFolder;
-			static const string sResourcesPath = "/" + Folders::sResourcesFolder;
-			static const string sHudPath = sResourcesPath + "/" + Folders::sHudFolder;
-			static const string sStylesPath = sResourcesPath + "/" + Folders::sStylesFolder;
-			static const string sScriptsPath = "/" + Folders::sScriptsFolder;
+			static const AZStd::string sSongPath = "/" + Folders::sSongFolder;
+			static const AZStd::string sResourcesPath = "/" + Folders::sResourcesFolder;
+			static const AZStd::string sHudPath = sResourcesPath + "/" + Folders::sHudFolder;
+			static const AZStd::string sStylesPath = sResourcesPath + "/" + Folders::sStylesFolder;
+			static const AZStd::string sScriptsPath = "/" + Folders::sScriptsFolder;
 		}
 		/*namespace Paths {
 			static const string sSongPath = "/" + Folders::sOpenDivaFolder + "/" + Folders::sSongFolder;

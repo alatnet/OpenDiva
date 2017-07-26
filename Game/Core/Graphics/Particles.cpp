@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "Particles.h"
 
 namespace LYGame {
@@ -6,16 +7,16 @@ namespace LYGame {
 	//-----------------------------------------------------------------------
 	//Rating Particle Stuff
 	//-----------------------------------------------------------------------
-	RatingParticle::RatingParticle(ResourceCollection * rc, Vec2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong, float life) : m_pRC(rc), m_hitscore(hitscore), m_combo(combo), m_wrong(wrong), m_life(life) {
+	RatingParticle::RatingParticle(ResourceCollection * rc, AZ::Vector2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong, float life) : m_pRC(rc), m_hitscore(hitscore), m_combo(combo), m_wrong(wrong), m_life(life) {
 		NoteImageSizes sizes = m_pRC->p_NoteResource->getNoteSizes(nType);
-		Vec2 textSize = m_pRC->p_FontResource->getSize(this->m_wrong ? MISSRATING(m_hitscore) : m_hitscore);
+		AZ::Vector2 textSize = m_pRC->p_FontResource->getSize(this->m_wrong ? MISSRATING(m_hitscore) : m_hitscore);
 
 		/*float note_height = sizes.note.y / 2;
 		float rating_height = float(this->m_pRC->p_RatingResource->getHeight(m_hitscore))/2;
 		float y_pos = pos.y - note_height - rating_height;
 		m_pos = Vec2(pos.x, y_pos);*/
 
-		m_pos = Vec2(pos.x, pos.y - (sizes.note.y / 2) - (textSize.y / 2));
+		m_pos = AZ::Vector2(pos.GetX(), pos.GetY() - (sizes.note.GetY() / 2) - (textSize.GetY() / 2));
 	}
 
 	void RatingParticle::Render() {
@@ -36,7 +37,7 @@ namespace LYGame {
 	//-----------------------------------------------------------------------
 	//Ending Effect Particle Stuff
 	//-----------------------------------------------------------------------
-	EffectParticle::EffectParticle(/*int animID, */ResourceCollection * rc, Vec2 pos, EEffectList eff) : /*CAnimNode(animID), m_pRC(rc),*/ m_pos(pos), m_time(0) {
+	EffectParticle::EffectParticle(/*int animID, */ResourceCollection * rc, AZ::Vector2 pos, EEffectList eff) : /*CAnimNode(animID), m_pRC(rc),*/ m_pos(pos), m_time(0) {
 		IMovieSystem * iMovie = gEnv->pSystem->GetIMovieSystem();
 
 		EffectDef * effect = rc->p_EffectResource->getEffect(eff); //get the effect.
@@ -55,7 +56,8 @@ namespace LYGame {
 
 				for (int i2 = 0; i2 < effect->effects.at(i).anim.size(); i2++) { //for each animation for this track.
 					EffectAnim anim = effect->effects.at(i).anim.at(i2); //get the animation data.
-					track->posTrack->SetValue(anim.time, { anim.pos.x,anim.pos.y,0.0f }); //set the track data for position.
+					AZ::Vector3 pos = AZ::Vector3(anim.pos.GetX(), anim.pos.GetY(), 0.0f);
+					track->posTrack->SetValue(anim.time, pos); //set the track data for position.
 					track->sroTrack->SetValue(anim.time, anim.sro); //set the track data for scale, rotation, and opacity.
 
 					if (anim.time > endtime) endtime = anim.time;
@@ -88,7 +90,8 @@ namespace LYGame {
 	void EffectParticle::Render() {
 		if (this->Alive())
 			for (EffectParticleTrack* entry : tracks) { //for each track entry
-				entry->img->Draw({ this->m_pos.x + entry->pos.x, this->m_pos.y + entry->pos.y }, entry->sro.x, entry->sro.y, entry->sro.z); //draw the entry's image based on data.
+				AZ::Vector2 pos = this->m_pos + entry->pos;
+				entry->img->Draw(pos, entry->sro.GetX(), entry->sro.GetY(), entry->sro.GetZ()); //draw the entry's image based on data.
 			}
 	}
 
@@ -97,7 +100,9 @@ namespace LYGame {
 		this->m_time += dt;
 
 		for (EffectParticleTrack* entry : tracks) { //for each track entry
-			entry->posTrack->GetValue(this->m_time, entry->pos); //get the entry's position based on time.
+			AZ::Vector3 pos;
+			entry->posTrack->GetValue(this->m_time, pos); //get the entry's position based on time.
+			entry->pos.Set(pos.GetX(), pos.GetY());
 			entry->sroTrack->GetValue(this->m_time, entry->sro); //get the entry's scale, rotation, and opacity based on time.
 		}
 	}
@@ -108,22 +113,23 @@ namespace LYGame {
 
 	void EffectParticle::GetMemoryUsage(ICrySizer* pSizer) const {
 		pSizer->AddObject(this, sizeof(*this));
-		pSizer->AddObject(this->tracks);
+		//pSizer->AddObject(this->tracks);
+		for (EffectParticleTrack* t : this->tracks) pSizer->AddObject(t);
 	}
 
 	//-----------------------------------------------------------------------
 	//Hold Multiplier Particle Stuff
 	//-----------------------------------------------------------------------
-	HoldMultiParticle::HoldMultiParticle(ResourceCollection * rc, Vec2 pos, unsigned int score, EHitScore hitscore, bool wrong) : m_pRC(rc), m_pos(pos), m_score(score){
+	HoldMultiParticle::HoldMultiParticle(ResourceCollection * rc, AZ::Vector2 pos, unsigned int score, EHitScore hitscore, bool wrong) : m_pRC(rc), m_pos(pos), m_score(score){
 		IMovieSystem * iMovie = gEnv->pSystem->GetIMovieSystem();
 		this->posTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
 
-		float ypos = pos.y - rc->p_FontResource->getMultiSize().y;
+		float ypos = pos.GetY() - rc->p_FontResource->getMultiSize().GetY();
 
 		if (wrong){
-			ypos -= (rc->p_FontResource->getSize(MISSRATING(hitscore)).y);
+			ypos -= (rc->p_FontResource->getSize(MISSRATING(hitscore)).GetY());
 		} else {
-			ypos -= (rc->p_FontResource->getSize(hitscore).y);
+			ypos -= (rc->p_FontResource->getSize(hitscore).GetY());
 		}
 
 		this->posTrack->SetValue(0, ypos);
@@ -137,14 +143,16 @@ namespace LYGame {
 	}
 
 	void HoldMultiParticle::Render() {
-		if (this->Alive()) this->m_pRC->p_FontResource->DrawMult({ this->m_pos.x, this->m_pos.y }, this->m_score*10);
+		if (this->Alive()) this->m_pRC->p_FontResource->DrawMult(this->m_pos, this->m_score*10);
 	}
 
 	void HoldMultiParticle::Tick(float dt) {
 		if (!Alive()) return;
 		this->m_time += dt;
 
-		this->posTrack->GetValue(this->m_time, this->m_pos.y);
+		float ypos;
+		this->posTrack->GetValue(this->m_time, ypos);
+		this->m_pos.SetY(ypos);
 	}
 
 	bool HoldMultiParticle::Alive() {
@@ -154,6 +162,6 @@ namespace LYGame {
 	void HoldMultiParticle::GetMemoryUsage(ICrySizer* pSizer) const {
 		pSizer->AddObject(this, sizeof(*this));
 		pSizer->AddObject(this->posTrack);
-		pSizer->AddObject(this->m_pos);
+		//pSizer->AddObject(this->m_pos);
 	}
 }

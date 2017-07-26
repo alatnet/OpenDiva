@@ -5,11 +5,11 @@
 
 namespace LYGame {
 	struct SongFileInfo {
-		string name, nameR, nameE; //song name
+		AZStd::string name, nameR, nameE; //song name
 
 		//author information
 		struct Author {
-			string name, nameR, nameE;
+			AZStd::string name, nameR, nameE;
 
 			Author() :
 				name(""),
@@ -18,12 +18,12 @@ namespace LYGame {
 			{}
 		};
 
-		std::vector<std::pair<string, Author>> authors;
+		AZStd::vector<AZStd::pair<AZStd::string, Author>> authors;
 
 		string desc; //description of song
 		string albumArtPath; //album art path
 
-		std::pair<unsigned int, unsigned int> bpm;
+		AZStd::pair<unsigned int, unsigned int> bpm;
 
 		bool valid; //if the info is valid
 
@@ -42,14 +42,15 @@ namespace LYGame {
 
 	class SongInfo {
 	public:
-		SongInfo(string path);
+		SongInfo(AZStd::string path);
 		~SongInfo();
 	private:
 		SongFileInfo m_info;
-		std::pair<string, string> m_music;
-		string m_stage;
-		string m_dance;
-		std::vector<std::pair<int, string>> m_models;
+
+		AZStd::pair<AZStd::string, AZStd::string> m_music;
+		AZStd::string m_stage;
+		AZStd::string m_dance;
+		AZStd::vector<AZStd::pair<int, AZStd::string>> m_models;
 	public:
 		static SongFileInfo GetInfo(const char * filename);
 	public:

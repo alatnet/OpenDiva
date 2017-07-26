@@ -3,15 +3,14 @@
 #pragma once
 
 #include "NoteFileEntries.h"
-#include "string"
 
 namespace LYGame {
 	class NoteFile {
 	public:
 		struct NoteFileInfo {
-			string author;
+			AZStd::string author;
 			unsigned int version, difficulty;
-			string desc;
+			AZStd::string desc;
 			bool valid;
 			NoteFileInfo() :
 				author(""),
@@ -35,12 +34,12 @@ namespace LYGame {
 		NoteFileInfo GetInfo() { return this->m_FileInfo; }
 		unsigned int GetNumNotes() { return this->m_Notes.size(); }
 		NoteEntry* GetNote(unsigned int index) { return this->m_Notes[index]; }
-		string toString();
+		AZStd::string toString();
 	private:
 		static NoteFileInfo GetInfo(XmlNodeRef xmlNode);
 		static bool noteSort(NoteEntry* a, NoteEntry* b);
 	private:
-		std::vector<NoteEntry*> m_Notes;
+		AZStd::vector<NoteEntry*> m_Notes;
 		NoteFileInfo m_FileInfo;
 	};
 }

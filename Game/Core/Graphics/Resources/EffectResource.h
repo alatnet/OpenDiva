@@ -2,6 +2,8 @@
 #define _H_EFFECTRESOURCE_
 #pragma once
 
+#include "../../Bus/DivaSequenceBus.h"
+
 namespace LYGame {
 	static const char * sEffectConfigFileName = "effectConfig.xml";
 
@@ -71,18 +73,18 @@ namespace LYGame {
 
 	class EffectImage { //hash key based on tag string
 	public:
-		EffectImage(string imgPath, Vec2 size);
+		EffectImage(AZStd::string imgPath, AZ::Vector2 size);
 		~EffectImage() { this->m_pImg->Release(); }
 	public:
-		void Draw(Vec2 pos, float scale = 1.0f, float rot = 0.0f, float opacity = 1.0f);
+		void Draw(AZ::Vector2 pos, float scale = 1.0f, float rot = 0.0f, float opacity = 1.0f);
 	public:
-		void setImgScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_ImgScale = scale; }
-		void setPosScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_PosScale = scale; }
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->setImgScale(scale); this->setPosScale(scale); }
+		void setImgScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_ImgScale = scale; }
+		void setPosScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_PosScale = scale; }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->setImgScale(scale); this->setPosScale(scale); }
 	private:
 		ITexture * m_pImg;
-		Vec2 m_size;
-		Vec2 m_ImgScale, m_PosScale;
+		AZ::Vector2 m_size;
+		AZ::Vector2 m_ImgScale, m_PosScale;
 	private:
 		static IRenderer * iRenderer;
 		static IDraw2d * iDraw2d;
@@ -90,38 +92,24 @@ namespace LYGame {
 
 	struct EffectAnim {
 		float time;
-		Vec2 pos;
-		Vec3 sro; //scale, rot, opacity
+		AZ::Vector2 pos;
+		AZ::Vector3 sro; //scale, rot, opacity
 
 		EffectAnim() : pos(0.0f,0.0f), time(0), sro(0.0f, 0.0f, 0.0f) {}
 	};
 
 	struct EffectEntry {
-		string name;
+		AZStd::string name;
 		EffectImage * img; //on loading data, grab effect image from hash table
-		std::vector<EffectAnim> anim;
+		AZStd::vector<EffectAnim> anim;
 
 		EffectEntry() : name(""), img(nullptr), anim() {}
 		~EffectEntry() { img = nullptr; } //just to be sure that we are not deleting the image instead of derreferencing it.
 	};
 
 	struct EffectDef {
-		string name;
-		std::vector<EffectEntry> effects;
-	};
-
-	enum EEffectList {
-		//eEL_ENote, //special effect
-		eEL_Cool,
-		eEL_Fine,
-		eEL_Safe,
-		eEL_Sad,
-		eEL_Worse,
-		eEL_SwipeL,
-		eEL_SwipeR,
-		eEL_SwipeLEXTick,
-		eEL_SwipeREXTick,
-		eEL_Count
+		AZStd::string name;
+		AZStd::vector<EffectEntry> effects;
 	};
 
 	static const char * sEffectsNamesV2[eEL_Count] = {
@@ -144,11 +132,11 @@ namespace LYGame {
 		EffectDef * getEffect(EEffectList effect) { return this->m_pEffects[effect]; }
 		EffectDef * getENoteEffect() { return this->m_pENoteEffect; }
 	public:
-		void setImgScale(Vec2 scale = Vec2(1.0f, 1.0f)) { for (std::pair<std::string, EffectImage *> effImg : m_images) effImg.second->setImgScale(scale); }
-		void setPosScale(Vec2 scale = Vec2(1.0f, 1.0f)) { for (std::pair<std::string, EffectImage *> effImg : m_images) effImg.second->setPosScale(scale); }
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { for (std::pair<std::string, EffectImage *> effImg : m_images) effImg.second->setScale(scale); }
+		void setImgScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { for (AZStd::pair<AZStd::string, EffectImage *> effImg : m_images) effImg.second->setImgScale(scale); }
+		void setPosScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { for (AZStd::pair<AZStd::string, EffectImage *> effImg : m_images) effImg.second->setPosScale(scale); }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { for (AZStd::pair<AZStd::string, EffectImage *> effImg : m_images) effImg.second->setScale(scale); }
 	private:
-		std::unordered_map<std::string,EffectImage *> m_images; //load images once
+		AZStd::unordered_map<AZStd::string,EffectImage *> m_images; //load images once
 		EffectDef * m_pEffects[eEL_Count];
 		EffectDef * m_pENoteEffect;
 	};

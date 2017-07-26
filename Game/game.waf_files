@@ -6,6 +6,9 @@
     ]
   },
   "auto": {
+    "Root": [
+      "OpenDivaCommon.h"
+    ],
     "Core": [
       "Core/EditorGame.h",
       "Core/EditorGame.cpp",
@@ -68,26 +71,20 @@
       "Core/Input/InputSystem.h",
       "Core/Input/InputSystem.cpp"
     ],
-    "Core/Input/Listeners": [
-      "Core/Input/InputEBusListener.h"
+    "Core/Note": [
+      "Core/Note/DivaAnimationNode.h",
+      "Core/Note/DivaAnimationNode.cpp"
     ],
-    "Core/CryMovie/Node": [
-      "Core/CryMovie/Node/DivaSequence.h",
-      "Core/CryMovie/Node/DivaSequence.cpp",
-      "Core/CryMovie/Node/IDivaSequence.h",
-      "Core/CryMovie/Node/DSFGEventListener.h",
-      "Core/CryMovie/Node/DSFGEventListener.cpp"
-    ],
-    "Core/CryMovie/Node/Note": [
-      "Core/CryMovie/Node/Note/DivaNoteNodes.h",
-      "Core/CryMovie/Node/Note/DivaNoteBaseNode.h",
-      "Core/CryMovie/Node/Note/DivaNoteBaseNode.cpp",
-      "Core/CryMovie/Node/Note/DivaNoteSingleNode.h",
-      "Core/CryMovie/Node/Note/DivaNoteSingleNode.cpp",
-      "Core/CryMovie/Node/Note/DivaNoteHoldNode.h",
-      "Core/CryMovie/Node/Note/DivaNoteHoldNode.cpp",
-      "Core/CryMovie/Node/Note/DivaNoteNodeFactory.h",
-      "Core/CryMovie/Node/Note/DivaNoteNodeFactory.cpp"
+    "Core/Note/Nodes": [
+      "Core/Note/Nodes/DivaNoteNodes.h",
+      "Core/Note/Nodes/DivaNoteBaseNode.h",
+      "Core/Note/Nodes/DivaNoteBaseNode.cpp",
+      "Core/Note/Nodes/DivaNoteSingleNode.h",
+      "Core/Note/Nodes/DivaNoteSingleNode.cpp",
+      "Core/Note/Nodes/DivaNoteHoldNode.h",
+      "Core/Note/Nodes/DivaNoteHoldNode.cpp",
+      "Core/Note/Nodes/DivaNoteNodeFactory.h",
+      "Core/Note/Nodes/DivaNoteNodeFactory.cpp"
     ],
     "Core/Judge": [
       "Core/Judge/IDivaJudge.h",
@@ -99,15 +96,11 @@
       "Core/Judge/OpenDivaJudge.h",
       "Core/Judge/OpenDivaJudge.cpp"
     ],
-    "Core/Judge/Listeners": [
-      "Core/Judge/Flownode_Judge_Listener.h",
-      "Core/Judge/Flownode_Judge_Listener.cpp"
-    ],
-    "Core/Flowgraph": [
-      "Core/Flowgraph/Flownodes_OpenDiva.cpp"
-    ],
     "Core/Bus": [
-      "Core/Bus/OpenDiva_Bus.h"
+      "Core/Bus/DivaSequenceBus.h",
+      "Core/Bus/DivaJudgeBus.h",
+      "Core/Bus/DivaHudBus.h",
+      "Core/Bus/DivaEventsBus.h"
     ],
     "Core/Scripting": [
     ],

@@ -16,20 +16,20 @@ namespace LYGame {
 		~CometTail() {}
 	public:
 		//bcurve
-		void Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		void Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
 
 		//bcurve
-		static void DrawRainbow(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		static void DrawRainbow(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
+		static void DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		static void DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
 
 		//line
-		void Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		void Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
 
 		//line
-		static void DrawRainbow(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		static void DrawRainbow(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
+		static void DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		static void DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints = 20, bool isolatedDraw = false); //automatically creates stepping
 
 	public:
 		void setSize(float size = 1.0f) { this->m_size = size; }
@@ -38,8 +38,8 @@ namespace LYGame {
 		float getSize() { return this->m_size; }
 		static float getRSize() { return CometTail::m_rsize; }
 
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_scale = scale; }
-		static void setRScale(Vec2 scale = Vec2(1.0f, 1.0f)) { CometTail::m_rscale = scale; }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_scale = scale; }
+		static void setRScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { CometTail::m_rscale = scale; }
 	public:
 		void SetColor(ColorF color) { this->m_PackCol = color.pack_argb8888(); this->m_Color = color; }
 	private:
@@ -49,8 +49,8 @@ namespace LYGame {
 		float m_size;
 		static float m_rsize;
 
-		Vec2 m_scale;
-		static Vec2 m_rscale;
+		AZ::Vector2 m_scale;
+		static AZ::Vector2 m_rscale;
 	};
 }
 

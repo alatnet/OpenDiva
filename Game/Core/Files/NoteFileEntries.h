@@ -24,7 +24,7 @@ namespace LYGame {
 
 	struct NoteEntrySerializeError {
 		bool malformed;
-		std::vector<string> errors;
+		AZStd::vector<AZStd::string> errors;
 
 		NoteEntrySerializeError() : malformed(false) {}
 	};
@@ -35,8 +35,8 @@ namespace LYGame {
 		virtual float getTime() { return 0; }
 		virtual ENoteHitType getClassType() { return eNHT_INVALID; } //we are an unknown note type
 		virtual NoteEntrySerializeError Serialize(XmlNodeRef node) { return NoteEntrySerializeError(); }
-		virtual string toString() { return ""; }
-		virtual std::string getTagName() { return ""; }
+		virtual AZStd::string toString() { return ""; }
+		virtual AZStd::string getTagName() { return ""; }
 	public:
 		unsigned int id;
         SectionType sType;
@@ -52,11 +52,11 @@ namespace LYGame {
 	public:
 		float getTime() { return this->time; }
 		float getDelay() { return this->getMSDelay()/1000.0f; } //to seconds
-		float getMSDelay() { return ((float)((60000.0f/(float)this->bpm)*(4.0f/1/*(float)this->beats*/))); }
+		float getMSDelay() { return ((float)((60000.0f/(float)this->bpm)*4.0f/*(float)this->beats*/)); }
 		ENoteHitType getClassType() { return eNHT_BPM; } //we are a bpm entry
 		NoteEntrySerializeError Serialize(XmlNodeRef node);
-		string toString();
-		std::string getTagName() { return "bpm"; }
+		AZStd::string toString();
+		AZStd::string getTagName() { return "bpm"; }
 	public:
 		unsigned int bpm;
 		//unsigned int beats;
@@ -80,14 +80,14 @@ namespace LYGame {
 		float getTime() { return this->time; }
 		ENoteHitType getClassType() { return eNHT_Single; } // we are a hit note
 		NoteEntrySerializeError Serialize(XmlNodeRef node);
-		string toString();
-		std::string getTagName() { return "note"; }
+		AZStd::string toString();
+		AZStd::string getTagName() { return "note"; }
 	public:
 		float time;
 		ENoteType type;
 		PathType pType;
 
-		Vec2 pos;
+		AZ::Vector2 pos;
 		float angle, ctrlDist1, ctrlDist2;
 	};
 
@@ -108,14 +108,14 @@ namespace LYGame {
 		float getTime() { return this->hold1; }
 		ENoteHitType getClassType() { return eNHT_Hold; } // we are a hold note
 		NoteEntrySerializeError Serialize(XmlNodeRef node);
-		string toString();
-		std::string getTagName() { return "hold"; }
+		AZStd::string toString();
+		AZStd::string getTagName() { return "hold"; }
 	public:
 		float hold1, hold2;
 		ENoteType type;
 		PathType pType;
 
-		Vec2 pos;
+		AZ::Vector2 pos;
 		float angle, ctrlDist1, ctrlDist2;
 	};
         

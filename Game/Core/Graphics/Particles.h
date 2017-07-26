@@ -20,7 +20,7 @@ namespace LYGame {
 	#define RATINGPARTICLE_LIFE 0.5 //in seconds not milliseconds!
 	class RatingParticle : public ParticleBase {
 	public:
-		RatingParticle(ResourceCollection * rc, Vec2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong, float life);
+		RatingParticle(ResourceCollection * rc, AZ::Vector2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong, float life);
 	public:
 		void Render();
 		void Tick(float dt);
@@ -33,7 +33,7 @@ namespace LYGame {
 		EHitScore m_hitscore;
 		bool m_wrong;
 		ResourceCollection * m_pRC;
-		Vec2 m_pos;
+		AZ::Vector2 m_pos;
 	};
 
 	//used to display ending effects
@@ -41,21 +41,22 @@ namespace LYGame {
 		EffectImage * img; //effect image
 		IAnimTrack * posTrack; //position track
 		IAnimTrack * sroTrack; //scale, rotation, and opacity track
-		Vec3 pos, sro;
+		AZ::Vector2 pos;
+		AZ::Vector3 sro;
 
-		EffectParticleTrack() : img(nullptr), posTrack(nullptr), sroTrack(nullptr), pos({ 0,0,0 }), sro({0,0,0}) {}
+		EffectParticleTrack() : img(nullptr), posTrack(nullptr), sroTrack(nullptr), pos(0,0), sro(0,0,0) {}
 
 		void GetMemoryUsage(ICrySizer* pSizer) const {
 			pSizer->AddObject(posTrack);
 			pSizer->AddObject(sroTrack);
-			pSizer->AddObject(pos);
-			pSizer->AddObject(sro);
+			//pSizer->AddObject(pos);
+			//pSizer->AddObject(sro);
 		}
 	};
 
 	class EffectParticle : public ParticleBase {
 	public:
-		EffectParticle(/*int animID,*/ ResourceCollection * rc, Vec2 pos, EEffectList eff);
+		EffectParticle(/*int animID,*/ ResourceCollection * rc, AZ::Vector2 pos, EEffectList eff);
 		~EffectParticle();
 	public:
 		void Render();
@@ -64,8 +65,8 @@ namespace LYGame {
 	public:
 		void GetMemoryUsage(ICrySizer* pSizer) const;
 	private:
-		std::vector<EffectParticleTrack*> tracks;
-		Vec2 m_pos;
+		AZStd::vector<EffectParticleTrack*> tracks;
+		AZ::Vector2 m_pos;
 		float m_time;
 		Range m_timeRange;
 	};
@@ -74,7 +75,7 @@ namespace LYGame {
 	#define HOLDMULTITIMELENGTH 1 //in seconds!
 	class HoldMultiParticle : public ParticleBase {
 	public:
-		HoldMultiParticle(ResourceCollection * rc, Vec2 pos, unsigned int score, EHitScore hitscore, bool wrong);
+		HoldMultiParticle(ResourceCollection * rc, AZ::Vector2 pos, unsigned int score, EHitScore hitscore, bool wrong);
 		~HoldMultiParticle();
 	public:
 		void Render();
@@ -84,7 +85,7 @@ namespace LYGame {
 		void GetMemoryUsage(ICrySizer* pSizer) const;
 	private:
 		IAnimTrack* posTrack;
-		Vec3 m_pos;
+		AZ::Vector2 m_pos;
 		float m_time;
 		Range m_timeRange;
 		unsigned int m_score;

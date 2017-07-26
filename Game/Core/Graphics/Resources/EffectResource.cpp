@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "EffectResource.h"
 
 namespace LYGame {
@@ -97,19 +98,19 @@ namespace LYGame {
 	IRenderer *EffectImage::iRenderer = NULL;
 
 	//Effect Image
-	EffectImage::EffectImage(string imgPath, Vec2 size) : m_size(size), m_ImgScale({ 1.0f, 1.0f }), m_PosScale({ 1.0f, 1.0f }) {
+	EffectImage::EffectImage(AZStd::string imgPath, AZ::Vector2 size) : m_size(size), m_ImgScale(1.0f, 1.0f), m_PosScale(1.0f, 1.0f) {
 		if (EffectImage::iRenderer == NULL) EffectImage::iRenderer = gEnv->pSystem->GetIRenderer();
 		if (EffectImage::iDraw2d == NULL) EffectImage::iDraw2d = Draw2dHelper::GetDraw2d();
 
-		this->m_pImg = EffectImage::iRenderer->EF_LoadTexture(imgPath, FT_DONT_STREAM);
+		this->m_pImg = EffectImage::iRenderer->EF_LoadTexture(imgPath.c_str(), FT_DONT_STREAM);
 		assert(this->m_pImg != NULL);
 	}
 
-	void EffectImage::Draw(Vec2 pos, float scale, float rot, float opacity) {
+	void EffectImage::Draw(AZ::Vector2 pos, float scale, float rot, float opacity) {
 		EffectImage::iDraw2d->DrawImageAligned(
 			this->m_pImg->GetTextureID(),
-			AZ::Vector2(pos.x, pos.y),
-			AZ::Vector2(this->m_size.x*m_ImgScale.x*scale, this->m_size.y*m_ImgScale.y*scale),
+			pos, //AZ::Vector2(pos.x, pos.y),
+			this->m_size*this->m_ImgScale*scale, //AZ::Vector2(this->m_size.x*m_ImgScale.x*scale, this->m_size.y*m_ImgScale.y*scale),
 			IDraw2d::HAlign::Center, IDraw2d::VAlign::Center,
 			opacity,
 			rot
@@ -123,10 +124,10 @@ namespace LYGame {
 		this->m_pENoteEffect = nullptr;
 		for (int i = 0; i < eEL_Count; i++) this->m_pEffects[i] = nullptr;
 
-		string effectConfig = folder;
+		AZStd::string effectConfig = folder;
 		effectConfig.append("/");
 		effectConfig.append(sEffectConfigFileName);
-		XmlNodeRef config = gEnv->pSystem->LoadXmlFromFile(effectConfig);
+		XmlNodeRef config = gEnv->pSystem->LoadXmlFromFile(effectConfig.c_str());
 
 		if (config) {
 			//load the images
@@ -134,14 +135,14 @@ namespace LYGame {
 			for (int i = 0; i < images->getChildCount(); i++) {
 				XmlNodeRef img = images->getChild(i);
 
-				string effectFilename = folder;
+				AZStd::string effectFilename = folder;
 				effectFilename.append("/");
 				effectFilename.append(img->getAttr("img"));
 				
 				Vec2 size;
 				img->getAttr("size", size);
 
-				this->m_images.insert({ img->getTag(), new EffectImage(effectFilename, size) });
+				this->m_images.insert({ img->getTag(), new EffectImage(effectFilename, AZ::Vector2(size.x,size.y)) });
 			}
 
 			//load the effect configuration
@@ -165,13 +166,19 @@ namespace LYGame {
 								XmlNodeRef effectAnim = effectAnimList->getChild(aI); //get the animation entry
 								EffectAnim anim;
 
+								Vec2 pos;
+								Vec3 sro;
+
 								//get the data
 								effectAnim->getAttr("time", anim.time);
-								effectAnim->getAttr("x", anim.pos.x);
-								effectAnim->getAttr("y", anim.pos.y);
-								effectAnim->getAttr("scale", anim.sro.x);
-								effectAnim->getAttr("rot", anim.sro.y);
-								effectAnim->getAttr("opacity", anim.sro.z);
+								effectAnim->getAttr("x", pos.x);
+								effectAnim->getAttr("y", pos.y);
+								effectAnim->getAttr("scale", sro.x);
+								effectAnim->getAttr("rot", sro.y);
+								effectAnim->getAttr("opacity", sro.z);
+
+								anim.pos.Set(pos.x, pos.y);
+								anim.sro.Set(sro.x, sro.y, sro.z);
 
 								effectEntry.anim.push_back(anim); //push back the animation data
 							}
@@ -200,13 +207,19 @@ namespace LYGame {
 						XmlNodeRef effectAnim = effectEntry->getChild(aI); //get the animation entry
 						EffectAnim anim;
 
+						Vec2 pos;
+						Vec3 sro;
+
 						//get the data
 						effectAnim->getAttr("time", anim.time);
-						effectAnim->getAttr("x", anim.pos.x);
-						effectAnim->getAttr("y", anim.pos.y);
-						effectAnim->getAttr("scale", anim.sro.x);
-						effectAnim->getAttr("rot", anim.sro.y);
-						effectAnim->getAttr("opacity", anim.sro.z);
+						effectAnim->getAttr("x", pos.x);
+						effectAnim->getAttr("y", pos.y);
+						effectAnim->getAttr("scale", sro.x);
+						effectAnim->getAttr("rot", sro.y);
+						effectAnim->getAttr("opacity", sro.z);
+
+						anim.pos.Set(pos.x, pos.y);
+						anim.sro.Set(sro.x, sro.y, sro.z);
 
 						entry.anim.push_back(anim); //push back the animation data
 					}

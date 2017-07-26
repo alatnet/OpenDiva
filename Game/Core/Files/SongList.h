@@ -4,6 +4,54 @@
 #pragma once
 
 namespace LYGame {
+	class SongList : public AZ::Job {
+	public:
+		SongList(std::string path = "@songs@") : m_path(path), AZ::Job(true, nullptr) {}
+	protected:
+		void Process();
+	private:
+		std::string m_path;
+
+	private:
+		class SongGroup : public AZ::Job {
+		public:
+			SongGroup(std::string group, std::string path, std::string crc) : m_group(group), m_path(path), m_crc(crc), AZ::Job(true, nullptr) {}
+		protected:
+			void Process();
+		private:
+			std::string m_group;
+			std::string m_path;
+			std::string m_crc;
+
+		private:
+			class SongEntry : public AZ::Job {
+			public:
+				SongEntry(std::string grouphash, std::string songname, std::string path, std::string crc) : m_groupHash(grouphash), m_songName(songname), m_path(path), m_crc(crc), AZ::Job(true, nullptr) {}
+			protected:
+				void Process();
+			private:
+				std::string m_groupHash;
+				std::string m_songName;
+				std::string m_path;
+				std::string m_crc;
+
+			private:
+				class SongNoteMap : public AZ::Job {
+				public:
+					SongNoteMap(std::string songhash, std::string notemapname, std::string path, std::string crc) : m_songHash(songhash), m_notemapName(notemapname), m_path(path), m_crc(crc), AZ::Job(true, nullptr) {}
+				protected:
+					void Process();
+				private:
+					std::string m_songHash;
+					std::string m_notemapName;
+					std::string m_path;
+					std::string m_crc;
+				};
+			};
+		};
+	};
+
+	/*
 	class SongEntry {
 	public:
 		SongEntry(string name, string path);
@@ -34,7 +82,7 @@ namespace LYGame {
 		};
 	};
 
-	class SongGroup{
+	class SongGroup {
 	public:
 		SongGroup(string name, string path);
 		~SongGroup();
@@ -83,6 +131,7 @@ namespace LYGame {
 			SongList * m_pSonglist;
 		};
 	};
+	*/
 }
 
 #endif

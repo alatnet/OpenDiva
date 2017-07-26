@@ -1,11 +1,13 @@
 #include <StdAfx.h>
-#include <functional>
+#include <OpenDivaCommon.h>
+#include <AzCore/std/functional.h>
 
 #include "OpenDivaComponentFactory.h"
 
 
 namespace LYGame {
 	OpenDivaComponentFactory::OpenDivaComponentFactory() {
+		//if (!AZ::AllocatorInstance<AZ::SystemAllocator>::IsReady()) AZ::AllocatorInstance<AZ::SystemAllocator>::Create();
 		this->m_funcs = new std::vector<OpenDivaRegisterComponentFunc>();
 	}
 

@@ -1,7 +1,8 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 
 #include "IDivaJudge.h"
-#include <functional>
+#include <AzCore\std\functional.h>
 
 #include "DivaJudgeFactory.h"
 

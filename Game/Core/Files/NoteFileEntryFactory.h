@@ -5,7 +5,7 @@
 namespace LYGame {
 	class NoteEntry;
 
-	typedef std::function<NoteEntry* (void)> NewNoteEntryFunc;
+	typedef AZStd::function<NoteEntry* (void)> NewNoteEntryFunc;
 
 	class NoteFileEntryFactory {
 	public:

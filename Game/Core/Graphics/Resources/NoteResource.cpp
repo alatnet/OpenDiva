@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "NoteResource.h"
 
 namespace LYGame {
@@ -16,22 +17,22 @@ namespace LYGame {
 		NoteImageSizes sizes;
 		NoteImageSizes swipeSizes;
 		NoteImageSizes bigStarSizes;
-		m_swipeExSize = { 32, 32 };
-		sizes.note = { 50, 50 };
-		sizes.noteE = { 50, 50 };
-		bigStarSizes.note = { 50, 50 };
-		bigStarSizes.noteE = { 50, 50 };
-		swipeSizes.note = { 44, 44 };
-		swipeSizes.noteE = { 44, 44 };
-		m_swipeTickOffset = { 0, 0 };
-		m_swipeTickSize = { 24,24 };
-		sizes.timeArrow = swipeSizes.timeArrow = { 90, 90 };
+		m_swipeExSize = AZ::Vector2( 32, 32 );
+		sizes.note = AZ::Vector2( 50, 50 );
+		sizes.noteE = AZ::Vector2( 50, 50 );
+		bigStarSizes.note = AZ::Vector2( 50, 50 );
+		bigStarSizes.noteE = AZ::Vector2( 50, 50 );
+		swipeSizes.note = AZ::Vector2( 44, 44 );
+		swipeSizes.noteE = AZ::Vector2( 44, 44 );
+		m_swipeTickOffset = AZ::Vector2( 0, 0 );
+		m_swipeTickSize = AZ::Vector2( 24,24 );
+		sizes.timeArrow = swipeSizes.timeArrow = AZ::Vector2( 90, 90 );
 
 		{
-			string noteConfig = folder;
+			AZStd::string noteConfig = folder;
 			noteConfig.append("/");
 			noteConfig.append(sNoteConfigFileName);
-			XmlNodeRef config = gEnv->pSystem->LoadXmlFromFile(noteConfig);
+			XmlNodeRef config = gEnv->pSystem->LoadXmlFromFile(noteConfig.c_str());
 
 			if (config) {
 				XmlNodeRef note = config->findChild("note");
@@ -39,30 +40,35 @@ namespace LYGame {
 				XmlNodeRef swipe = config->findChild("swipe");
 				XmlNodeRef timeArrow = config->findChild("timeArrow");
 
-				note->getAttr("size", sizes.note);
-				sizes.noteE = sizes.note;
+				Vec2 sizes1, sizes2, sizes3, sizes4, sizes5, sizes6, sizes7;
 
-				bigStar->getAttr("size", bigStarSizes.note);
-				bigStarSizes.noteE = bigStarSizes.note;
+				note->getAttr("size", sizes1);
+				sizes.noteE = sizes.note = AZ::Vector2(sizes1.x,sizes1.y);
 
-				swipe->getAttr("size", swipeSizes.note);
-				swipeSizes.noteE = swipeSizes.note;
-				swipe->getAttr("exSize", m_swipeExSize);
+				bigStar->getAttr("size", sizes2);
+				bigStarSizes.noteE = bigStarSizes.note = AZ::Vector2(sizes2.x, sizes2.y);
 
-				swipe->getAttr("tickOffset", m_swipeTickOffset);
-				swipe->getAttr("tickSize", m_swipeTickSize);
+				swipe->getAttr("size", sizes3);
+				swipeSizes.noteE = swipeSizes.note = AZ::Vector2(sizes3.x, sizes3.y);
 
-				timeArrow->getAttr("size", sizes.timeArrow);
-				swipeSizes.timeArrow = sizes.timeArrow;
+				swipe->getAttr("exSize", sizes4);
+				m_swipeExSize = AZ::Vector2(sizes4.x, sizes4.y);
+				swipe->getAttr("tickOffset", sizes5);
+				m_swipeTickOffset = AZ::Vector2(sizes5.x, sizes5.y);
+				swipe->getAttr("tickSize", sizes6);
+				m_swipeTickSize = AZ::Vector2(sizes6.x, sizes6.y);
+
+				timeArrow->getAttr("size", sizes7);
+				swipeSizes.timeArrow = sizes.timeArrow = AZ::Vector2(sizes7.x, sizes7.y);
 			}
 		}
 
 		//load timeArrow
 		{
-			string timeArrowFilename = folder;
+			AZStd::string timeArrowFilename = folder;
 			timeArrowFilename.append("/");
 			timeArrowFilename.append(sTimeArrowFileName);
-			this->m_pTimeArrowTex = NoteResource::iRenderer->EF_LoadTexture(timeArrowFilename, FT_DONT_STREAM); //load the image
+			this->m_pTimeArrowTex = NoteResource::iRenderer->EF_LoadTexture(timeArrowFilename.c_str(), FT_DONT_STREAM); //load the image
 			assert(m_pTimeArrowTex != NULL); //check if the file was loaded
 		}
 
@@ -75,17 +81,17 @@ namespace LYGame {
 		#pragma omp parallel for
 		for (int i = 0; i < eNT_Count; i++) {
 			//note image itself
-			string noteFilename = folder;
+			AZStd::string noteFilename = folder;
 			noteFilename.append("/");
 			noteFilename.append(sNoteFileNames[(i*2)]);
 			//ending note image
-			string noteEFilename = folder;
+			AZStd::string noteEFilename = folder;
 			noteEFilename.append("/");
 			noteEFilename.append(sNoteFileNames[(i * 2) + 1]);
 
 			//load the images
-			ITexture * note = NoteResource::iRenderer->EF_LoadTexture(noteFilename, FT_DONT_STREAM);
-			ITexture * noteE = NoteResource::iRenderer->EF_LoadTexture(noteEFilename, FT_DONT_STREAM);
+			ITexture * note = NoteResource::iRenderer->EF_LoadTexture(noteFilename.c_str(), FT_DONT_STREAM);
+			ITexture * noteE = NoteResource::iRenderer->EF_LoadTexture(noteEFilename.c_str(), FT_DONT_STREAM);
 
 			if (i < 4) noteEH[i] = noteE;
 
@@ -104,11 +110,11 @@ namespace LYGame {
 		#pragma omp parallel for
 		for (int i = 0; i < 4; i++) {
 			//note image itself
-			string noteFilename = folder;
+			AZStd::string noteFilename = folder;
 			noteFilename.append("/");
 			noteFilename.append(sHoldNoteFileNames[i]);
 
-			ITexture * note = NoteResource::iRenderer->EF_LoadTexture(noteFilename, FT_DONT_STREAM);
+			ITexture * note = NoteResource::iRenderer->EF_LoadTexture(noteFilename.c_str(), FT_DONT_STREAM);
 
 			assert(note != NULL); //check if the file was loaded
 
@@ -120,12 +126,12 @@ namespace LYGame {
 		#pragma omp parallel for
 		for (int i = 0; i < eSEXNT_Count; i++) {
 			//swipe tick image
-			string noteFilename = folder;
+			AZStd::string noteFilename = folder;
 			noteFilename.append("/");
 			noteFilename.append(sSwipeEXFileNames[i]);
 
 			//load the images
-			m_pSwipeTickImages[i] = NoteResource::iRenderer->EF_LoadTexture(noteFilename, FT_DONT_STREAM);
+			m_pSwipeTickImages[i] = NoteResource::iRenderer->EF_LoadTexture(noteFilename.c_str(), FT_DONT_STREAM);
 
 			assert(m_pSwipeTickImages[i] != NULL); //check if the file was loaded
 		}
@@ -143,15 +149,15 @@ namespace LYGame {
 	}
 
 
-	void NoteResource::setImgScale(Vec2 scale) {
+	void NoteResource::setImgScale(AZ::Vector2 scale) {
 		for (int i = 0; i < eNT_Count; i++) this->m_pNoteImages[i]->setImgScale(scale);
 		for (int i = 0; i < 4; i++) this->m_pHoldNoteImages[i]->setImgScale(scale);
 	}
-	void NoteResource::setPosScale(Vec2 scale) {
+	void NoteResource::setPosScale(AZ::Vector2 scale) {
 		for (int i = 0; i < eNT_Count; i++) this->m_pNoteImages[i]->setPosScale(scale);
 		for (int i = 0; i < 4; i++) this->m_pHoldNoteImages[i]->setPosScale(scale);
 	}
-	void NoteResource::setScale(Vec2 scale) {
+	void NoteResource::setScale(AZ::Vector2 scale) {
 		this->setImgScale(scale);
 		this->setPosScale(scale);
 	}

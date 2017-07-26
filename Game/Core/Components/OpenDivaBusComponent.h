@@ -4,7 +4,6 @@
 #pragma once
 
 #include "OpenDivaComponentFactory.h"
-#include "../Bus/OpenDiva_Bus.h"
 
 namespace LYGame {
 	class OpenDivaBusComponent : public AZ::Component {
@@ -24,7 +23,7 @@ namespace LYGame {
 		float m_someProperty;*/
 	};
 
-	class OpenDivaCompletionHandler : public OpenDivaBus::OpenDivaCompletionBus::Handler, public AZ::BehaviorEBusHandler {
+	/*class OpenDivaCompletionHandler : public OpenDivaBus::OpenDivaCompletionBus::Handler, public AZ::BehaviorEBusHandler {
 	public:
 		AZ_EBUS_BEHAVIOR_BINDER(
 			OpenDivaCompletionHandler, //Name
@@ -99,7 +98,7 @@ namespace LYGame {
 		void OnChanceExit() { Call(FN_OnChanceExit); }
 		void OnTechEnter() { Call(FN_OnTechEnter); }
 		void OnTechExit() { Call(FN_OnTechExit); }
-	};
+	};*/
 
 	/*class OpenDivaUiInputHandler : public OpenDivaBus::OpenDivaUiInputBus::Handler, public AZ::BehaviorEBusHandler {
 	public:

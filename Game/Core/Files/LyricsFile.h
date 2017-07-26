@@ -5,9 +5,9 @@
 
 namespace LYGame {
 	struct LyricsFileInfo {
-		string locale;
-		string author;
-		string desc;
+		AZStd::string locale;
+		AZStd::string author;
+		AZStd::string desc;
 		int version;
 		bool valid;
 
@@ -23,12 +23,12 @@ namespace LYGame {
 	class LyricsFile {
 	public:
 		struct LineEntry {
-			string text;
-			string romaji;
+			AZStd::string text;
+			AZStd::string romaji;
 			float time;
-			int effect;
-			string color;
-			string font;
+			/*int effect;
+			AZStd::string color;
+			AZStd::string font;*/
 
 			void GetMemoryUsage(ICrySizer* pSizer) const {
 				pSizer->AddObject(this, sizeof(*this));
@@ -47,9 +47,9 @@ namespace LYGame {
 	private:
 		LyricsFileInfo m_info;
 	private:
-		std::unordered_map<std::string, IFFont *> m_fonts;
-		std::unordered_map<std::string, ColorF> m_colors;
-		std::vector<LineEntry> m_lyrics;
+		AZStd::unordered_map<AZStd::string, IFFont *> m_fonts;
+		//AZStd::unordered_map<AZStd::string, ColorF> m_colors;
+		AZStd::vector<LineEntry> m_lyrics;
 	private:
 		static bool lyricsSort(LineEntry a, LineEntry b);
 		static LyricsFileInfo GetInfo(XmlNodeRef xmlNode);

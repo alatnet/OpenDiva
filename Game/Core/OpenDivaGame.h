@@ -19,17 +19,16 @@
 //#include "Core/CryMovie/Node/Note/PrototypeNoteNode.h"
 #include "Core/Graphics/Resources/ResourceCollection.h"
 #include "Core\Input\InputSystem.h"
-#include "Core\Input\InputEBusListener.h"
-#include "Core\CryMovie\Node\DivaSequence.h"
-#include "Core\CryMovie\Node\DSFGEventListener.h"
+#include "Core\Note\DivaAnimationNode.h"
 
 #include "Core\Judge\OpenDivaJudge.h"
 
-//flownode communication
-#include "Bus\OpenDiva_Bus.h"
-
 #include "Sound\Port Audio System\Source\AudioSources.h"
 #include "Sound\Port Audio System\PortAudioSystem.h"
+
+#include "Bus/DivaEventsBus.h"
+
+//#include "CryAction.h"
 
 //Lyshine Stuff
 //#include "Ui/LYSwing.h"
@@ -174,18 +173,18 @@ namespace LYGame
 		static void LoadSongRedirect(IConsoleCmdArgs* pCmdArgs);
 		void LoadSong(IConsoleCmdArgs* pCmdArgs);
 		const char * songName;
+	private: //Setup Functions
+		void SetupDatabase();
 	public: //Misc Functions
-		AZ::EntityId GetHudID() { return this->m_HudCanvasID; }
+		//AZ::EntityId GetHudID() { return this->m_HudCanvasID; }
 		//IDivaJudge * GetJudge(); //TODO!!!  //may stick with the ebus stuff...
 	private: //Misc Variables
 		CInputSystem * iSys;
-		CUIInputSystem * uiSys;
-		CMovieSystem * audioMovieSys;
+		//CUIInputSystem * uiSys;
+		//CMovieSystem * audioMovieSys;
 		float audioMovieSysTime;
 		AZ::EntityId m_HudCanvasID;
-	private: //listeners
-		InputEBusListener * inputBusListener;
-		DSFGEventListener * dsfgEventListener;
+		//CCryAction* pCryAction;
 	private: //TESTING FUNCTIONS
 		void constructTesting();
 		void destroyTesting();
@@ -206,11 +205,8 @@ namespace LYGame
 
 		IMovieSystem * iMovieSys;
 		IAnimSequence * testSeq;
-		//PrototypeNoteNode * testButtonNode;
-		//PrototypeNoteNode * testButtonNode2;
-
 		IDivaJudge * testJudge;
-		DivaSequence * testDivaSeq;
+		DivaAnimationNode * testDivaAnimationNode;
 
 		//int renderTarget;
 
@@ -223,7 +219,7 @@ namespace LYGame
 		//IDraw2d::TextOptions textOps;
 
 		//const char * unicodeChar;
-		string * unicodeStr;
+		AZStd::string * unicodeStr;
 
 		/*DivaNoteSingleNode * testSingleNode;
 		DivaNoteSingleNode * testSingleNode2;*/
@@ -250,7 +246,7 @@ namespace LYGame
 		LYSwing::LYPanel * panel;
 		LYSwing::LYLabel * label, *label2;*/
 
-		AZ::Entity * ent;
+		//AZ::Entity * ent;
     };
 
     SC_API extern OpenDivaGame* g_Game;

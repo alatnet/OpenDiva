@@ -5,7 +5,7 @@
 
 namespace LYGame {
 
-	typedef std::function<IDivaJudge* (void *)> NewJudgeFunc;
+	typedef AZStd::function<IDivaJudge* (void *)> NewJudgeFunc;
 
 	//singleton factory
 	class DivaJudgeFactory {

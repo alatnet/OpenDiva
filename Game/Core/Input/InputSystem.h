@@ -2,14 +2,68 @@
 #define _H_INPUTSYS_
 #pragma once
 
-#include <IActionMapManager.h>
-#include <IGame.h>
-#include <IGameFramework.h>
+#include <InputEventBus.h>
 
 namespace LYGame {
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//Default Input System
-	//////////////////////////////////////////////////////////////////////////////////////////
+	//------------------------------------------------------------------------------------------------
+	template <class C> class LyInputEvent;
+
+	enum LyInputEventType {
+		eIET_Pressed = 0,
+		eIET_Held,
+		eIET_Released
+	};
+	//------------------------------------------------------------------------------------------------
+
+	//------------------------------------------------------------------------------------------------
+	//LyInputSystem
+	//------------------------------------------------------------------------------------------------
+	template<class C>
+	class LyInputSystem {
+		typedef void(C::* FunctionPtr)(LyInputEventType, float);
+	public:
+		LyInputSystem(C * instance) : m_instance(instance) {}
+		~LyInputSystem();
+
+	public:
+		LyInputSystem<C>* AddInput(AZStd::string entityChannel, AZStd::string actionNameCrc, FunctionPtr func);
+		LyInputSystem<C>* AddInput(const Input::ChannelId& entityChannel, Input::ProcessedEventName actionNameCrc, FunctionPtr func);
+
+		LyInputSystem<C>* AddInput(AZStd::string actionNameCrc, FunctionPtr func);
+		LyInputSystem<C>* AddInput(Input::ProcessedEventName actionNameCrc, FunctionPtr func);
+
+	public:
+		void OnInputEvent(LyInputEventType type, AZ::InputEventNotificationId actionId, float value);
+
+	private:
+		AZStd::unordered_map<AZ::InputEventNotificationId, AZStd::pair<LyInputEvent<C> *, FunctionPtr>> m_eventFuncs;
+		C * m_instance;
+	};
+
+	//------------------------------------------------------------------------------------------------
+	//LyInputEvent
+	//------------------------------------------------------------------------------------------------
+	template <class C>
+	class LyInputEvent : public AZ::InputEventNotificationBus::Handler {
+	public:
+	public:
+		LyInputEvent(const Input::ChannelId& entityChannel, Input::ProcessedEventName actionNameCrc);
+		LyInputEvent(Input::ProcessedEventName actionNameCrc);
+
+		~LyInputEvent();
+	public:
+		void SetInputSystem(LyInputSystem<C> * system);
+		AZ::InputEventNotificationId GetID();
+	public:
+		void OnPressed(float value);
+		void OnHeld(float value);
+		void OnReleased(float value);
+	private:
+		AZ::InputEventNotificationId m_id;
+		LyInputSystem<C> * m_sys;
+	};
+	//------------------------------------------------------------------------------------------------
+
 	enum EInputSystemEvent {
 		eISE_Cross,
 		eISE_Circle,
@@ -26,7 +80,7 @@ namespace LYGame {
 	};
 
 	struct IInputSystemListener {
-		#define ON_FUNC(action) virtual void On##action##(int mode, float value) {};
+		#define ON_FUNC(action) virtual void On##action##(LyInputEventType mode, float value) {};
 			ON_FUNC(Cross)
 			ON_FUNC(Circle)
 			ON_FUNC(Square)
@@ -47,17 +101,19 @@ namespace LYGame {
 		virtual void OnInputEvent(EInputSystemEvent event, int mode, float value) {};
 	};
 
-	class CInputSystem : public IActionListener {
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//Default Input System
+	//////////////////////////////////////////////////////////////////////////////////////////
+	class CInputSystem {
 	public:
 		CInputSystem();
 		~CInputSystem();
 	public:
-		void OnAction(const ActionId& action, int activationMode, float value);
 	public:
 		void AddListener(IInputSystemListener *l) { listeners.push_back(l); }
 		void RemoveListener(IInputSystemListener *l);
 	public:
-		#define ACTION_FUNC(action) bool action##Action(EntityId entityId, const ActionId& actionId, int activationMode, float value);
+		#define ACTION_FUNC(action) void action##Action(LyInputEventType type, float value);
 			ACTION_FUNC(Cross)
 			ACTION_FUNC(Circle)
 			ACTION_FUNC(Square)
@@ -76,59 +132,59 @@ namespace LYGame {
 			ACTION_FUNC(Start)
 		#undef ACTION_FUNC
 	private:
-		std::vector<IInputSystemListener*> listeners;
+		AZStd::vector<IInputSystemListener*> listeners;
 	private:
-		static TActionHandler<CInputSystem> s_actionHandler;
+		LyInputSystem<CInputSystem> *m_system;
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//UI Input System
 	//////////////////////////////////////////////////////////////////////////////////////////
 
-	enum EUIInputSystemEvent {
-		eUIISE_Up,
-		eUIISE_Down,
-		eUIISE_Left,
-		eUIISE_Right,
-		eUIISE_Select,
-		eUIISE_Cancel
-	};
+	//enum EUIInputSystemEvent {
+	//	eUIISE_Up,
+	//	eUIISE_Down,
+	//	eUIISE_Left,
+	//	eUIISE_Right,
+	//	eUIISE_Select,
+	//	eUIISE_Cancel
+	//};
 
-	struct IUIInputSystemListener {
-		#define ON_FUNC(action) virtual void On##action##(int mode, float value) {};
-			ON_FUNC(Ui_Up)
-			ON_FUNC(Ui_Down)
-			ON_FUNC(Ui_Left)
-			ON_FUNC(Ui_Right)
-			ON_FUNC(Ui_Select)
-			ON_FUNC(Ui_Cancel)
-		#undef ON_FUNC
-		virtual void OnUIInputEvent(EUIInputSystemEvent event, int mode, float value) {};
-	};
+	//struct IUIInputSystemListener {
+	//	#define ON_FUNC(action) virtual void On##action##(int mode, float value) {};
+	//		ON_FUNC(Ui_Up)
+	//		ON_FUNC(Ui_Down)
+	//		ON_FUNC(Ui_Left)
+	//		ON_FUNC(Ui_Right)
+	//		ON_FUNC(Ui_Select)
+	//		ON_FUNC(Ui_Cancel)
+	//	#undef ON_FUNC
+	//	virtual void OnUIInputEvent(EUIInputSystemEvent event, int mode, float value) {};
+	//};
 
-	class CUIInputSystem : public IActionListener {
-	public:
-		CUIInputSystem();
-		~CUIInputSystem();
-	public:
-		void OnAction(const ActionId& action, int activationMode, float value);
-	public:
-		void AddListener(IUIInputSystemListener *l) { listeners.push_back(l); }
-		void RemoveListener(IUIInputSystemListener *l);
-	public:
-		#define ACTION_FUNC(action) bool action##Action(EntityId entityId, const ActionId& actionId, int activationMode, float value);
-			ACTION_FUNC(Ui_Up)
-			ACTION_FUNC(Ui_Down)
-			ACTION_FUNC(Ui_Left)
-			ACTION_FUNC(Ui_Right)
-			ACTION_FUNC(Ui_Select)
-			ACTION_FUNC(Ui_Cancel)
-		#undef ACTION_FUNC
-	private:
-		std::vector<IUIInputSystemListener*> listeners;
-	private:
-		static TActionHandler<CUIInputSystem> s_actionHandler;
-	};
+	//class CUIInputSystem /*: public IActionListener*/ {
+	//public:
+	//	CUIInputSystem();
+	//	~CUIInputSystem();
+	//public:
+	//	//void OnAction(const ActionId& action, int activationMode, float value);
+	//public:
+	//	void AddListener(IUIInputSystemListener *l) { listeners.push_back(l); }
+	//	void RemoveListener(IUIInputSystemListener *l);
+	//public:
+	//	#define ACTION_FUNC(action) bool action##Action(ODInputEventType type, float value);
+	//		ACTION_FUNC(Ui_Up)
+	//		ACTION_FUNC(Ui_Down)
+	//		ACTION_FUNC(Ui_Left)
+	//		ACTION_FUNC(Ui_Right)
+	//		ACTION_FUNC(Ui_Select)
+	//		ACTION_FUNC(Ui_Cancel)
+	//	#undef ACTION_FUNC
+	//private:
+	//	std::vector<IUIInputSystemListener*> listeners;
+	//private:
+	//	//static TActionHandler<CUIInputSystem> s_actionHandler;
+	//};
 }
 
 #endif //_H_INPUTSYS_

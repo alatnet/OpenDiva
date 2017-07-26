@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "OD_Draw2d.h"
 
 namespace LYGame {
@@ -20,7 +21,7 @@ namespace LYGame {
 		OD_Draw2d::renderer->SetState(OD_Draw2d::g_defaultBlendState | GS_NODEPTHTEST);
 	}
 
-	void OD_Draw2d::DrawLine(Vec2 start, Vec2 end, ColorF color, int texID) {
+	void OD_Draw2d::DrawLine(AZ::Vector2 start, AZ::Vector2 end, ColorF color, int texID) {
 		/*SVF_P3F_C4B_T2F verts[2];
 		uint32 col = color.pack_abgr8888();
 
@@ -78,29 +79,29 @@ namespace LYGame {
 		this->DrawOrDefer(&prim);
 	}
 
-	Vec2 OD_Draw2d::Align(Vec2 position, Vec2 size, HAlign horizontalAlignment, VAlign verticalAlignment) {
-		Vec2 result;
+	AZ::Vector2 OD_Draw2d::Align(AZ::Vector2 position, AZ::Vector2 size, HAlign horizontalAlignment, VAlign verticalAlignment) {
+		AZ::Vector2 result;
 		switch (horizontalAlignment) {
 		case HAlign::Left:
-			result.x = position.x;
+			result.SetX(position.GetX());
 			break;
 		case HAlign::Center:
-			result.x = position.x - size.x * 0.5f;
+			result.SetX(position.GetX() - size.GetX() * 0.5f);
 			break;
 		case HAlign::Right:
-			result.x = position.x - size.x;
+			result.SetX(position.GetX() - size.GetX());
 			break;
 		}
 
 		switch (verticalAlignment) {
 		case VAlign::Top:
-			result.y = position.y;
+			result.SetY(position.GetY());
 			break;
 		case VAlign::Center:
-			result.y = position.y - size.y * 0.5f;
+			result.SetY(position.GetY() - size.GetY() * 0.5f);
 			break;
 		case VAlign::Bottom:
-			result.y = position.y - size.y;
+			result.SetY(position.GetY() - size.GetY());
 			break;
 		}
 
@@ -137,11 +138,11 @@ namespace LYGame {
 		SVF_P3F_C4B_T2F verts[2];
 		uint32 col = this->color.pack_abgr8888();
 
-		verts[0].xyz = Vec3(this->start.x, this->start.y, 1);
+		verts[0].xyz = Vec3(this->start.GetX(), this->start.GetY(), 1);
 		verts[0].color.dcolor = col;
 		verts[0].st = Vec2(0, 0);
 
-		verts[1].xyz = Vec3(this->start.x, this->start.y, 1);
+		verts[1].xyz = Vec3(this->start.GetX(), this->start.GetY(), 1);
 		verts[1].color.dcolor = col;
 		verts[1].st = Vec2(1, 1);
 

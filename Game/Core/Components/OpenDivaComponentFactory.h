@@ -10,7 +10,7 @@
 #include <AzCore\Component\ComponentApplicationBus.h>
 
 namespace LYGame {
-	typedef std::function<void (void)> OpenDivaRegisterComponentFunc;
+	typedef AZStd::function<void (void)> OpenDivaRegisterComponentFunc;
 
 	class OpenDivaComponentFactory {
 	public:

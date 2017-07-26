@@ -47,36 +47,36 @@ namespace LYGame {
 		FontResource(const char * folder);
 		~FontResource();
 	public:
-		void DrawRating(int type, Vec2 pos, bool drawCombo = false, unsigned int combo = 0);
-		void DrawMult(Vec2 pos, unsigned int mult);
-		void DrawRush(ENoteType type, Vec2 pos);
-		void DrawHold(ENoteType type, Vec2 pos);
+		void DrawRating(int type, AZ::Vector2 pos, bool drawCombo = false, unsigned int combo = 0);
+		void DrawMult(AZ::Vector2 pos, unsigned int mult);
+		void DrawRush(ENoteType type, AZ::Vector2 pos);
+		void DrawHold(ENoteType type, AZ::Vector2 pos);
 	public:
-		void setImgScale(Vec2 scale = Vec2(1.0f, 1.0f));
-		void setPosScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_PosScale = scale; }
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f));
+		void setImgScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
+		void setPosScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_PosScale = scale; }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
 	public:
-		Vec2 getSize(int type);
-		Vec2 getMultiSize();
-		Vec2 getRushSize(int type);
-		Vec2 getHoldSize(int type);
+		AZ::Vector2 getSize(int type);
+		AZ::Vector2 getMultiSize();
+		AZ::Vector2 getRushSize(int type);
+		AZ::Vector2 getHoldSize(int type);
 	private:
 		IFFont * m_pFont; //the all mighty font
 		STextDrawContext m_pFontDrawCtx[NUMFONTEFFECTS(14)]; //font contexts for all text
 		float m_textPointSize[NUMFONTEFFECTS(14)]; //point sizes for all text
-		Vec2 m_ImgScale, m_PosScale; //scales
+		AZ::Vector2 m_ImgScale, m_PosScale; //scales
 
 		//rating
-		string m_ratingText[eHS_None + 4];
-		Vec2 m_ratingTextSizes[eHS_None + 4];
+		AZStd::string m_ratingText[eHS_None + 4];
+		AZ::Vector2 m_ratingTextSizes[eHS_None + 4];
 
 		//rush
-		string m_rushText[4];
-		Vec2 m_rushTextSize[4];
+		AZStd::string m_rushText[4];
+		AZ::Vector2 m_rushTextSize[4];
 
 		//hold
-		string m_holdText[4];
-		Vec2 m_holdTextSize[4];
+		AZStd::string m_holdText[4];
+		AZ::Vector2 m_holdTextSize[4];
 	};
 }
 

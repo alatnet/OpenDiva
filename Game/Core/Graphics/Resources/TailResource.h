@@ -24,10 +24,10 @@ namespace LYGame {
 		//unsigned int getNumHTailStyles() { return this->m_numHTailStyles; }
 		//void setHTailStyle(unsigned int index);
 
-		void setCScale(Vec2 scale = Vec2(1.0f, 1.0f));
-		void setHScale(Vec2 scale = Vec2(1.0f, 1.0f));
+		void setCScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
+		void setHScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
 
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f));
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
 	private:
 		void setCTailDefaults();
 		//void setHTailDefaults();

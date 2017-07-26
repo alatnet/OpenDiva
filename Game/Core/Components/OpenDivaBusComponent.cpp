@@ -1,4 +1,6 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
+
 #include "OpenDivaBusComponent.h"
 
 namespace LYGame {
@@ -49,30 +51,30 @@ namespace LYGame {
 			//eAAM_OnHold
 
 			//OpenDivaHitScoreEventHandler
-			behaviorContext->EBus<OpenDivaBus::OpenDivaHitScoreBus>("OpenDivaHitScoreBus")
-				->Handler<OpenDivaHitScoreEventHandler>();
+			/*behaviorContext->EBus<OpenDivaBus::OpenDivaHitScoreBus>("OpenDivaHitScoreBus")
+				->Handler<OpenDivaHitScoreEventHandler>();*/
 
 			//OpenDiva.Bus.Song
-			behaviorContext->EBus<OpenDivaBus::OpenDivaSongBus>("OpenDivaSongBus")
-				->Handler<OpenDivaSongHandler>();
+			/*behaviorContext->EBus<OpenDivaBus::OpenDivaSongBus>("OpenDivaSongBus")
+				->Handler<OpenDivaSongHandler>();*/
 			//->Event("OnStart", &OpenDivaBus::OpenDivaSongBus::Events::OnStart) //exposes ebus function to be able to call it
 			//->Event("OnEnd", &OpenDivaBus::OpenDivaSongBus::Events::OnEnd); //exposes ebus function to be able to call it
 
 			//OpenDiva.Bus.Completion
-			behaviorContext->EBus<OpenDivaBus::OpenDivaCompletionBus>("OpenDivaCompletionBus")
-				->Handler<OpenDivaCompletionHandler>();
+			/*behaviorContext->EBus<OpenDivaBus::OpenDivaCompletionBus>("OpenDivaCompletionBus")
+				->Handler<OpenDivaCompletionHandler>();*/
 
 			//OpenDiva.Bus.Score
-			behaviorContext->EBus<OpenDivaBus::OpenDivaScoreBus>("OpenDivaScoreBus")
-				->Handler<OpenDivaScoreHandler>();
+			/*behaviorContext->EBus<OpenDivaBus::OpenDivaScoreBus>("OpenDivaScoreBus")
+				->Handler<OpenDivaScoreHandler>();*/
 
 			//OpenDiva.Bus.UiInput
 			/*behaviorContext->EBus<OpenDivaBus::OpenDivaUiInputBus>("OpenDivaUiInputBus")
 				->Handler<OpenDivaUiInputHandler>();*/
 
 			//OpenDiva.Bus.ZoneEvents
-			behaviorContext->EBus<OpenDivaBus::OpenDivaZoneEventsBus>("OpenDivaZoneEventsBus")
-				->Handler<OpenDivaZoneEventsHandler>();
+			/*behaviorContext->EBus<OpenDivaBus::OpenDivaZoneEventsBus>("OpenDivaZoneEventsBus")
+				->Handler<OpenDivaZoneEventsHandler>();*/
 		}
 	}
 }

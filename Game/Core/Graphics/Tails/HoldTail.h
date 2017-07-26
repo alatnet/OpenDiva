@@ -50,22 +50,22 @@ namespace LYGame {
 		~HoldTail();
 
 		//bcurve
-		void Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		void Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw = false);
 
 		//line
-		void Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
-		void Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step = 0.05f, bool isolatedDraw = false, bool pointsSpecified = false);
+		void Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw = false);
 
 		//width of hold tail (scale)
 		void setSize(float size = 1.0f) { this->m_size = size; }
 		float getSize() { return this->m_size; }
 
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) { this->m_scale = scale; }
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) { this->m_scale = scale; }
 	private:
 		ITexture* m_pTex;
 		float m_width, m_size;
-		Vec2 m_scale;
+		AZ::Vector2 m_scale;
 	};
 }
 

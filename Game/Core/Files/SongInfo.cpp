@@ -1,9 +1,10 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "SongInfo.h"
 
 namespace LYGame {
-	SongInfo::SongInfo(string path) {
-		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path);
+	SongInfo::SongInfo(AZStd::string path) {
+		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path.c_str());
 		//read file
 
 		if (file != 0) {
@@ -39,7 +40,7 @@ namespace LYGame {
 				authorInfo.nameR = author->getAttr("romaji");
 				authorInfo.nameE = author->getAttr("english");
 
-				ret.authors.push_back(std::make_pair<>(string(author->getTag()), authorInfo));
+				ret.authors.push_back(AZStd::make_pair(AZStd::string(author->getTag()), authorInfo));
 			}
 
 			XmlNodeRef desc = file->findChild("desc");
@@ -53,10 +54,10 @@ namespace LYGame {
 				XmlNodeRef bpmstart = bpm->findChild("start");
 				XmlNodeRef bpmend = bpm->findChild("end");
 
-				ret.bpm = std::make_pair<>(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
+				ret.bpm = AZStd::make_pair(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
 			} else {
 				int bpmret = atoi(bpm->getContent());
-				ret.bpm = std::make_pair<>(bpmret, bpmret);
+				ret.bpm = AZStd::make_pair(bpmret, bpmret);
 			}
 
 			ret.valid = true;
@@ -85,7 +86,7 @@ namespace LYGame {
 				authorInfo.nameR = author->getAttr("romaji");
 				authorInfo.nameE = author->getAttr("english");
 
-				ret.authors.push_back(std::make_pair<>(author->getTag(), authorInfo));
+				ret.authors.push_back(AZStd::make_pair(author->getTag(), authorInfo));
 			}
 
 			XmlNodeRef desc = node->findChild("desc");
@@ -99,10 +100,10 @@ namespace LYGame {
 				XmlNodeRef bpmstart = bpm->findChild("start");
 				XmlNodeRef bpmend = bpm->findChild("end");
 
-				ret.bpm = std::make_pair<>(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
+				ret.bpm = AZStd::make_pair(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
 			} else {
 				int bpmret = atoi(bpm->getContent());
-				ret.bpm = std::make_pair<>(bpmret, bpmret);
+				ret.bpm = AZStd::make_pair(bpmret, bpmret);
 			}
 
 			ret.valid = true;

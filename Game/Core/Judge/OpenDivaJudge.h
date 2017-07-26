@@ -12,20 +12,18 @@ namespace LYGame {
 	public:
 		OpenDivaJudge(void * userdata);
 	public:
-		void DivaJudgeCallback(IDivaJudgeParams params);
-	public:
-		void addListener(IDivaJudgeListener * listener);
-	public:
-		unsigned int getScore() { return this->m_score; }
-		unsigned int getHealth() { return this->m_health; }
-		unsigned int getMaxHP() { return 200; }
-		unsigned int getCombo() { return this->m_combo; }
-		unsigned int getNumHits(EHitScore score) { return this->m_numHits[score]; }
-		EDivaJudgeCompletion getCompletion();
+		unsigned int GetScore() { return this->m_score; }
+		unsigned int GetHealth() { return this->m_health; }
+		unsigned int GetMaxHP() { return 200; }
+		unsigned int GetCombo() { return this->m_combo; }
+		unsigned int GetNumHits(EHitScore score) { return this->m_numHits[score]; }
+		EDivaJudgeCompletion GetCompletion();
 
-		void SetTechZoneNotes(std::vector<unsigned int> techZoneNotes);
-		unsigned int numTechZoneNotes();
-		bool isTechZoneActive();
+		void SetTechZoneNotes(AZStd::vector<unsigned int> techZoneNotes);
+		unsigned int TechZoneNotesCount();
+		bool IsTechZoneActive();
+
+		void OnJudge(IDivaJudgeParams params);
 	private:
 		unsigned int m_score, m_combo, m_maxCombo, m_ChanceMult, m_health;
 		unsigned int m_numHits[eHS_None];

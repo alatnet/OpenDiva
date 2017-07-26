@@ -27,7 +27,7 @@ namespace LYGame {
 			if (p_TailResource != nullptr) delete p_TailResource;
 		};
 
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f)) {
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f)) {
 			if (p_EffectResource != nullptr) p_EffectResource->setScale(scale);
 			if (p_NoteResource != nullptr) p_NoteResource->setScale(scale);
 			if (p_FontResource != nullptr) p_FontResource->setScale(scale);

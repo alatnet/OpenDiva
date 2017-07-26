@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "TailResource.h"
 
 namespace LYGame {
@@ -7,15 +8,13 @@ namespace LYGame {
 		CryLog("[TailResource] Loading Tail Resources - Path: %s", folder);
 
 		//load the tails data
-		string tailsXMLFilename = folder;
+		AZStd::string tailsXMLFilename = folder;
 		tailsXMLFilename.append("/");
 		tailsXMLFilename.append(sTailFileName);
 
-		XmlNodeRef tailsXML = gEnv->pSystem->LoadXmlFromFile(tailsXMLFilename);
+		XmlNodeRef tailsXML = gEnv->pSystem->LoadXmlFromFile(tailsXMLFilename.c_str());
 
 		if (tailsXML) {
-			Vec4 col;
-
 			XmlNodeRef comet = tailsXML->findChild("comet");
 			if (comet != NULL) {
 				int cChildCount = comet->getChildCount();
@@ -33,27 +32,27 @@ namespace LYGame {
 				//NoteResource::iRenderer->EF_LoadTexture(timeArrowFilename, FT_DONT_STREAM);
 
 				IRenderer* iRender = gEnv->pRenderer;
-				string tailsHoldFolder = folder;
+				AZStd::string tailsHoldFolder = folder;
 				ITexture *tex;
 				float width;
 
 				XmlNodeRef holdT = hold->findChild("triangle");
-				tex = iRender->EF_LoadTexture(tailsHoldFolder + "/" + holdT->getAttr("img"), FT_DONT_STREAM);
+				tex = iRender->EF_LoadTexture(AZStd::string(tailsHoldFolder + "/" + holdT->getAttr("img")).c_str(), FT_DONT_STREAM);
 				holdT->getAttr("width", width);
 				this->m_pHoldTails[eNT_Triangle] = new HoldTail(tex, width);
 
 				XmlNodeRef holdCr = hold->findChild("cross");
-				tex = iRender->EF_LoadTexture(tailsHoldFolder + "/" + holdCr->getAttr("img"), FT_DONT_STREAM);
+				tex = iRender->EF_LoadTexture(AZStd::string(tailsHoldFolder + "/" + holdCr->getAttr("img")).c_str(), FT_DONT_STREAM);
 				holdCr->getAttr("width", width);
 				this->m_pHoldTails[eNT_Cross] = new HoldTail(tex, width);
 
 				XmlNodeRef holdS = hold->findChild("square");
-				tex = iRender->EF_LoadTexture(tailsHoldFolder + "/" + holdS->getAttr("img"), FT_DONT_STREAM);
+				tex = iRender->EF_LoadTexture(AZStd::string(tailsHoldFolder + "/" + holdS->getAttr("img")).c_str(), FT_DONT_STREAM);
 				holdS->getAttr("width", width);
 				this->m_pHoldTails[eNT_Square] = new HoldTail(tex, width);
 
 				XmlNodeRef holdC = hold->findChild("circle");
-				tex = iRender->EF_LoadTexture(tailsHoldFolder + "/" + holdC->getAttr("img"), FT_DONT_STREAM);
+				tex = iRender->EF_LoadTexture(AZStd::string(tailsHoldFolder + "/" + holdC->getAttr("img")).c_str(), FT_DONT_STREAM);
 				holdC->getAttr("width", width);
 				this->m_pHoldTails[eNT_Circle] = new HoldTail(tex, width);
 			} else {
@@ -319,17 +318,17 @@ namespace LYGame {
 		this->m_pHStyles[0].m_pHoldTails[eNT_Triangle] = new HoldTail(geom, 2);
 	}*/
 
-	void TailResource::setScale(Vec2 scale) {
+	void TailResource::setScale(AZ::Vector2 scale) {
 		this->setCScale(scale);
 		this->setHScale(scale);
 	}
 
-	void TailResource::setCScale(Vec2 scale) {
+	void TailResource::setCScale(AZ::Vector2 scale) {
 		CometTail::setRScale(scale);
 		for (int i = 0; i < eNT_Count; i++) this->m_pCometTails[i]->setScale(scale);
 	}
 
-	void TailResource::setHScale(Vec2 scale) {
+	void TailResource::setHScale(AZ::Vector2 scale) {
 		for (int i = 0; i < 4; i++) this->m_pHoldTails[i]->setScale(scale);
 	}
 }

@@ -55,15 +55,21 @@ def build(bld):
 			#'WAF/game.steamworks.waf_files',
 
 			#for lyswing code.
-			#'WAF/game.lyswing.waf_files'
+			#'WAF/game.lyswing.waf_files',
+
+			#for crymovie code.
+			#'WAF/game.crymovie.waf_files',
+
+			#for md5 and sha hashing library
+			'WAF/game.hashlib2plus.waf_files',
 		],
 		debug_file_list = [
 			#for crymovie code.
-			'WAF/game.crymovie.waf_files',
+			#'WAF/game.crymovie.waf_files',
 		],
 		release_file_list = [
 			#for crymovie code.
-			'WAF/game.crymovie.headers.waf_files',
+			#'WAF/game.crymovie.headers.waf_files',
 		],
 		features = [ 'copy_audio_dlls' ],
         platforms = ['win_x64', 'win_x64_vs2015', 'win_x64_vs2013','linux','darwin'],
@@ -82,10 +88,11 @@ def build(bld):
 			bld.Path('Code/OpenDiva/Game/Core/Sound/libsndfile/include'),
 			bld.Path('Code/OpenDiva/Game/Core/Sound/libsamplerate/include'),
 			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/include'),
+			bld.Path('Code/OpenDiva/Game/Core/Utils/hashlib2plus/include'),
                         
 			#this is ONLY used for the public steam builds.
 			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
-			#,bld.Path('Code/OpenDiva/Game/Core/Steamworks/steam')
+			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/steam')
 		],
         
         #this is ONLY used for the public steam builds.
@@ -97,7 +104,8 @@ def build(bld):
         lib = [
             'libsndfile-1',
 			'libsamplerate-0',
-            'portaudio_x64'
+            'portaudio_x64',
+			'Live2DCubismCore'
         ],
               
         libpath = [
@@ -149,6 +157,19 @@ def build(bld):
 			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin/win64')
 		],
 
+        win_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/windows/x86_64')
+		],
+        win_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+        win_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+        win_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+
         #==============================
         # Linux
         #==============================
@@ -173,6 +194,19 @@ def build(bld):
 		],
 		linux_libpath = [
 			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin'),
+		],
+
+        linux_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/linux/x86_64')
+		],
+        linux_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
+		],
+        linux_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
+		],
+        linux_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
 		],
 
         #==============================
@@ -200,6 +234,19 @@ def build(bld):
 		],
 		darwin_libpath = [
 			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin'),
+		],
+
+        darwin_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/macos')
+		],
+        darwin_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
+		],
+        darwin_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
+		],
+        darwin_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
 		],
 
 		#==============================

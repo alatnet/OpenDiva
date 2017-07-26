@@ -10,21 +10,22 @@
 *
 */
 #include "StdAfx.h"
+#include <OpenDivaCommon.h>
 //#include "Game/Actor.h"
 #include "OpenDivaGame.h"
 #include "IGameFramework.h"
 #include "IGameRulesSystem.h"
 //#include "OpenDivaGameRules.h"
-#include <FlowSystem/Nodes/FlowBaseNode.h>
+//#include <FlowSystem/Nodes/FlowBaseNode.h>
 
 //#include <LyShine/UiComponentTypes.h>
 #include <LyShine/Bus/World/UiCanvasRefBus.h>
 #include <AzFramework\Script\ScriptComponent.h>
 #include <AzCore\Asset\AssetDatabaseBus.h>
 
-//#include <../../../Gems/StartingPointInput/Code/Source/Input.h>
-#include <../../../Gems/InputManagementFramework/Code/Include/InputManagementFramework/InputEventBindings.h>
 #include "Components/Components.h"
+
+#include <SQLite/SQLiteBus.h>
 
 using namespace LYGame;
 
@@ -88,26 +89,26 @@ bool OpenDivaGame::Init(IGameFramework* framework) {
 	LoadActionMaps("config/input/actionmaps.xml");
 
 	//set aliases
-	gEnv->pFileIO->SetAlias("@songs@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sSongPath);
-	gEnv->pFileIO->SetAlias("@styles@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sStylesPath);
-	gEnv->pFileIO->SetAlias("@hud@", gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sHudPath);
+	AZStd::string songAlias = gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sSongPath;
+	AZStd::string styleAlias = gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sStylesPath;
+	AZStd::string hudAlias = gEnv->pFileIO->GetAlias("@assets@") + OpenDiva::Paths::sHudPath;
+	gEnv->pFileIO->SetAlias("@songs@", songAlias.c_str());
+	gEnv->pFileIO->SetAlias("@styles@", styleAlias.c_str());
+	gEnv->pFileIO->SetAlias("@hud@", hudAlias.c_str());
 
 	// Register game rules wrapper.
 	/*REGISTER_FACTORY(framework, "OpenDivaGameRules", OpenDivaGameRules, false);
 	IGameRulesSystem* pGameRulesSystem = g_Game->GetIGameFramework()->GetIGameRulesSystem();
 	pGameRulesSystem->RegisterGameRules("DummyRules", "OpenDivaGameRules");*/
 
-	//create a movie system that uses audio timing
-	audioMovieSys = new CMovieSystem(gEnv->pSystem);
-
 	//create new input system
 	this->iSys = new CInputSystem();
-	this->uiSys = new CUIInputSystem();
+	//this->uiSys = new CUIInputSystem();
 
-	this->inputBusListener = new InputEBusListener();
-	this->uiSys->AddListener(this->inputBusListener);
+	//this->inputBusListener = new InputEBusListener();
+	//this->uiSys->AddListener(this->inputBusListener);
 
-	this->dsfgEventListener = new DSFGEventListener();
+	//this->dsfgEventListener = new DSFGEventListener();
 
 	//setup console commands
 	this->setupCommands();
@@ -119,6 +120,12 @@ bool OpenDivaGame::Init(IGameFramework* framework) {
 	this->setupTesting();
 
 	this->initLyShine();
+
+	//this->SetupDatabase();
+        
+    //this->pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
+
+	//auto channelid = AZ::InputEventNotificationId(Input::ChannelId("default"), Input::ProcessedEventName("Forward"));
 
     return true;
 }
@@ -138,10 +145,22 @@ bool OpenDivaGame::CompleteInit()
 
 	OpenDivaComponentFactory::getFactory().RegisterComponents();
 
-	CryLog("Activating Test Ent.");
+	//------------------------------
+	//Entity Component Stuff
+	//------------------------------
+	/*CryLog("Activating Test Ent.");
 	this->ent->Activate();
 
-	CryLog("Setting Canvas.");
+	const AZ::Data::AssetType& assetType = azrtti_typeid<AZ::Data::AssetData>();
+	AZ::Data::AssetId assetId;
+	AZStd::string str = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Config/Input/diva.inputbindings");
+	EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, str.c_str(), assetType, true);
+	AZ::Data::Asset<AZ::Data::AssetData> asset(assetId, assetType);
+	if (assetId.IsValid()) {
+		EBUS_EVENT_ID(this->ent, AZ::Data::AssetBus, OnAssetReady, asset);
+	}*/
+
+	/*CryLog("Setting Canvas.");
 	AZStd::string canvasPath = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/text test.uicanvas");
 	CryLog("Canvas Path: %s", canvasPath.c_str());
 
@@ -150,10 +169,58 @@ bool OpenDivaGame::CompleteInit()
 
 	AZStd::string ret;
 	UiCanvasAssetRefBus::EventResult(ret, this->ent->GetId(), &UiCanvasAssetRefInterface::GetCanvasPathname);
-	CryLog("Canvas Asset Path: %s", ret.c_str());
+	CryLog("Canvas Asset Path: %s", ret.c_str());*/
+
+	/*string dbPath = gEnv->pFileIO->GetAlias("@cache@");
+	dbPath += "/testdb.db";
+	SQLite::SQLiteRequestBus::Event(this->ent->GetId(), &SQLite::SQLiteRequestBus::Events::Open, dbPath.c_str());*/
+
+	/*char * errmsg = 0;
+	SQLite::SQLiteRequestBus::Event(
+		this->ent->GetId(),
+		&SQLite::SQLiteRequestBus::Events::Exec,
+		"CREATE TABLE Persons ( \
+			PersonID int, \
+			LastName varchar(255), \
+			FirstName varchar(255), \
+			Address varchar(255), \
+			City varchar(255) \
+		);",
+		[](void * notUsed, int argc, char** argv, char ** azColName) -> int {
+			int i;
+			for (i = 0; i<argc; i++) {
+				printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+			}
+			printf("\n");
+			return 0;
+		},
+		nullptr,
+		&errmsg
+	);
+	CryLog("SQLite Err Msg: %s", errmsg);*/
+
+	//set input configuration
+	/*AZ::Data::AssetId inputAssetId;
+	AZStd::string inputStr = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.inputbindings");
+	const AZ::Data::AssetType& inputAssetType = azrtti_typeid<Input::InputEventBindingsAsset>();
+	AZ::Data::AssetCatalogRequestBus::BroadcastResult(inputAssetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, inputStr.c_str(), inputAssetType, true);
+
+	if (inputAssetId.IsValid()) {
+		AZ::Data::Asset<Input::InputEventBindingsAsset> inputAsset(inputAssetId, inputAssetType);
+		//AZ::Data::AssetBus::Broadcast(&AZ::Data::AssetBus::Events::OnAssetReady, inputAsset);
+		AZ::Data::AssetBus::Event(this->ent->GetId(), &AZ::Data::AssetBus::Events::OnAssetReady, inputAsset);
+	}*/
+
+	//CCryAction *pCryAction = CCryAction::GetCryAction();
+	//CCryAction* pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
 
     return true;
 }
+
+/*static void LoadNextLevel(AZStd::string level) {
+	CCryAction* pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
+	pCryAction->ScheduleEndLevel(level.c_str(), true);
+}*/
 
 int OpenDivaGame::Update(bool hasFocus, unsigned int updateFlags) {
 	const float frameTime = gEnv->pTimer->GetFrameTime();
@@ -173,12 +240,12 @@ int OpenDivaGame::Update(bool hasFocus, unsigned int updateFlags) {
 	const bool continueRunning = m_gameFramework->PreUpdate(true, updateFlags);
 
 	//pre update the movie system with the audio delta time
-	this->audioMovieSys->PreUpdate(frameTime);
+	//this->audioMovieSys->PreUpdate(frameTime);
     
 	m_gameFramework->PostUpdate(true, updateFlags);
 	
 	//post update the movie system with the audio delta time
-	this->audioMovieSys->PostUpdate(frameTime);
+	//this->audioMovieSys->PostUpdate(frameTime);
 
     return static_cast<int>(continueRunning);
 }
@@ -200,9 +267,9 @@ void OpenDivaGame::Shutdown()
 
 	//shutdown input system
 	delete this->iSys;
-	delete this->uiSys;
-	delete this->inputBusListener;
-	delete this->dsfgEventListener;
+	//delete this->uiSys;
+	//delete this->inputBusListener;
+	//delete this->dsfgEventListener;
 
 	//delete the moviesystem that uses audio timing
 	//this->audioMovieSys->RemoveAllSequences();
@@ -229,14 +296,17 @@ void OpenDivaGame::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR l
 		break;
 	case ESYSTEM_EVENT_LEVEL_GAMEPLAY_START:
 		break;
-	case ESYSTEM_EVENT_FLOW_SYSTEM_REGISTER_EXTERNAL_NODES:
-		RegisterExternalFlowNodes();
-		break;
+	//case ESYSTEM_EVENT_FLOW_SYSTEM_REGISTER_EXTERNAL_NODES:
+		//RegisterExternalFlowNodes();
+		//break;
 	case ESYSTEM_EVENT_EDITOR_GAME_MODE_CHANGED: //wparam: 0/1 - exit/enter
 		//gEnv->IsEditor();
 		if (wparam == 0) { //exit
-			this->audioMovieSys->StopSequence(this->testDivaSeq);
-			this->testDivaSeq->Reset(true);
+			//this->audioMovieSys->StopSequence(this->testDivaSeq->GetSequence());
+			//gEnv->pMovieSystem->StopSequence(this->testDivaSeq->GetSequence());
+			//this->testDivaSeq->Reset(true);
+			gEnv->pMovieSystem->StopSequence(this->testSeq);
+			this->testSeq->Reset(true);
 		} else { //enter
 		}
 		break;
@@ -247,6 +317,8 @@ void OpenDivaGame::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR l
 		break;
 	case ESYSTEM_EVENT_RESIZE: //resize resources.
 		//wparam=width, lparam=height
+		//AZ::Vector2 scale = AZ::Vector2((float)wparam / 1280.0f, (float)lparam / 720.0f);
+		//this->m_pRC->p_FontResource->setScale(scale);
 		break;
 	}
 }
@@ -407,7 +479,7 @@ void OpenDivaGame::OnActionEvent(const SActionEvent& event)
 
 //! Called after Render, before PostUpdate.
 void OpenDivaGame::OnPostUpdate(float fDeltaTime) {
-	this->audioMovieSys->Render();
+	//this->audioMovieSys->Render();
 
 	this->musicUpdate();
 
@@ -421,8 +493,8 @@ void OpenDivaGame::OnPostUpdate(float fDeltaTime) {
 //! Called after Update, but before Render.
 void OpenDivaGame::OnPreRender() {
 	//if (!this->iMovieSys->IsPlaying(this->testSeq)) this->iMovieSys->PlaySequence(this->testSeq, NULL, false, false, 0, 10);
-	if (!this->audioMovieSys->IsPlaying(this->testDivaSeq)) {
-		this->testDivaSeq->Reset(true);
+	if (!gEnv->pMovieSystem->IsPlaying(this->testSeq)) {
+		this->testSeq->Reset(true);
 		/*this->testSingleNode->Reset();
 		this->testSingleNode2->Reset();*/
 
@@ -432,7 +504,7 @@ void OpenDivaGame::OnPreRender() {
 		this->testDivaSeq->pushbackEffect({ 150,50 }, eEL_Fine);
 		this->testDivaSeq->pushbackEffect({ 200,50 }, eEL_Safe);
 		this->testDivaSeq->pushbackEffect({ 250,50 }, eEL_Sad);*/
-		this->audioMovieSys->PlaySequence(this->testDivaSeq, NULL, false, false, 0, 10);
+		gEnv->pMovieSystem->PlaySequence(this->testSeq, NULL, false, false, 0, 10);
 	}
 }
 
@@ -474,7 +546,8 @@ void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is alw
 			//while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);
 
 			CryLog("Broadcasting OnStart");
-			OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnStart);
+			//OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnStart);
+			EBUS_EVENT(DivaEventsBus, OnSongStart);
 		} else {
 			CryLog("paSystem stopping");
 			this->paSystem->Stop();
@@ -488,7 +561,8 @@ void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is alw
 			while (this->paSystem->HasError()) CryLog("paSystem Error: %s", this->paSystem->GetError().str);
 
 			CryLog("Broadcasting OnEnd");
-			OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnEnd);
+			//OpenDivaBus::OpenDivaSongBus::Broadcast(&OpenDivaBus::OpenDivaSongEventGroup::OnEnd);
+			EBUS_EVENT(DivaEventsBus, OnSongEnd);
 		}
 	} else if (pCmdArgs->GetArgCount() == 2) {
 		if (this->testAudioFileID2 == -1) this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
@@ -564,6 +638,7 @@ void OpenDivaGame::constructTesting() {
 	this->textColor = ColorF(1.0, 1.0, 1.0, 1.0);
 
 	this->testSeq = NULL;
+	this->testDivaAnimationNode = NULL;
 	//this->testButtonNode = NULL;
 	//this->testButtonNode2 = NULL;
 	/*this->testSingleNode = NULL;
@@ -582,8 +657,8 @@ void OpenDivaGame::destroyTesting() {
 
 	//if (this->testButtonNode != NULL) delete this->testButtonNode;
 
-	this->ent->Deactivate();
-	delete this->ent;
+	/*this->ent->Deactivate();
+	delete this->ent;*/
 
 	this->testFont->Release();
 	//delete this->testFont;
@@ -599,7 +674,7 @@ void OpenDivaGame::destroyTesting() {
 	delete this->m_pRC;
 	delete this->unicodeStr;
 	delete this->testJudge;
-	delete this->testDivaSeq;
+	//delete this->testDivaSeq;
 
 	//this->testGraph->SetActive(false);
 	//this->testGraph->Clear(); //reuse this graph?
@@ -643,16 +718,16 @@ void OpenDivaGame::setupTesting() {
 	/*std::string path(getcwd(buff, MAX_PATH + 1));
 	path += "/OpenDiva/Resources/Styles/PPDXXX/";*/
 
-	string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
-	string path(assetsPath);
+	AZStd::string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
+	AZStd::string path(assetsPath);
 
 	//string path(getcwd(buff, MAX_PATH + 1));
 	path += OpenDiva::Paths::sStylesPath + "/PPDXXX/";
 
-	string noteR(path + OpenDiva::Folders::sNoteFolder);
-	string effectR(path + OpenDiva::Folders::sEffectsFolder);
-	string tailsR(path + OpenDiva::Folders::sTailFolder);
-	string fontsR(path + OpenDiva::Folders::sFontsFolder);
+	AZStd::string noteR(path + OpenDiva::Folders::sNoteFolder);
+	AZStd::string effectR(path + OpenDiva::Folders::sEffectsFolder);
+	AZStd::string tailsR(path + OpenDiva::Folders::sTailFolder);
+	AZStd::string fontsR(path + OpenDiva::Folders::sFontsFolder);
 	//std::string ratingR(path + "Ratings");
 
 	/*this->m_pNoteResource = new NoteResource(noteR.c_str());
@@ -669,7 +744,7 @@ void OpenDivaGame::setupTesting() {
 	//this->m_pRC->p_RatingResource = new RatingResource(ratingR.c_str());
 	this->m_pRC->p_FontResource = new FontResource(fontsR.c_str());
 
-	Vec2 scale = Vec2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
+	AZ::Vector2 scale = AZ::Vector2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
 	this->m_pRC->p_FontResource->setScale(scale);
 
 	//float avgscale = ((gEnv->pRenderer->GetWidth() / 1280.0f) + (gEnv->pRenderer->GetHeight() / 720.0f)) / 2;
@@ -711,14 +786,14 @@ void OpenDivaGame::setupTesting() {
 	//XmlNodeRef content = unicodeTest->findChild("content");
 	//this->unicodeChar = unicodeTest->getContent();
 
-	this->unicodeStr = new string(unicodeTest->getContent());
+	this->unicodeStr = new AZStd::string(unicodeTest->getContent());
 
 	//music testing
 
-	string songpath(assetsPath);
+	AZStd::string songpath(assetsPath);
 	songpath += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/testSong.ogg";
 
-	string songpath2(assetsPath);
+	AZStd::string songpath2(assetsPath);
 	songpath2 += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/testSong3.flac";
 	//CryLog("SongPath: %s", songpath);
 	//CryLog("SongPath c_str: %s", songpath.c_str());
@@ -733,10 +808,10 @@ void OpenDivaGame::setupTesting() {
 	this->paSystem = new PortAudioSystem();
 	while (this->paSystem->HasError()) CryLog("PortAudioSystem Error: %s", this->paSystem->GetError().str);
 
-	this->testAudioFile = AudioSourceFactory::getFactory().newAudioSource("libsndfile-memory", std::string(songpath.c_str()).c_str());
+	this->testAudioFile = AudioSourceFactory::getFactory().newAudioSource("libsndfile-memory", songpath.c_str());
 	while (this->testAudioFile->HasError()) CryLog("TestAudioFile Error: %s", this->testAudioFile->GetError().str);
 
-	this->testAudioFile2 = AudioSourceFactory::getFactory().newAudioSource("libsndfile", std::string(songpath2.c_str()).c_str());
+	this->testAudioFile2 = AudioSourceFactory::getFactory().newAudioSource("libsndfile", songpath2.c_str());
 	while (this->testAudioFile2->HasError()) CryLog("TestAudioFile Error: %s", this->testAudioFile2->GetError().str);
 
 	testAudioFileID = -1;
@@ -759,54 +834,53 @@ void OpenDivaGame::setupTesting() {
 	ent.Deactivate();
 	*/
 
+	//-------------------------
+	//Entity Component stuff
+	//-------------------------
 	/*AZ::EntityId id = gEnv->pLyShine->LoadCanvas("");
 	AZ::Entity * entC = new AZ::Entity(id);*/
 
-	CryLog("Creating Test Ent.");
+	//CryLog("Creating Test Ent.");
 	//AZ::EntityId id = gEnv->pLyShine->LoadCanvas(canvasPath.c_str());
-	this->ent = new AZ::Entity("LyShine Test Entity");
+	//this->ent = new AZ::Entity("LyShine Test Entity");
 	//AZ::Component * lyshineComponent = ent->CreateComponent(LyShine::lyShineSystemComponentUuid);
-	AzFramework::ScriptComponent * scriptComponent = this->ent->CreateComponent<AzFramework::ScriptComponent>();
-	AZ::Component * canvasAssetComponent = this->ent->CreateComponent("{05BED4D7-E331-4020-9C17-BD3F4CE4DE85}");
+	//AzFramework::ScriptComponent * scriptComponent = this->ent->CreateComponent<AzFramework::ScriptComponent>();
+	//AZ::Component * canvasAssetComponent = this->ent->CreateComponent("{05BED4D7-E331-4020-9C17-BD3F4CE4DE85}");
+
 	//AZ::Component * inputComponent = this->ent->CreateComponent("{3106EE2A-4816-433E-B855-D17A6484D5EC}");
 
-	if (this->ent->GetId().IsValid()) CryLog("Entity is Valid.");
-	if (scriptComponent != nullptr) CryLog("Script Component is Valid.");
-	if (canvasAssetComponent != nullptr) CryLog("Canvas Asset Component is Valid.");
+	//AZ::Component * sqlLiteComponent = this->ent->CreateComponent(SQLite::SQLiteSystemComponentUUID);
+	//
+	//AZ::Component * inputComponent = this->ent->CreateComponent("{3106EE2A-4816-433E-B855-D17A6484D5EC}");
+	//Input::InputConfigurationComponent * inputComponent = this->ent->CreateComponent<Input::InputConfigurationComponent>();
 
-	CryLog("Initializing Test Ent.");
-	this->ent->Init();
+	//if (this->ent->GetId().IsValid()) CryLog("Entity is Valid.");
+	//if (scriptComponent != nullptr) CryLog("Script Component is Valid.");
+	//if (canvasAssetComponent != nullptr) CryLog("Canvas Asset Component is Valid.");
+	//if (inputComponent != nullptr) CryLog("Input Configuration Component is Valid.");
 
-	CryLog("Loading Script.");
-	const AZ::Data::AssetType& scriptAssetType = azrtti_typeid<AZ::ScriptAsset>();
+	//CryLog("Initializing Test Ent.");
+	//this->ent->Init();
 
-	AZ::Data::AssetId assetId;
-	AZStd::string str = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.lua");
-	CryLog("Script Path: %s", str.c_str());
-	//EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, str.c_str(), scriptAssetType, true);
-	AZ::Data::AssetCatalogRequestBus::BroadcastResult(assetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, str.c_str(), scriptAssetType, true);
+	//CryLog("Loading Script.");
+	//const AZ::Data::AssetType& scriptAssetType = azrtti_typeid<AZ::ScriptAsset>();
 
-	AZStd::string retstr;
-	//EBUS_EVENT_RESULT(retstr, AZ::Data::AssetCatalogRequestBus, GetAssetPathById, assetId);
-	AZ::Data::AssetCatalogRequestBus::BroadcastResult(retstr, &AZ::Data::AssetCatalogRequests::GetAssetPathById, assetId);
-	CryLog("Asset Script Path: %s", retstr.c_str());
+	//AZ::Data::AssetId assetId;
+	//AZStd::string str = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.lua");
+	//CryLog("Script Path: %s", str.c_str());
+	////EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, str.c_str(), scriptAssetType, true);
+	//AZ::Data::AssetCatalogRequestBus::BroadcastResult(assetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, str.c_str(), scriptAssetType, true);
 
-	if (assetId.IsValid()) {
-		CryLog("Setting Script.");
-		AZ::Data::Asset<AZ::ScriptAsset> scriptAsset(assetId, scriptAssetType);
-		scriptComponent->SetScript(scriptAsset);
-	}
+	//AZStd::string retstr;
+	////EBUS_EVENT_RESULT(retstr, AZ::Data::AssetCatalogRequestBus, GetAssetPathById, assetId);
+	//AZ::Data::AssetCatalogRequestBus::BroadcastResult(retstr, &AZ::Data::AssetCatalogRequests::GetAssetPathById, assetId);
+	//CryLog("Asset Script Path: %s", retstr.c_str());
 
-	/*AZ::Data::AssetId inputAssetId;
-	AZStd::string inputStr = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string("/Test/test.inputbindings");
-	const AZ::Data::AssetType& inputAssetType = azrtti_typeid<Input::InputEventBindingsAsset>();
-	AZ::Data::AssetCatalogRequestBus::BroadcastResult(inputAssetId, &AZ::Data::AssetCatalogRequests::GetAssetIdByPath, inputStr.c_str(), inputAssetType, true);
-
-	if (inputAssetId.IsValid()) {
-		AZ::Data::Asset<Input::InputEventBindingsAsset> inputAsset(inputAssetId, inputAssetType);
-		AZ::Data::AssetBus::Events::OnAssetReady;
-		AZ::Data::AssetBus::Broadcast(ent->GetId(), &AZ::Data::AssetBus::Events::OnAssetReady, inputAsset);
-	}*/
+	//if (assetId.IsValid()) {
+	//	CryLog("Setting Script.");
+	//	AZ::Data::Asset<AZ::ScriptAsset> scriptAsset(assetId, scriptAssetType);
+	//	scriptComponent->SetScript(scriptAsset);
+	//}
 
 	/*ent->Deactivate();
 	delete ent;*/
@@ -863,6 +937,65 @@ void OpenDivaGame::setupTesting() {
 			return true; // continue iterating
 		}
 	);*/
+	
+	/*int ret;
+	SQLite3::SQLiteDB * sysDb;
+	//SQLite::SQLiteRequestBus::EventResult(sysDb, AZ::EntityId(0), &SQLite::SQLiteRequestBus::Events::GetConnection);
+	SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection);
+	AZ_Assert(sysDb, "sysDb is null.");
+
+	int ret;
+	//SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
+	SQLITEDB_BUS(ret, sysDb, Exec, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
+	AZ_Assert(ret == SQLITE_OK, "setting foreing keys failed.");
+
+	//create a table
+	//SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "CREATE TABLE System (Col1 int, Col2 varchar(255));", nullptr, nullptr, nullptr);
+	SQLITEDB_BUS(ret, sysDb, Exec, "CREATE TABLE System (Col1 int, Col2 varchar(255));", nullptr, nullptr, nullptr);
+	AZ_Assert(ret == SQLITE_OK, "Create Table Failed.");
+
+	//insert a row
+	//SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(0,'FIRST');", nullptr, nullptr, nullptr);
+	SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(0,'FIRST');", nullptr, nullptr, nullptr);
+	AZ_Assert(ret == SQLITE_OK, "Insert 1 Failed.");
+
+	//insert a row
+	//SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(1,'SECOND');", nullptr, nullptr, nullptr);
+	SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(1,'SECOND');", nullptr, nullptr, nullptr);
+	AZ_Assert(ret == SQLITE_OK, "Insert 2 Failed.");
+
+	//insert a row
+	//SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(2,'THIRD');", nullptr, nullptr, nullptr);
+	SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(2,'THIRD');", nullptr, nullptr, nullptr);
+	AZ_Assert(ret == SQLITE_OK, "Insert 3 Failed.");
+
+	CryLog("Testing DB Select...");
+	//select all from the table
+	//SQLite3::SQLiteDBBus::EventResult(
+	//	ret,
+	//	sysDb,
+	//	&SQLite3::SQLiteDBBus::Events::Exec,
+	//	"SELECT * FROM System;",
+	//	[](void* cbarg, int argc, char **argv, char **azColName) -> int {
+	//		for (int i = 0; i < argc; i++) CryLog("%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
+	//		return 0;
+	//	},
+	//	nullptr,
+	//	nullptr
+	//);
+	SQLITEDB_BUS(
+		ret,
+		sysDb,
+		Exec,
+		"SELECT * FROM System;",
+		[](void* cbarg, int argc, char **argv, char **azColName) -> int {
+			for (int i = 0; i < argc; i++) CryLog("%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
+			return 0;
+		},
+		nullptr,
+		nullptr
+	);
+	AZ_Assert(ret == SQLITE_OK, "Select Failed");//*/
 }
 
 void OpenDivaGame::setupFlowgraph() {
@@ -971,10 +1104,24 @@ void OpenDivaGame::loadSequences() {
 	CryLog("Loading Sequences.");
 	if (this->testSeq == NULL) {
 		CryLog("Creating Test Sequence.");
-		this->testSeq = this->iMovieSys->CreateSequence("testSeq");
+		this->testSeq = this->iMovieSys->CreateSequence("DivaSequence", false, 0U, eSequenceType_SequenceComponent);
 		this->testSeq->SetTimeRange(Range(0.0f, 15.0f + BIEZER_TACKON));
-		this->testSeq->SetFlags(IAnimSequence::eSeqFlags_NoAbort | IAnimSequence::eSeqFlags_CutScene | IAnimSequence::eSeqFlags_OutOfRangeLoop);
+		this->testSeq->SetFlags(IAnimSequence::eSeqFlags_NoAbort | IAnimSequence::eSeqFlags_CutScene | IAnimSequence::eSeqFlags_OutOfRangeConstant | IAnimSequence::eSeqFlags_NoMPSyncingNeeded | IAnimSequence::eSeqFlags_NoSpeed | IAnimSequence::eSeqFlags_NoMPSyncingNeeded);
 		this->testSeq->AddRef();
+
+		this->testDivaAnimationNode = new DivaAnimationNode(this->m_pRC);
+		this->testDivaAnimationNode->AddRef();
+		this->testSeq->AddNode(this->testDivaAnimationNode);
+
+		this->iSys->AddListener(this->testDivaAnimationNode);
+
+		//this->testSeq->AddTrackEventListener(this->dsfgEventListener);
+
+		AZStd::string songpath(gEnv->pFileIO->GetAlias("@songs@"));
+		songpath += "/Test Group/Test Song/NoteMaps/test.xml";
+		NoteFile noteFile(songpath.c_str());
+
+		this->testDivaAnimationNode->Init(&noteFile);
 	}
 
 	/*if (this->testButtonNode2 == NULL) {
@@ -1033,22 +1180,16 @@ void OpenDivaGame::loadSequences() {
 	testXML->saveToFile("testSeq.xml");
 	}*/
 
-	this->testDivaSeq = new DivaSequence(this->m_pRC);
-	this->testDivaSeq->AddRef();
+	//this->testDivaSeq = new DivaSequence(this->m_pRC);
+	//this->testDivaSeq->AddRef();
 
-	this->testDivaSeq->AddTrackEventListener(this->dsfgEventListener);
+	//this->testDivaSeq->GetSequence()->AddTrackEventListener(this->dsfgEventListener);
 
 	//this->iMovieSys->AddSequence(this->testDivaSeq);
 
-	this->audioMovieSys->AddSequence(this->testDivaSeq);
+	//gEnv->pMovieSystem->AddSequence(this->testDivaSeq->GetSequence());
 
-	this->iSys->AddListener(this->testDivaSeq);
-
-	string songpath(gEnv->pFileIO->GetAlias("@assets@"));
-	songpath += OpenDiva::Paths::sSongPath + "/Test Group/Test Song/NoteMaps/test.xml";
-	NoteFile noteFile(songpath);
-
-	this->testDivaSeq->Init(&noteFile, this->testJudge);
+	//this->iSys->AddListener(this->testDivaSeq);
 
 	/*if (this->testSingleNode == NULL) {
 		CryLog("Creating testSingleNode.");
@@ -1189,6 +1330,8 @@ void OpenDivaGame::unloadSequences() {
 		this->iMovieSys->RemoveSequence(this->testSeq);
 		this->testSeq->Release();
 		this->testSeq = NULL;
+		this->testDivaAnimationNode->Release();
+		this->testDivaAnimationNode = NULL;
 	}
 }
 
@@ -1300,6 +1443,194 @@ void OpenDivaGame::initLyShine() {
 }
 void OpenDivaGame::destroyLyShine() {
 	//gEnv->pLyShine->ReleaseCanvas(this->canvasEntityId);
+}
+
+void OpenDivaGame::SetupDatabase() {
+	int ret;
+	SQLite3::SQLiteDB * sysDb;
+	SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection); //get system db
+	AZ_Assert(sysDb, "sysDb is null.");
+
+	//set db path
+	string dbPath = gEnv->pFileIO->GetAlias("@cache@");
+	dbPath += "/database.db";
+
+	//open db
+	SQLITEDB_BUS(ret, sysDb, Open, dbPath.c_str());
+	AZ_Assert(ret == SQLITE_OK, "Opening DB Failed.");
+
+	//enable foreign key support
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(ret, sysDb, Exec, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
+		AZ_Assert(ret == SQLITE_OK, "setting foreing keys failed.");
+	}
+
+	//create Versions table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Versions ( \
+				id INTEGER PRIMARY KEY UNIQUE NOT NULL, \
+				Database CHAR(20) UNIQUE NOT NULL, \
+				High INTEGER NOT NULL, \
+				Low INTEGER NOT NULL, \
+				Rev INTEGER NOT NULL \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "Creating Versions Table Failed.");
+	}
+
+	//setup versions data
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"INSERT OR IGNORE INTO Versions( \
+				Database, \
+				High, \
+				Low, \
+				Rev \
+			) \
+			VALUES \
+			( \
+				'Versions', \
+				1, \
+				0, \
+				0 \
+			), \
+			( \
+				'Groups', \
+				1, \
+				0, \
+				0 \
+			), \
+			( \
+				'Songs', \
+				1, \
+				0, \
+				0 \
+			), \
+			( \
+				'Notemaps', \
+				1, \
+				0, \
+				0 \
+			), \
+			( \
+				'Scores', \
+				1, \
+				0, \
+				0 \
+			), \
+			( \
+				'Players', \
+				1, \
+				0, \
+				0 \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "Creating Versions Data Failed.");
+	}
+
+	//create song Groups table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Groups ( \
+				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
+				crc INTEGER NOT NULL, \
+				name TEXT, \
+				name_en TEXT, \
+				name_rj TEXT, \
+				desc TEXT, \
+				desc_en TEXT \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "Creating Groups Table Failed.");
+	}
+
+	//create Songs table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Songs ( \
+				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
+				crc INTEGER NOT NULL, \
+				groupUUID TEXT NOT NULL, \
+				name TEXT, \
+				name_en TEXT, \
+				name_rj TEXT, \
+				desc TEXT, \
+				desc_en TEXT, \
+				albumArt TEXT, \
+				bpm TEXT, \
+				models TEXT, \
+				genre TEXT, \
+				authors TEXT, \
+				path TEXT NOT NULL, \
+				FOREIGN KEY(groupUUID) REFERENCES Groups(uuid) \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "Creating Songs Table Failed.");
+	}
+
+	//create song Notemaps table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Notemaps ( \
+				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
+				crc INTEGER NOT NULL, \
+				songUUID TEXT NOT NULL, \
+				author TEXT, \
+				author_en TEXT, \
+				author_rj TEXT, \
+				desc TEXT, \
+				desc_en TEXT, \
+				difficulty INTEGER NOT NULL, \
+				version INTEGER NOT NULL, \
+				path TEXT NOT NULL, \
+				FOREIGN KEY(songUUID) REFERENCES Songs(uuid) \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "");
+	}
+
+	//create Players table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Players ( \
+				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
+				username TEXT UNIQUE NOT NULL \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "");
+	}
+
+	//create Scores table
+	if (ret == SQLITE_OK) {
+		SQLITEDB_BUS(
+			ret, sysDb, Exec,
+			"CREATE TABLE IF NOT EXISTS Scores ( \
+				id INTEGER PRIMARY KEY UNIQUE NOT NULL, \
+				notemapUUID TEXT NOT NULL, \
+				songUUID TEXT NOT NULL, \
+				playerUUID TEXT NOT NULL, \
+				score INTEGER NOT NULL, \
+				FOREIGN KEY (notemapUUID) REFERENCES Notemaps(uuid), \
+				FOREIGN KEY (songUUID) REFERENCES Songs(uuid), \
+				FOREIGN KEY (playerUUID) REFERENCES Players(uuid) \
+			);",
+			nullptr, nullptr, nullptr
+		);
+		AZ_Assert(ret == SQLITE_OK, "");
+	}
 }
 
 #ifdef CRY_UNIT_TESTING

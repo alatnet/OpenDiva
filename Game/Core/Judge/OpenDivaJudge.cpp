@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "IDivaJudge.h"
 #include "OpenDivaJudge.h"
 #include "../../../Graphics/Particles.h"
@@ -17,24 +18,18 @@ namespace LYGame {
 		m_score = m_combo = m_ChanceMult = m_maxCombo = m_completion = 0;
 		m_health = 100;
 		for (int i = 0; i < eHS_None; i++) m_numHits[i] = 0;
-		m_divaSeq = nullptr;
+		//m_divaSeq = nullptr;
 		m_currTechZone = 0;
 	}
 
-	void OpenDivaJudge::addListener(IDivaJudgeListener * listener) {
-		IDivaJudge::addListener(listener);
-	}
-
-	void OpenDivaJudge::SetTechZoneNotes(std::vector<unsigned int> techZoneNotes) {
+	void OpenDivaJudge::SetTechZoneNotes(AZStd::vector<unsigned int> techZoneNotes) {
 		IDivaJudge::SetTechZoneNotes(techZoneNotes);
 
 		for (unsigned int numNotes : techZoneNotes) m_totalNotes += numNotes;
 	}
 
-	#define M_divaSeq if (m_divaSeq != nullptr) m_divaSeq
-
-	void OpenDivaJudge::DivaJudgeCallback(IDivaJudgeParams params) {
-		CryLog("[DivaJudgeCallback] Begin");
+	void OpenDivaJudge::OnJudge(IDivaJudgeParams params) {
+		CryLog("[OnJudge] Begin");
 
 		//tech zone section update
 		if (this->m_currSection != params.sType && m_currTechZone < this->m_techZoneNotes.size()) {
@@ -91,7 +86,9 @@ namespace LYGame {
 					break;
 				}
 
-				if (this->m_listeners.size() > 0) for (IDivaJudgeListener * listeners : this->m_listeners) listeners->OnTechZoneScore(currTechZone->currNotes, currTechZone->active);
+				//if (this->m_listeners.size() > 0) for (IDivaJudgeListener * listeners : this->m_listeners) listeners->OnTechZoneScore(currTechZone->currNotes, currTechZone->active);
+				//EBUS_EVENT(DivaJudgeEventBus, OnTechZoneScore, currTechZone->currNotes, currTechZone->active);
+				EBUS_EVENT(DivaHudBus, SetTechZoneInfo, currTechZone->currNotes, currTechZone->active);
 			}
 		}
 
@@ -180,34 +177,36 @@ namespace LYGame {
 		if (this->m_health <= 0) this->m_health = 0;
 		if (this->m_health >= 200) this->m_health = 200;
 
-		//update listeners
-		if (this->m_listeners.size() > 0) {
-			IDivaJudgeListenerParams jparams;
+		/*IDivaJudgeListenerParams jparams;
 
-			jparams.score = this->m_score;
-			jparams.health = this->m_health;
-			jparams.hitScore = params.hitscore;
-			jparams.wrong = params.wrong;
-			jparams.completion = this->getCompletion();
-			jparams.numNotesComplete = this->m_completion;
+		jparams.score = this->m_score;
+		jparams.health = this->m_health;
+		jparams.hitScore = params.hitscore;
+		jparams.wrong = params.wrong;
+		jparams.completion = this->GetCompletion();
+		jparams.numNotesComplete = this->m_completion;*/
 
-			for (IDivaJudgeListener * listeners : this->m_listeners) {
-				listeners->OnJudgeEvent(jparams);
-			}
-		}
+		//EBUS_EVENT(DivaJudgeEventBus, OnJudgeEvent, jparams);
+
+		//move this to IDivaJudge?
+		EBUS_EVENT(DivaHudBus, SetHP, this->m_health);
+		EBUS_EVENT(DivaHudBus, SetScore, this->m_score);
+		EBUS_EVENT(DivaHudBus, SetCompletion, this->m_completion, this->m_totalNotes);
+		EBUS_EVENT(DivaHudBus, SetRating, this->GetCompletion());
+		EBUS_EVENT(DivaHudBus, SetHitScore, params.hitscore, params.wrong);
 
 		//we are done with the note, update which note to judge
 		if (params.hitscore != eHS_None && !params.hold) {
-			M_divaSeq->updateNoteHit();
+			EBUS_EVENT(DivaSequenceJudgeBus, UpdateNoteHit);
 		} else if (params.hitscore != eHS_None && params.hold && params.holdRelease) {
-			M_divaSeq->updateNoteHit();
+			EBUS_EVENT(DivaSequenceJudgeBus, UpdateNoteHit);
 		}
-		CryLog("[DivaJudgeCallback] End");
+		CryLog("[OnJudge] End");
 	}
 
 	//WX_DISABLE_(4244)
 
-	EDivaJudgeCompletion OpenDivaJudge::getCompletion() {
+	EDivaJudgeCompletion OpenDivaJudge::GetCompletion() {
 		float completion_ratio = (((float)this->m_completion)/((float)this->m_totalNotes))*100;
 
 		if (completion_ratio >= 100.0f) return eDJC_Perfect;
@@ -218,16 +217,14 @@ namespace LYGame {
 		return eDJC_Cheap;
 	}
 
-	unsigned int OpenDivaJudge::numTechZoneNotes() {
+	unsigned int OpenDivaJudge::TechZoneNotesCount() {
 		if (this->m_currSection != eST_Tech) return 0;
 		return this->m_techZoneNotes.at(this->m_currTechZone)->currNotes;
 	}
 
-	bool OpenDivaJudge::isTechZoneActive() {
+	bool OpenDivaJudge::IsTechZoneActive() {
 		return this->m_currSection == eST_Tech && this->m_techZoneNotes.at(this->m_currTechZone)->active;
 	}
 
 	//WX_ENABLE_(4244)
-
-	#undef M_divaSeq
 }

@@ -13,7 +13,7 @@ namespace LYGame {
 		void SetDefer(bool defer) { this->m_deferDraw = defer; }
 		void DeferDraw(int width = OD_Draw2d::renderer->GetOverlayWidth(), int height = OD_Draw2d::renderer->GetOverlayHeight(), float znear = -1e10f, float zfar = 1e10f);
 	public:
-		void DrawLine(Vec2 start, Vec2 end, ColorF color, int texID = OD_Draw2d::renderer->GetWhiteTextureId());
+		void DrawLine(AZ::Vector2 start, AZ::Vector2 end, ColorF color, int texID = OD_Draw2d::renderer->GetWhiteTextureId());
 		void DrawLineStrip(SVF_P3F_C4B_T2F * verts, int numVerts, uint16 * inds = nullptr, int numInds = 0, int texID = OD_Draw2d::renderer->GetWhiteTextureId());
 		void DrawTriangleStrip(SVF_P3F_C4B_T2F * verts, int numVerts, uint16 * inds = nullptr, int numInds = 0, int texID = OD_Draw2d::renderer->GetWhiteTextureId());
 	public:
@@ -30,7 +30,7 @@ namespace LYGame {
 			Center,
 			Bottom,
 		};
-		static Vec2 Align(Vec2 position, Vec2 size, HAlign horizontalAlignment, VAlign verticalAlignment);
+		static AZ::Vector2 Align(AZ::Vector2 position, AZ::Vector2 size, HAlign horizontalAlignment, VAlign verticalAlignment);
 	protected:
 		static IDraw2d *idraw2d;
 		static IRenderer* renderer;
@@ -47,8 +47,8 @@ namespace LYGame {
 		public:
 			void Draw() const;
 
-			Vec2 start;
-			Vec2 end;
+			AZ::Vector2 start;
+			AZ::Vector2 end;
 			ColorF color;
 			int texID;
 		};
@@ -88,7 +88,7 @@ namespace LYGame {
 		}
 
 		bool m_deferDraw;
-		std::vector<DeferredPrim*> m_dPrims;
+		AZStd::vector<DeferredPrim*> m_dPrims;
 		TransformationMatrices prevMat;
 	private:
 		OD_Draw2d();

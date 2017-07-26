@@ -1,21 +1,22 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "CometTail.h"
 
 namespace LYGame {
 	float CometTail::m_rsize = 1.0f;
-	Vec2 CometTail::m_rscale = Vec2(1.0f, 1.0f);
+	AZ::Vector2 CometTail::m_rscale = AZ::Vector2(1.0f, 1.0f);
 
-	void CometTail::Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void CometTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		if (tStart >= tEnd) return;
 		this->Draw(p1, p2, p3, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void CometTail::Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void CometTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 
 		float distances[] = { COMET_SIZE*this->m_size, -(COMET_SIZE*this->m_size), 0, 0 };
 
-		std::vector<SVF_P3F_C4B_T2F> line1, line2; //individualized or shared vector space?
+		AZStd::vector<SVF_P3F_C4B_T2F> line1, line2; //individualized or shared vector space?
 
 		float iS = tStart * 360; //starting orbit for orbit comet
 
@@ -27,47 +28,47 @@ namespace LYGame {
 			distances[3] = (COMET_SEP * sin(DEG2RAD(iS))) - COMET_SIZE;
 
 			//get the points based on distances
-			Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 4);
+			AZ::Vector2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 4);
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[3].GetX() * this->m_scale.GetX(), points[3].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[4].x * this->m_scale.x, points[4].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[4].GetX() * this->m_scale.GetX(), points[4].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 		}
 
 		//gets rid of jitter at the end point.
 		{
-			Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 4);
+			AZ::Vector2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 4);
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[3].GetX() * this->m_scale.GetX(), points[3].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[4].x * this->m_scale.x, points[4].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[4].GetX() * this->m_scale.GetX(), points[4].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 		}
 
@@ -88,15 +89,15 @@ namespace LYGame {
 		if (isolatedDraw) OD_Draw2d::getDraw2D().EndDraw2d();
 	}
 
-	void CometTail::DrawRainbow(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void CometTail::DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		DrawRainbow(p1, p2, p3, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void CometTail::DrawRainbow(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void CometTail::DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 		//http://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
 
-		std::vector<SVF_P3F_C4B_T2F> line;
+		AZStd::vector<SVF_P3F_C4B_T2F> line;
 		float distances[] = { RCOMET_SIZE*CometTail::m_rsize, -(RCOMET_SIZE*CometTail::m_rsize) };
 
 		float hStart = tStart * 360; //starting rainbow color
@@ -112,16 +113,16 @@ namespace LYGame {
 			uint32 col = Util::HSVToRGB(hsv).pack_argb8888(); //convert from hsv to rgb
 
 			//get the points based on distances.
-			Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 2);
+			AZ::Vector2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 2);
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * CometTail::m_rscale.GetX(), points[1].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * CometTail::m_rscale.x, points[2].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * CometTail::m_rscale.GetX(), points[2].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -135,16 +136,16 @@ namespace LYGame {
 			uint32 col = Util::HSVToRGB(hsv).pack_argb8888(); //convert from hsv to rgb
 
 			//get the points based on distances.
-			Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 2);
+			AZ::Vector2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 2);
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * CometTail::m_rscale.GetX(), points[1].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * CometTail::m_rscale.x, points[2].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * CometTail::m_rscale.GetX(), points[2].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -162,17 +163,17 @@ namespace LYGame {
 	}
 
 
-	void CometTail::Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void CometTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		if (tStart >= tEnd) return;
 		this->Draw(p1, p2, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void CometTail::Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void CometTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 
 		float distances[] = { COMET_SIZE*this->m_size, -(COMET_SIZE*this->m_size), 0, 0 };
 
-		std::vector<SVF_P3F_C4B_T2F> line1, line2; //individualized or shared vector space?
+		AZStd::vector<SVF_P3F_C4B_T2F> line1, line2; //individualized or shared vector space?
 
 		float iS = tStart * 360; //starting orbit for orbit comet
 
@@ -185,48 +186,48 @@ namespace LYGame {
 
 			//get the points based on distances
 			//Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 4);
-			Vec2 * points = Util::PerpPointDist(p1, p2, i, distances, 4);
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, i, distances, 4);
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[0].x * this->m_scale.x, points[0].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[0].GetX() * this->m_scale.GetX(), points[0].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[3].GetX() * this->m_scale.GetX(), points[3].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 		}
 
 		//gets rid of jitter at the end point.
 		{
 			//Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 4);
-			Vec2 * points = Util::PerpPointDist(p1, p2, tEnd, distances, 4);
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, tEnd, distances, 4);
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back center comet vectors
-			tmp.xyz = Vec3(points[0].x * this->m_scale.x, points[0].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[0].GetX() * this->m_scale.GetX(), points[0].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = this->m_PackCol;
 			tmp.st = Vec2(0, 0);
 			line1.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 1);
 			line1.push_back(tmp);
 
 			//push back orbiting comet vectors
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 
-			tmp.xyz = Vec3(points[3].x * this->m_scale.x, points[3].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[3].GetX() * this->m_scale.GetX(), points[3].GetY() * this->m_scale.GetY(), 1);
 			line2.push_back(tmp);
 		}
 
@@ -247,15 +248,15 @@ namespace LYGame {
 		if (isolatedDraw) OD_Draw2d::getDraw2D().EndDraw2d();
 	}
 
-	void CometTail::DrawRainbow(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void CometTail::DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		DrawRainbow(p1, p2, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void CometTail::DrawRainbow(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void CometTail::DrawRainbow(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 		//http://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
 
-		std::vector<SVF_P3F_C4B_T2F> line;
+		AZStd::vector<SVF_P3F_C4B_T2F> line;
 		float distances[] = { RCOMET_SIZE*CometTail::m_rsize, -(RCOMET_SIZE*CometTail::m_rsize) };
 
 		float hStart = tStart * 360; //starting rainbow color
@@ -272,16 +273,16 @@ namespace LYGame {
 
 			//get the points based on distances.
 			//Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, distances, 2);
-			Vec2 * points = Util::PerpPointDist(p1, p2, i, distances, 2);
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, i, distances, 2);
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[0].x * CometTail::m_rscale.x, points[0].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[0].GetX() * CometTail::m_rscale.GetX(), points[0].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * CometTail::m_rscale.GetX(), points[1].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
@@ -296,16 +297,16 @@ namespace LYGame {
 
 			//get the points based on distances.
 			//Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, distances, 2);
-			Vec2 * points = Util::PerpPointDist(p1, p2, tEnd, distances, 2);
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, tEnd, distances, 2);
 
 			//push back the vectors.
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[0].x * CometTail::m_rscale.x, points[0].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[0].GetX() * CometTail::m_rscale.GetX(), points[0].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[1].x * CometTail::m_rscale.x, points[1].y * CometTail::m_rscale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * CometTail::m_rscale.GetX(), points[1].GetY() * CometTail::m_rscale.GetY(), 1);
 			tmp.color.dcolor = col;
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);

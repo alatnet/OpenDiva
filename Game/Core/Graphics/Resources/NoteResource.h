@@ -55,7 +55,7 @@ namespace LYGame {
 	static const char * sSwipeEXFileNames[eSEXNT_Count]{
 		"swipeLEX.dds",
 		"swipeLEXTick.dds",
-		"swipeREX.dds"
+		"swipeREX.dds",
 		"swipeREXTick.dds"
 	};
 
@@ -73,19 +73,19 @@ namespace LYGame {
 		NoteImageSizes getNoteSizes(ENoteType type) { return this->m_pNoteImages[type]->getSizes(); }
 	public:
 		ITexture * getSwipeTick(ESwipeEXNoteType dir) { return this->m_pSwipeTickImages[dir]; }
-		Vec2 getSwipeTickOffset() { return this->m_swipeTickOffset; }
-		Vec2 getSwipeTickSize() { return this->m_swipeTickSize; }
-		Vec2 getSwipeExSize() { return this->m_swipeExSize; }
+		AZ::Vector2 getSwipeTickOffset() { return this->m_swipeTickOffset; }
+		AZ::Vector2 getSwipeTickSize() { return this->m_swipeTickSize; }
+		AZ::Vector2 getSwipeExSize() { return this->m_swipeExSize; }
 	public:
-		void setImgScale(Vec2 scale = Vec2(1.0f, 1.0f));
-		void setPosScale(Vec2 scale = Vec2(1.0f, 1.0f));
-		void setScale(Vec2 scale = Vec2(1.0f, 1.0f));
+		void setImgScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
+		void setPosScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
+		void setScale(AZ::Vector2 scale = AZ::Vector2(1.0f, 1.0f));
 	private:
 		NoteImage * m_pNoteImages[eNT_Count];
 		NoteImage * m_pHoldNoteImages[4];
 		ITexture * m_pTimeArrowTex;
 	private:
-		Vec2 m_swipeExSize, m_swipeTickOffset, m_swipeTickSize;
+		AZ::Vector2 m_swipeExSize, m_swipeTickOffset, m_swipeTickSize;
 		ITexture * m_pSwipeTickImages[eSEXNT_Count];
 	private:
 		static IRenderer * iRenderer;

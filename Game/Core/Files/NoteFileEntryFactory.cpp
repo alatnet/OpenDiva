@@ -1,7 +1,8 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 
 #include "NoteFileEntries.h"
-#include <functional>
+#include <AzCore\std\functional.h>
 
 #include "NoteFileEntryFactory.h"
 

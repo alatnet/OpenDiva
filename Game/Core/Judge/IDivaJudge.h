@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include "../CryMovie/Node/IDivaSequence.h"
+//#include "../CryMovie/Node/IDivaSequence.h"
 #include "../Files/NoteFileEntries.h"
-#include "../Bus/OpenDiva_Bus.h"
+#include "../Bus/DivaJudgeBus.h"
+#include "../Bus/DivaSequenceBus.h"
+#include "../Bus/DivaHudBus.h"
 
 /*
 enum EHitScore {
@@ -30,45 +32,6 @@ eHS_None
 //- Big Star Fill Gauge
 
 namespace LYGame {
-	struct IDivaJudgeParams {
-		ENoteType nType;
-		ENoteHitType hType;
-		EHitScore hitscore;
-		SectionType sType;
-		bool hold;
-		bool holdRelease;
-		bool wrong;
-		Vec2 notePos;
-		unsigned int holdMult;
-
-		IDivaJudgeParams() :
-			nType(eNT_Count),
-			hType(eNHT_INVALID),
-			hitscore(eHS_None),
-			sType(eST_Norm),
-			hold(false),
-			holdRelease(false),
-			wrong(false),
-			notePos(Vec2(0.0f, 0.0f)),
-			holdMult(0)
-		{};
-	};
-
-	struct IDivaJudgeListenerParams {
-		unsigned int score, health;
-		EHitScore hitScore;
-		bool wrong;
-		EDivaJudgeCompletion completion;
-		int numNotesComplete;
-
-		IDivaJudgeListenerParams() : score(0), health(0), hitScore(eHS_None), wrong(false), completion(eDJC_Cheap), numNotesComplete(0) {};
-	};
-
-	struct IDivaJudgeListener {
-		virtual void OnJudgeEvent(IDivaJudgeListenerParams params) = 0;
-		//virtual void OnMaxHP(unsigned int maxHP) = 0;
-		virtual void OnTechZoneScore(unsigned int numNotes, bool active) = 0;
-	};
 
 	struct IDivaJudgeTechZone {
 		unsigned int totalNotes;
@@ -78,66 +41,38 @@ namespace LYGame {
 		IDivaJudgeTechZone() : totalNotes(0), currNotes(0), active(true) {};
 	};
 
-	//communication bus for diva judge
-	class DivaJudgeEventGroup : public AZ::EBusTraits {
-	public:
-		virtual unsigned int getScore() = 0;
-		virtual unsigned int getHealth() = 0;
-		virtual unsigned int getMaxHP() = 0;
-		virtual unsigned int getCombo() = 0;
-		virtual EDivaJudgeCompletion getCompletion() = 0;
-		virtual unsigned int getNumHits(EHitScore score) = 0;
-
-		virtual unsigned int numTechZoneNotes() = 0;
-		virtual bool isTechZoneActive() = 0;
-	};
-
-	using DivaJudgeBus = AZ::EBus<DivaJudgeEventGroup>;
-
 	class IDivaJudge : public DivaJudgeBus::Handler {
 	public:
 		IDivaJudge();
 		~IDivaJudge();
 	public:
-		virtual void DivaJudgeCallback(IDivaJudgeParams params) = 0;
-	public:
-		void setDivaSequence(IDivaSequenceJudge * divaSeq) { this->m_divaSeq = divaSeq; }
-		void setTotalNotes(unsigned int totalNotes) { this->m_totalNotes = totalNotes; }
-		void SetScoreRanges(float cool, float fine, float safe, float sad, float worst);
-		virtual void SetTechZoneNotes(std::vector<unsigned int> techZoneNotes);
-	public:
-		virtual void addListener(IDivaJudgeListener * listener) { if (listener != nullptr) this->m_listeners.push_back(listener); }
-		void removeListener(IDivaJudgeListener * listener) { if (listener != nullptr) this->m_listeners.erase(std::remove(this->m_listeners.begin(), this->m_listeners.end(), listener), this->m_listeners.end()); }
-	public:
-		virtual unsigned int getScore() = 0;
-		virtual unsigned int getHealth() = 0;
-		virtual unsigned int getMaxHP() = 0;
-		virtual unsigned int getCombo() = 0;
-		virtual EDivaJudgeCompletion getCompletion() = 0;
-		virtual unsigned int getNumHits(EHitScore score) = 0;
+		// DivaJudgeBus
+		virtual unsigned int GetScore() = 0;
+		virtual unsigned int GetHealth() = 0;
+		virtual unsigned int GetMaxHP() = 0;
+		virtual unsigned int GetCombo() = 0;
+		virtual EDivaJudgeCompletion GetCompletion() = 0;
+		virtual unsigned int GetNumHits(EHitScore score) = 0;
 
-		virtual unsigned int numTechZoneNotes() = 0;
-		virtual bool isTechZoneActive() = 0;
+		virtual unsigned int TechZoneNotesCount() = 0;
+		virtual bool IsTechZoneActive() = 0;
+
+		void SetTotalNotes(unsigned int totalNotes) { this->m_totalNotes = totalNotes; }
+		void SetScoreRanges(float cool, float fine, float safe, float sad, float worst);
+		virtual void SetTechZoneNotes(AZStd::vector<unsigned int> techZoneNotes);
+
+		virtual void OnJudge(IDivaJudgeParams params) = 0;
+		virtual EHitScore GetHitScore(float time, EHitScore ret);
+		virtual EHitScore GetWorstRange(float time, EHitScore ret);
+		// ~DivaJudgeBus
 	public:
 		Range m_Range_Cool, m_Range_Fine, m_Range_Safe, m_Range_Sad, m_Range_Worst;
 		float m_Range_CoolF, m_Range_WorstF;
 	protected:
-		IDivaSequenceJudge * m_divaSeq;
 		unsigned int m_totalNotes;
-		std::vector<IDivaJudgeTechZone *> m_techZoneNotes;
+		AZStd::vector<IDivaJudgeTechZone *> m_techZoneNotes;
 		SectionType m_currSection;
-	protected:
-		std::vector<IDivaJudgeListener *> m_listeners;
-	private:
-		bool m_busConnected;
 	};
-
-	/*class DivaJudgeShared {
-	public:
-		static void SetScoreRanges(float cool, float fine, float safe, float sad, float worst);
-		static Range sm_Range_Cool, sm_Range_Fine, sm_Range_Safe, sm_Range_Sad, sm_Range_Worst;
-		static float sm_Range_CoolF, sm_Range_WorstF;
-	};*/
 }
 
 #endif

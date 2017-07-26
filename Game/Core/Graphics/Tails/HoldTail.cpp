@@ -1,4 +1,5 @@
 #include <StdAfx.h>
+#include <OpenDivaCommon.h>
 #include "HoldTail.h"
 
 namespace LYGame {
@@ -162,18 +163,18 @@ namespace LYGame {
 		if (this->m_pTex != nullptr) this->m_pTex->Release();
 	}
 
-	void HoldTail::Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void HoldTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		if (tStart >= tEnd) return;
 		this->Draw(p1, p2, p3, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void HoldTail::Draw(Vec2 p1, Vec2 p2, Vec2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void HoldTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 		if (this->m_pTex == nullptr) return;
 
 		//int numPoints = (int)(-(tStart - tEnd) / step);
 
-		std::vector<SVF_P3F_C4B_T2F> line;
+		AZStd::vector<SVF_P3F_C4B_T2F> line;
 		ColorF white(1.0f, 1.0f, 1.0f, 1.0f);
 		float dists[2] = {
 			(this->m_width*this->m_size) / 2,
@@ -181,16 +182,16 @@ namespace LYGame {
 		};
 
 		for (float i = tStart; i < tEnd; i += step) { //from start time to end time with a step between each
-			Vec2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, dists, 2); //calculate the distances at time i.
+			AZ::Vector2 * points = Util::BCurvePerpPoint(i, p1, p2, p3, dists, 2); //calculate the distances at time i.
 
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 0);
 
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 0);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 1);
 			line.push_back(tmp);
@@ -198,15 +199,15 @@ namespace LYGame {
 
 		//gets rid of jitter at the end point.
 		{
-			Vec2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, dists, 2);
+			AZ::Vector2 * points = Util::BCurvePerpPoint(tEnd, p1, p2, p3, dists, 2);
 
 			SVF_P3F_C4B_T2F tmp;
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 0);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 1);
 			line.push_back(tmp);
@@ -217,18 +218,18 @@ namespace LYGame {
 		if (isolatedDraw) OD_Draw2d::getDraw2D().EndDraw2d();
 	}
 
-	void HoldTail::Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
+	void HoldTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, int numPoints, bool isolatedDraw) {
 		if (tStart >= tEnd) return;
 		this->Draw(p1, p2, tStart, tEnd, (float)((float)(tEnd - tStart) / (float)(numPoints)), isolatedDraw, true);
 	}
 
-	void HoldTail::Draw(Vec2 p1, Vec2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
+	void HoldTail::Draw(AZ::Vector2 p1, AZ::Vector2 p2, float tStart, float tEnd, float step, bool isolatedDraw, bool pointsSpecified) {
 		if (tStart >= tEnd) return;
 		if (this->m_pTex == nullptr) return;
 
 		//int numPoints = (int)(-(tStart - tEnd) / step);
 
-		std::vector<SVF_P3F_C4B_T2F> line;
+		AZStd::vector<SVF_P3F_C4B_T2F> line;
 		ColorF white(1.0f, 1.0f, 1.0f, 1.0f);
 		float dists[2] = {
 			this->m_width*this->m_size / 2,
@@ -236,17 +237,17 @@ namespace LYGame {
 		};
 
 		for (float i = tStart; i < tEnd; i += step) { //from start time to end time with a step between each
-			Vec2 * points = Util::PerpPointDist(p1, p2, i, dists, 2); //calculate the distances at time i.
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, i, dists, 2); //calculate the distances at time i.
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back the vectors
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 0);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 0);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(1, 1);
 			line.push_back(tmp);
@@ -254,17 +255,17 @@ namespace LYGame {
 
 		//gets rid of jitter at the end point.
 		{
-			Vec2 * points = Util::PerpPointDist(p1, p2, tEnd, dists, 2);
+			AZ::Vector2 * points = Util::PerpPointDist(p1, p2, tEnd, dists, 2);
 
 			SVF_P3F_C4B_T2F tmp;
 
 			//push back the vectors
-			tmp.xyz = Vec3(points[1].x * this->m_scale.x, points[1].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[1].GetX() * this->m_scale.GetX(), points[1].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 0);
 			line.push_back(tmp);
 
-			tmp.xyz = Vec3(points[2].x * this->m_scale.x, points[2].y * this->m_scale.y, 1);
+			tmp.xyz = Vec3(points[2].GetX() * this->m_scale.GetX(), points[2].GetY() * this->m_scale.GetY(), 1);
 			tmp.color.dcolor = white.pack_argb8888();
 			tmp.st = Vec2(0, 1);
 			line.push_back(tmp);
