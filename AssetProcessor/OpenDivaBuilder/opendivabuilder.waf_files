@@ -1,0 +1,12 @@
+{
+  "auto": {
+    "Root": [
+    ],
+
+    "OpenDivaBuilder": [
+      "Source/OpenDivaBuilderComponent.h",
+      "Source/OpenDivaBuilderComponent.cpp",
+      "Source/OpenDivaBuilderApplication.cpp"
+    ]
+  }
+}

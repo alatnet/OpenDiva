@@ -1,0 +1,31 @@
+########################################################################################
+# All or portions of this file Copyright (c) Amazon.com, Inc. or its affiliates or
+# its licensors.
+#
+# For complete copyright and license terms please see the LICENSE at the root of this
+# distribution (the "License"). All use of this software is governed by the License,
+# or, if provided, by the license below or the license accompanying this file. Do not
+# remove or modify any license notices. This file is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#
+########################################################################################
+
+#NOTE!
+#To build the OpenDivaBuilder for Assets, you need to edit the all.json file and add in "OpenDivaBuilder" to the list.
+
+import os
+
+def build(bld):
+
+    bld.BuilderPlugin(
+        target             = 'OpenDivaBuilder',
+        vs_filter          = 'Tools/AssetProcessor/Builders',
+        file_list          = ['opendivabuilder.waf_files'],
+        platforms          = ['win', 'darwin'],
+        configurations     = ['debug_all', 'profile_all'],
+        disable_pch        = True,
+        includes           = ['..'], #so that we can specify the module name of ExampleBuilder in the include statements.
+        test_all_file_list = ['opendivabuilder_tests.waf_files'],
+    )
+
+

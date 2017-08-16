@@ -1,0 +1,11 @@
+{
+  "auto": {
+    "Core/Ui": [
+      "../Core/Ui/LYSwingIncludes.h",
+      "../Core/Ui/LYSwingComponent.h",
+      "../Core/Ui/LYSwing.h",
+      "../Core/Ui/LYLabel.h",
+      "../Core/Ui/LYLabel.cpp"
+    ]
+  }
+}
