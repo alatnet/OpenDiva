@@ -1,0 +1,12 @@
+{
+  'class': {
+    'name': '',
+    'nameCaps': ''
+  },
+  'object': {
+    'name': '',
+    'namePlural': '',
+    'nameCaps': '',
+    'header': '*.h'
+  }
+}

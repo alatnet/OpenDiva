@@ -1,0 +1,196 @@
+<profile version="1">
+
+  <!-- platforms - Used to define which keys to map for each action based on the platform that is in use -->
+  <platforms>
+    <PC keyboard="1" xboxpad="1" ps4pad="1" androidkey="0"/>
+  </platforms>
+
+  <!-- default - Default action key mappings -->
+  <actionmap name="default">
+    <action name="cross" onPress="1" onRelease="1" keyboard="s" xboxpad="xi_a" ps4pad="pad_cross" />
+    <action name="circle" onPress="1" onRelease="1" keyboard="d" xboxpad="xi_b" ps4pad="pad_circle" />
+    <action name="square" onPress="1" onRelease="1" keyboard="a" xboxpad="xi_x" ps4pad="pad_square" />
+    <action name="triangle" onPress="1" onRelease="1" keyboard="w" xboxpad="xi_y" ps4pad="pad_triangle" />
+
+    <action name="left" onPress="1" onRelease="1" onHold="1" holdTriggerDelay="0.15" xboxpad="xi_dpad_left" ps4pad="pad_left">
+      <keyboard>
+        <inputdata input="left"/>
+        <inputdata input="j"/>
+      </keyboard>
+    </action>
+    <action name="right" onPress="1" onRelease="1" onHold="1" holdTriggerDelay="0.15" xboxpad="xi_dpad_right" ps4pad="pad_right">
+      <keyboard>
+        <inputdata input="right"/>
+        <inputdata input="l"/>
+      </keyboard>
+    </action>
+    <action name="up" onPress="1" onRelease="1" onHold="1" holdTriggerDelay="0.15" xboxpad="xi_dpad_up" ps4pad="pad_up">
+      <keyboard>
+        <inputdata input="up"/>
+        <inputdata input="i"/>
+      </keyboard>
+    </action>
+    <action name="down" onPress="1" onRelease="1" onHold="1" holdTriggerDelay="0.15" xboxpad="xi_dpad_down" ps4pad="pad_down">
+      <keyboard>
+        <inputdata input="down"/>
+        <inputdata input="k"/>
+      </keyboard>
+    </action>
+
+    <action name="star" onPress="1">
+      <keyboard>
+        <inputdata input="space"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_thumblx" />
+        <inputdata input="xi_thumbly" />
+        <inputdata input="xi_thumbrx" />
+        <inputdata input="xi_thumbry" />
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_sticklx" />
+        <inputdata input="pad_stickly" />
+        <inputdata input="pad_stickrx" />
+        <inputdata input="pad_stickry" />
+        <!-- i have no idea if pad_touch is just touching the pad or swiping... (most likely touching...) -->
+        <inputdata input="pad_touch" />
+      </ps4pad>
+    </action>
+
+    <action name="swipeL" onPress="1">
+      <keyboard>
+        <inputdata input="q"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_triggerl"/>
+        <inputdata input="xi_shoulderl"/>
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_l1"/>
+        <inputdata input="pad_l2"/>
+      </ps4pad>
+    </action>
+    <action name="swipeR" onPress="1">
+      <keyboard>
+        <inputdata input="e"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_triggerr"/>
+        <inputdata input="xi_shoulderr"/>
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_r1"/>
+        <inputdata input="pad_r2"/>
+      </ps4pad>
+    </action>
+
+    <action name="start" onPress="1" keyboard="esc" xboxpad="xi_start" ps4pad="pad_start" />
+  </actionmap>
+
+  <!-- ui stuff -->
+  <actionmap name="ui">
+    <action name="ui_up" onPress="1" onHold="1" holdTriggerDelay="0.15" holdRepeatDelay="0.15">
+      <keyboard>
+        <inputdata input="up"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_up"/>
+        <inputdata input="xi_thumbly" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+        <inputdata input="xi_thumbry" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_up"/>
+        <inputdata input="pad_stickly" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+        <inputdata input="pad_stickry" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+      </ps4pad>
+    </action>
+    <action name="ui_down" onPress="1" onHold="1" holdTriggerDelay="0.15" holdRepeatDelay="0.15">
+      <keyboard>
+        <inputdata input="down"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_down"/>
+        <inputdata input="xi_thumbly" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+        <inputdata input="xi_thumbry" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_down"/>
+        <inputdata input="pad_stickly" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+        <inputdata input="pad_stickry" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+      </ps4pad>
+    </action>
+    <action name="ul_left" onPress="1" onHold="1" holdTriggerDelay="0.15" holdRepeatDelay="0.15">
+      <keyboard>
+        <inputdata input="left"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_left"/>
+        <inputdata input="xi_thumblx" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+        <inputdata input="xi_thumbrx" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_left"/>
+        <inputdata input="pad_sticklx" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+        <inputdata input="pad_stickrx" useAnalogCompare="1" analogCompareVal="-0.5" analogCompareOp="LESSTHAN" />
+      </ps4pad>
+    </action>
+    <action name="ui_right" onPress="1" onHold="1" holdTriggerDelay="0.15" holdRepeatDelay="0.15">
+      <keyboard>
+        <inputdata input="right"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_right"/>
+        <inputdata input="xi_thumblx" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+        <inputdata input="xi_thumbrx" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_right"/>
+        <inputdata input="pad_sticklx" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+        <inputdata input="pad_stickrx" useAnalogCompare="1" analogCompareVal="0.5" analogCompareOp="GREATERTHAN" />
+      </ps4pad>
+    </action>
+    <action name="ul_select" onPress="1">
+      <keyboard>
+        <inputdata input="enter"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_a"/>
+        <inputdata input="xi_start"/>
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_circle"/>
+        <inputdata input="pad_start"/>
+      </ps4pad>
+    </action>
+    <action name="ui_cancel" onPress="1">
+      <keyboard>
+        <inputdata input="esc"/>
+        <inputdata input="backspace"/>
+      </keyboard>
+      <xboxpad>
+        <inputdata input="xi_b"/>
+        <inputdata input="xi_back"/>
+      </xboxpad>
+      <ps4pad>
+        <inputdata input="pad_cross"/>
+        <inputdata input="pad_select"/>
+      </ps4pad>
+    </action>
+  </actionmap>
+
+  <actionmap name="player">
+    <!-- USER DEFINED -->
+
+    <!-- USED INTERNALLY - DO NOT REMOVE -->
+    <action name="moveleft" onPress="1" onRelease="1" retriggerable="1" keyboard="a"/>
+    <action name="moveright" onPress="1" onRelease="1" retriggerable="1" keyboard="d"/>
+    <action name="moveforward" onPress="1" onRelease="1" retriggerable="1" keyboard="w"/>
+    <action name="moveback" onPress="1" onRelease="1" retriggerable="1" keyboard="s"/>
+    <action name="rotateyaw" keyboard="maxis_x" />
+    <action name="rotatepitch" keyboard="maxis_y" />
+    <action name="xi_movey" xboxpad="xi_thumbly"/>
+    <action name="xi_movex" xboxpad="xi_thumblx"/>
+    <action name="xi_rotateyaw" xboxpad="xi_thumbrx"/>
+    <action name="xi_rotatepitch" xboxpad="xi_thumbry"/>
+  </actionmap>
+</profile>

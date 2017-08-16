@@ -1,0 +1,6 @@
+<fontfamily name="Positec">
+    <font>
+        <file path="PositecRegular.xml" />
+        <file path="PositecBold.xml" tags="b" />
+    </font>
+</fontfamily>

@@ -1,0 +1,12 @@
+{
+    "GemFormatVersion": 3,
+    "Uuid": "95e41eeb9802469b8f7dd874f19720d9",
+    "Name": "OpenDiva",
+    "DisplayName": "OpenDiva",
+    "Version": "0.1.0",
+    "LinkType": "Dynamic",
+    "Summary": "A short description of my Game Project Gem.",
+    "Tags": ["Game"],
+    "IconPath": "preview.png",
+    "IsGameGem": true
+}

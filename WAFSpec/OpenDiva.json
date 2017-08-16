@@ -1,0 +1,12 @@
+{
+    "description": "Configuration for OpenDiva",
+    "visual_studio_name": "OpenDiva",
+    "comment" : "",
+    "game_projects" : "OpenDiva",
+
+    "modules" : [
+        "AzCore",
+        "AzFramework",
+        "AzGameFramework"
+    ]
+}

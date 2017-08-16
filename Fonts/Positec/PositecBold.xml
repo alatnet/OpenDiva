@@ -1,0 +1,778 @@
+<fontshader>
+	<font path="PositecBold.ttf" w="512" h="256"/>
+  <!-- <font path="" w="" h="" norescale="0/1" smooth="blur/supersample/none" smooth_amount="" -->
+  <!-- <effect name="default/[name]"> -->
+  <effect name="default">
+    <pass>
+      <color r="0" g="0" b="0" a="1"/>
+      <pos x="0" y="0"/>
+      <!-- <color r="" g="" b="" a="" /> -->
+      <!-- <pos x="" y=""/> -->
+      <!--
+        <blend
+          src="zero/one/srcalpha/src_alpha/invsrcalpha/inv_src_alpha/dstalpha/dst_alpha/invdstalpha/inv_dst_alpha/dstcolor/dst_color/srccolor/src_color/invsrccolor/inv_src_color"
+          dst="zero/one/srcalpha/src_alpha/invsrcalpha/inv_src_alpha/dstalpha/dst_alpha/invdstalpha/inv_dst_alpha/dstcolor/dst_color/srccolor/src_color/invsrccolor/inv_src_color"
+          type="modulate/additive" -(optional) overrides src and dst
+        /> -->
+    </pass>
+  </effect>
+  <!-- Specific Project Diva rating colors -->
+  <!--<effect name="cool">
+    <pass>
+      <color r="0.95" g="0.63" b="0.02" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+    
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="fine">
+    <pass>
+      <color r="0.64" g="0.66" b="0.73" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="safe">
+    <pass>
+      <color r="0.18" g="0.72" b="0.0" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="sad">
+    <pass>
+      <color r="0.0" g="0.07" b="0.77" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="worst">
+    <pass>
+      <color r="0.48" g="0.0" b="0.85" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.1" g="0.0" b="0.18" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  
+  <effect name="misscool">
+    <pass>
+      <color r="0.85" g="0.0" b="0.0" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.17" g="0.0" b="0.0" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="missfine">
+    <pass>
+      <color r="0.02" g="0.0" b="0.22" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.0" b="0.0" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="misssafe">
+    <pass>
+      <color r="0.18" g="0.72" b="0.0" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.05" g="0.22" b="0.0" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="misssad">
+    <pass>
+      <color r="0.0" g="0.07" b="0.77" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.0" g="0.02" b="0.19" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+
+  <effect name="rushcross">
+    <pass>
+      <color r="0.39" g="0.73" b="0.94" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="rushcircle">
+    <pass>
+      <color r="0.93" g="0.21" b="0.31" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="rushsquare">
+    <pass>
+      <color r="0.91" g="0.29" b="0.96" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="rushtriangle">
+    <pass>
+      <color r="0.09" g="0.82" b="0.15" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+
+  <effect name="holdcross">
+    <pass>
+      <color r="0.39" g="0.73" b="0.94" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="holdcircle">
+    <pass>
+      <color r="0.93" g="0.21" b="0.31" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="holdsquare">
+    <pass>
+      <color r="0.91" g="0.29" b="0.96" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  <effect name="holdtriangle">
+    <pass>
+      <color r="0.09" g="0.82" b="0.15" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="1.0" g="1.0" b="1.0" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>
+  
+  <effect name="combo">
+    <pass>
+      <color r="0.95" g="0.63" b="0.02" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="-2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="-2"/>
+    </pass>
+
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="-2" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="0" y="2"/>
+    </pass>
+    <pass>
+      <color r="0.43" g="0.34" b="0.02" a="1"/>
+      <pos x="0" y="-2"/>
+    </pass>
+  </effect>
+  <effect name="mult">
+    <pass>
+      <color r="0.64" g="0.66" b="0.73" a="1"/>
+      <pos x="0" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="1" y="1"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-1" y="1"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="1" y="-1"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-1" y="-1"/>
+    </pass>
+
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="1" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="-1" y="0"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="0" y="1"/>
+    </pass>
+    <pass>
+      <color r="0.2" g="0.2" b="0.2" a="1"/>
+      <pos x="0" y="-1"/>
+    </pass>
+  </effect>-->
+</fontshader>
+<!--
+$ codes:
+0 black
+1 white
+2 blue
+3 green
+4 red
+5 teal
+6 yellow
+7 purple
+8 orange
+9 grey
+-->

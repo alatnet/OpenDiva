@@ -1,0 +1,6 @@
+<fontfamily name="NotoSansCJKjp Mono">
+    <font>
+        <file path="NotoSansCJKjp-MonoRegular.xml" />
+        <file path="NotoSansCJKjp-MonoBold.xml" tags="b" />
+    </font>
+</fontfamily>

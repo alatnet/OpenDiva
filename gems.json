@@ -1,0 +1,173 @@
+{
+    "GemListFormatVersion": 2,
+    "Gems": [
+        {
+            "Path": "Gems/Cubism3",
+            "Uuid": "0523ea9b22264a73a494263c165760e6",
+            "Version": "0.1.0",
+            "_comment": "Cubism3"
+        },
+        {
+            "Path": "Gems/AudioAnimationEvents",
+            "Uuid": "0549200795a94b7f902727db81d5d6d8",
+            "Version": "0.1.0",
+            "_comment": "AudioAnimationEvents"
+        },
+        {
+            "Path": "Gems/PBSreferenceMaterials",
+            "Uuid": "07375b61b1a2424bb03088bbdf28b2c8",
+            "Version": "0.1.0",
+            "_comment": "PBSreferenceMaterials"
+        },
+        {
+            "Path": "Gems/StartingPointInput",
+            "Uuid": "09f4bedeee614358bc36788e77f97e51",
+            "Version": "0.1.0",
+            "_comment": "StartingPointInput"
+        },
+        {
+            "Path": "Gems/AssetImporterConfig",
+            "Uuid": "0b9e04f1482b4e088f1ca07816930c04",
+            "Version": "0.1.0",
+            "_comment": "AssetImporterConfig"
+        },
+        {
+            "Path": "Gems/LyShine",
+            "Uuid": "0fefab3f13364722b2eab3b96ce2bf20",
+            "Version": "0.1.0",
+            "_comment": "LyShine"
+        },
+        {
+            "Path": "Gems/Footsteps",
+            "Uuid": "257393f09006498ab706cc4d4c8d4721",
+            "Version": "0.1.0",
+            "_comment": "Footsteps"
+        },
+        {
+            "Path": "Gems/CryLegacy",
+            "Uuid": "352fef7706634c92814c587e84d7165a",
+            "Version": "0.1.0",
+            "_comment": "CryLegacy"
+        },
+        {
+            "Path": "Gems/SQLite",
+            "Uuid": "4b76424b22de476497488bc53b6c88b5",
+            "Version": "0.1.0",
+            "_comment": "SQLite"
+        },
+        {
+            "Path": "Gems/LightningArc",
+            "Uuid": "4c28210b23544635aa15be668dbff15d",
+            "Version": "1.0.0",
+            "_comment": "LightningArc"
+        },
+        {
+            "Path": "Gems/Clouds",
+            "Uuid": "4f293a6f11ab4cd7b9db3017d12b5eda",
+            "Version": "0.1.0",
+            "_comment": "Clouds"
+        },
+        {
+            "Path": "Gems/InputManagementFramework",
+            "Uuid": "59b1b2acc1974aae9f18faddcaddac5b",
+            "Version": "0.1.0",
+            "_comment": "InputManagementFramework"
+        },
+        {
+            "Path": "Gems/VideoPlayback",
+            "Uuid": "632473900ed84df3a2bad2887a3bff56",
+            "Version": "0.1.0",
+            "_comment": "VideoPlayback"
+        },
+        {
+            "Path": "Gems/UiBasics",
+            "Uuid": "6bb61c9e547043f0afc5019d6d460b78",
+            "Version": "0.1.0",
+            "_comment": "UiBasics"
+        },
+        {
+            "Path": "Gems/Snow",
+            "Uuid": "8827e54450f040dbaed1776ba4b35b43",
+            "Version": "0.1.0",
+            "_comment": "Snow"
+        },
+        {
+            "Path": "OpenDiva/Gem",
+            "Uuid": "95e41eeb9802469b8f7dd874f19720d9",
+            "Version": "0.1.0",
+            "_comment": "OpenDiva"
+        },
+        {
+            "Path": "Gems/PortAudio",
+            "Uuid": "96a96b530fa24e0ba3a51daa485e9b16",
+            "Version": "0.1.0",
+            "_comment": "PortAudio"
+        },
+        {
+            "Path": "Gems/Boids",
+            "Uuid": "97e596870cf645e184e43d5a5ccda857",
+            "Version": "0.1.0",
+            "_comment": "Boids"
+        },
+        {
+            "Path": "Gems/PhysicsEntities",
+            "Uuid": "99ea531451fc4f64a5a9fe8f385e8a76",
+            "Version": "0.1.0",
+            "_comment": "PhysicsEntities"
+        },
+        {
+            "Path": "Gems/Substance",
+            "Uuid": "a2f08ba9713f485a8485d7588e5b120f",
+            "Version": "2.0.0",
+            "_comment": "Substance"
+        },
+        {
+            "Path": "Gems/AlternativeAudio_Libsndfile",
+            "Uuid": "a987cb9a5fec4ed2b6266a481d5236f3",
+            "Version": "0.1.0",
+            "_comment": "AlternativeAudio_Libsndfile"
+        },
+        {
+            "Path": "Gems/AlternativeAudio",
+            "Uuid": "b4745a69bade49a3aacc01e4475bdee7",
+            "Version": "0.1.0",
+            "_comment": "AlternativeAudio"
+        },
+        {
+            "Path": "Gems/UserLoginDefault",
+            "Uuid": "c9c25313197f489a8e9e8e6037fc62eb",
+            "Version": "0.1.0",
+            "_comment": "UserLoginDefault"
+        },
+        {
+            "Path": "Gems/GameEffectSystem",
+            "Uuid": "d378b5a7b47747d0a7aa741945df58f3",
+            "Version": "1.0.0",
+            "_comment": "GameEffectSystem"
+        },
+        {
+            "Path": "Gems/Tornadoes",
+            "Uuid": "d48ca459d0644521aad37f08466ef83a",
+            "Version": "0.1.0",
+            "_comment": "Tornadoes"
+        },
+        {
+            "Path": "Gems/Rain",
+            "Uuid": "e5f049ad7f534847a89c27b7339cf6a6",
+            "Version": "0.1.0",
+            "_comment": "Rain"
+        },
+        {
+            "Path": "Gems/Camera",
+            "Uuid": "f910686b6725452fbfc4671f95f733c6",
+            "Version": "0.1.0",
+            "_comment": "Camera"
+        },
+        {
+            "Path": "Gems/LmbrCentral",
+            "Uuid": "ff06785f7145416b9d46fde39098cb0c",
+            "Version": "0.1.0",
+            "_comment": "LmbrCentral"
+        }
+    ]
+}

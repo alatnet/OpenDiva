@@ -1,0 +1,32 @@
+<fontshader>
+	<font path="MonoBold.otf" w="512" h="256"/>
+  <!-- <font path="" w="" h="" norescale="0/1" smooth="blur/supersample/none" smooth_amount="" -->
+  <!-- <effect name="default/[name]"> -->
+  <effect name="default">
+		<pass>
+			<color r="0" g="0" b="0" a="1"/>
+      <pos x="0" y="0"/>
+      <!-- <color r="" g="" b="" a="" /> -->
+      <!-- <pos x="" y=""/> -->
+      <!--
+        <blend
+          src="zero/one/srcalpha/src_alpha/invsrcalpha/inv_src_alpha/dstalpha/dst_alpha/invdstalpha/inv_dst_alpha/dstcolor/dst_color/srccolor/src_color/invsrccolor/inv_src_color"
+          dst="zero/one/srcalpha/src_alpha/invsrcalpha/inv_src_alpha/dstalpha/dst_alpha/invdstalpha/inv_dst_alpha/dstcolor/dst_color/srccolor/src_color/invsrccolor/inv_src_color"
+          type="modulate/additive"
+        /> -->
+		</pass>
+	</effect>
+</fontshader>
+<!--
+$ codes:
+0 black
+1 white
+2 blue
+3 green
+4 red
+5 teal
+6 yellow
+7 purple
+8 orange
+9 grey
+-->

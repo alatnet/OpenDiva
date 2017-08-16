@@ -1,0 +1,213 @@
+#from waflib.TaskGen import feature
+
+#@feature('copy_audio_dlls')
+#def feature_copy_audio_dlls(self):
+#	platform = self.bld.env['PLATFORM']
+#	configuration = self.bld.env['CONFIGURATION']
+#
+#	#for the windows platform
+#	if platform == 'win_x64' or platform == 'win_x64_vs2015' or platform == 'win_x64_vs2013':
+#		output_folder = self.bld.get_output_folders(platform, configuration)[0]
+#
+#		#copy libsamplerate
+#		sample_source_file = self.bld.CreateRootRelativePath('Code/OpenDiva/Game/Core/Sound/libsamplerate/bin/libsamplerate-0.dll')
+#		self.create_task('copy_outputs', self.bld.root.make_node(sample_source_file), output_folder.make_node('libsamplerate-0.dll'))
+#
+#		#copy libsndfile
+#		snd_source_file = self.bld.CreateRootRelativePath('Code/OpenDiva/Game/Core/Sound/libsndfile/bin/libsndfile-1.dll')
+#		self.create_task('copy_outputs', self.bld.root.make_node(snd_source_file), output_folder.make_node('libsndfile-1.dll'))
+#
+#		#depending on the configuration, copy portaudio
+#		if configuration == 'debug' or configuration == 'profile':
+#			port_source_file = self.bld.CreateRootRelativePath('Code/OpenDiva/Game/Core/Sound/portaudio/bin/Debug/portaudio_x64.dll')
+#			self.create_task('copy_outputs', self.bld.root.make_node(port_source_file), output_folder.make_node('portaudio_x64.dll'))
+#		else:
+#			port_source_file = self.bld.CreateRootRelativePath('Code/OpenDiva/Game/Core/Sound/portaudio/bin/Release/portaudio_x64.dll')
+#			self.create_task('copy_outputs', self.bld.root.make_node(port_source_file), output_folder.make_node('portaudio_x64.dll'))
+
+def build(bld):
+    bld.DefineGem(
+        # General
+        file_list   = [
+			'opendiva.waf_files',
+                   
+			#steamworks build files.
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#'WAF/opendiva.steamworks.waf_files',
+
+			#for md5 and sha hashing library
+			'WAF/opendiva.hashlib2plus.waf_files',
+		],
+#		features = [ 'copy_audio_dlls' ],
+        platforms = ['win_x64', 'win_x64_vs2015', 'win_x64_vs2013','linux','darwin'],
+        configurations = ['debug', 'profile', 'performance', 'release'],
+        use                     = ['AzGameFramework'],
+
+        includes                = [ '.',
+			bld.Path('Code/CryEngine/CryCommon'),
+			bld.Path('Code/CryEngine/CryAction'),
+			bld.Path('Code/OpenDiva/Game/Core/Utils/hashlib2plus/include'),
+                        
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/steam')
+		],
+        
+        #this is ONLY used for the public steam builds.
+        #OpenDiva does not depend on steamworks to function and this can be safely commented out.
+        defines = [
+			#'STEAMWORKS',
+        ],
+
+        lib = [
+			'Live2DCubismCore'
+        ],
+              
+#		libpath = [
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/libsndfile/lib'),
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/libsamplerate/lib')
+#		],
+#		debug_libpath = [
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/lib/Debug')
+#		],
+#		profile_libpath = [
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/lib/Debug')
+#		],
+#		performance_libpath = [
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/lib/Release')
+#		],
+#		release_libpath = [
+#			bld.Path('Code/OpenDiva/Game/Core/Sound/portaudio/lib/Release')
+#		],
+
+        #==============================
+        # Windows
+        #==============================
+		win_defines = [
+			'WX_DISABLE', #custom define, used to bypass /WX warnings as errors.
+			'NOMINMAX'    #disable windows.h min/max definitions.
+		],
+
+        debug_win_linkflags = [ '/VERBOSE:LIB' ],
+
+        #usage of openmp is to parallel process precalculations.
+        #NOTE! NEVER EVER USE OPENMP IN A RENDER THREAD! Spikes cpu usage like crazy!
+        win_cflags = [ '/openmp' ],
+        win_cxxflags = [ '/openmp' ],
+        win_lib    = [
+			'gdi32',
+
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#'steam_api64'
+		],
+
+		win_libpath = [
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin/win64')
+		],
+
+        win_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/windows/x86_64')
+		],
+        win_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+        win_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+        win_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/windows/x86_64')
+		],
+
+        #==============================
+        # Linux
+        #==============================
+        #usage of openmp is to parallel process precalculations.
+        #NOTE! NEVER EVER USE OPENMP IN A RENDER THREAD! Spikes cpu usage like crazy!
+        linux_cflags = [ '-fopenmp' ],
+        linux_cxxflags = [ '-fopenmp' ],
+
+		linux_lib = [
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#'steam_api',
+		],
+		linux_libpath = [
+			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin'),
+		],
+
+        linux_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/linux/x86_64')
+		],
+        linux_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
+		],
+        linux_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
+		],
+        linux_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/linux/x86_64')
+		],
+
+        #==============================
+        # Darwin
+        #==============================
+		darwin_file_list = [
+			'WAF/opendiva_mac.waf_files'
+		],
+
+        #usage of openmp is to parallel process precalculations.
+        #NOTE! NEVER EVER USE OPENMP IN A RENDER THREAD! Spikes cpu usage like crazy!
+        darwin_cflags = [ '-fopenmp' ],
+        darwin_cxxflags = [ '-fopenmp' ],
+
+		darwin_lib = [
+			#this is ONLY used for the public steam builds.
+			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
+			#'steam_api',
+		],
+		darwin_libpath = [
+			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/redistributable_bin'),
+		],
+
+        darwin_debug_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/develop/macos')
+		],
+        darwin_release_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
+		],
+        darwin_performance_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
+		],
+        darwin_profile_libpath = [
+			bld.Path('Gems/Cubism3/3rdParty/release/macos')
+		],
+
+        # Platform Specific
+        #android_use             = ['AndroidLauncher'],
+
+        # ==============================
+        # iOS
+        # 'ios_output_file_name' must match both
+        # 'executable_name' in 'project.json' and
+        # 'Executable file' in '../Resources/IOSLauncher/Info.plist'
+        # ==============================
+        #ios_file_list           = ['WAF/opendiva_ios.waf_files'],
+
+        # ==============================
+        # AppleTV
+        # 'appletv_output_file_name' must match both
+        # 'executable_name' in 'project.json' and
+        # 'Executable file' in '../Resources/AppleTVLauncher/Info.plist'
+        # ==============================
+        #appletv_file_list       = ['WAF/opendiva_appletv.waf_files'],
+		
+        # Testing
+        test_all_file_list      = ['opendiva_tests.waf_files'],
+
+        # Add additional custom build options here
+
+    )
