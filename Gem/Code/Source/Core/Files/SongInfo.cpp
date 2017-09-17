@@ -3,111 +3,151 @@
 #include "SongInfo.h"
 
 namespace OpenDiva {
-	SongInfo::SongInfo(AZStd::string path) {
+	SongInfo::Global SongInfo::GetGlobal(AZStd::string path) {
+		AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
+
+		SongInfo::Global ret;
+		ret.hash = AZ_CRC("NotValid", 0x072bdcd9);
+		ret.hasArt = false;
+		ret.length = 0.0f;
+		ret.bpm.first = 0;
+		ret.bpm.second = 0;
+		ret.lib = "libsndfile";
+		ret.vocal = "";
+		ret.melody = "";
+		ret.song = "";
+
 		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path.c_str());
-		//read file
 
-		if (file != 0) {
-			this->m_info = SongInfo::GetInfo(file);
+		if (!file) return ret;
 
-			if (this->m_info.valid) {
-			}
+		AZStd::string rootPath = PathUtil::GetParentDirectory(PathUtil::GetPath(path.c_str()));
+		AZStd::string artPath = rootPath + "/art.ddc";
+		ret.hasArt = fileIO->Exists(artPath.c_str());
+
+		ret.length = (float)atof(file->findChild("length")->getContent());
+		
+		XmlNodeRef bpm = file->findChild("bpm");
+		if (bpm->getChildCount() > 0) {
+			ret.bpm.first = atoi(bpm->findChild("start")->getContent());
+			ret.bpm.second = atoi(bpm->findChild("end")->getContent());
+		} else ret.bpm.first = ret.bpm.second = atoi(bpm->getContent());
+		
+		XmlNodeRef music = file->findChild("music");
+		if (music) {
+			if (music->haveAttr("lib")) ret.lib = music->getAttr("lib");
+			if (music->findChild("vocal")) ret.vocal = rootPath + "/" + music->findChild("vocal")->getContent();
+			if (music->findChild("melody")) ret.melody = rootPath + "/" + music->findChild("melody")->getContent();
+			if (music->findChild("song")) ret.song = rootPath + "/" + music->findChild("song")->getContent();
 		}
-	}
 
-	SongInfo::~SongInfo() {
-	}
-
-	SongFileInfo SongInfo::GetInfo(const char * filename) {
-		SongFileInfo ret;
-
-		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(filename);
-
-		if (file != 0) {
-			XmlNodeRef name = file->findChild("name");
-			ret.name = name->getContent();
-			ret.nameR = name->getAttr("romaji");
-			ret.nameE = name->getAttr("english");
-
-			XmlNodeRef authors = file->findChild("authors");
-
-			for (unsigned int i = 0; i < authors->getChildCount(); i++) {
-				XmlNodeRef author = authors->getChild(i);
-
-				SongFileInfo::Author authorInfo;
-
-				authorInfo.name = author->getContent();
-				authorInfo.nameR = author->getAttr("romaji");
-				authorInfo.nameE = author->getAttr("english");
-
-				ret.authors.push_back(AZStd::make_pair(AZStd::string(author->getTag()), authorInfo));
-			}
-
-			XmlNodeRef desc = file->findChild("desc");
-			if (desc != 0) ret.desc = desc->getContent();
-
-			XmlNodeRef albumArt = file->findChild("albumArt");
-			if (albumArt != 0) ret.albumArtPath = albumArt->getContent();
-
-			XmlNodeRef bpm = file->findChild("bpm");
-			if (bpm->getChildCount() == 2) {
-				XmlNodeRef bpmstart = bpm->findChild("start");
-				XmlNodeRef bpmend = bpm->findChild("end");
-
-				ret.bpm = AZStd::make_pair(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
-			} else {
-				int bpmret = atoi(bpm->getContent());
-				ret.bpm = AZStd::make_pair(bpmret, bpmret);
-			}
-
-			ret.valid = true;
+		//if there is no override for vocal, find the vocal file.
+		if (ret.vocal.empty()){
+			fileIO->FindFiles(
+				rootPath.c_str(),
+				"vocal.*",
+				[&](const char* file) -> bool {
+					ret.vocal = file;
+					return false;
+				}
+			);
 		}
+		//if there is no override for melody, find the melody file.
+		if (ret.melody.empty()) {
+			fileIO->FindFiles(
+				rootPath.c_str(),
+				"melody.*",
+				[&](const char* file) -> bool {
+					ret.melody = file;
+					return false;
+				}
+			);
+		}
+		//if there is no override for song, find the song file.
+		if (ret.song.empty()) {
+			fileIO->FindFiles(
+				rootPath.c_str(),
+				"song.*",
+				[&](const char* file) -> bool {
+					ret.song = file;
+					return false;
+				}
+			);
+		}
+
+		ret.hash = AZ::Crc32(path.c_str());
+		ret.hash.Add(OPENDIVA_SALT);
+
+		//char str[11]; /* 11 bytes: 10 for the digits, 1 for the null character */
+		//uint32_t n = 12345;
+		//snprintf(str, sizeof str, "%lu", (unsigned long)n); /* Method 1 */
+		//snprintf(str, sizeof str, "%" PRIu32, n); /* Method 2 */
 
 		return ret;
 	}
 
-	SongFileInfo SongInfo::GetInfo(XmlNodeRef node) {
-		SongFileInfo ret;
+	SongInfo::Lang SongInfo::GetLang(AZStd::string path) {
+		SongInfo::Lang ret;
 
-		if (node != 0) {
-			XmlNodeRef name = node->findChild("name");
-			ret.name = name->getContent();
-			ret.nameR = name->getAttr("romaji");
-			ret.nameE = name->getAttr("english");
+		ret.hash = AZ_CRC("NotValid", 0x072bdcd9);
+		ret.lang = "XX";
+		ret.name = "";
+		ret.desc = "";
+		ret.authors.clear();
 
-			XmlNodeRef authors = node->findChild("authors");
+		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path.c_str());
 
-			for (unsigned int i = 0; i < authors->getChildCount(); i++) {
-				XmlNodeRef author = authors->getChild(i);
+		//compare if the language codes match
+		AZStd::string langfile = PathUtil::GetFileName(path.c_str());
+		ret.lang = file->getAttr("lang");
 
-				SongFileInfo::Author authorInfo;
+		if (langfile.compare(ret.lang) != 0) return ret; //language file name doesnt match internal language code.
 
-				authorInfo.name = author->getContent();
-				authorInfo.nameR = author->getAttr("romaji");
-				authorInfo.nameE = author->getAttr("english");
+		XmlNodeRef name = file->findChild("name");
+		XmlNodeRef desc = file->findChild("desc");
+		if (name) ret.name = name->getContent();
+		if (desc) ret.desc = desc->getContent();
 
-				ret.authors.push_back(AZStd::make_pair(author->getTag(), authorInfo));
-			}
-
-			XmlNodeRef desc = node->findChild("desc");
-			if (desc != 0) ret.desc = desc->getContent();
-
-			XmlNodeRef albumArt = node->findChild("albumArt");
-			if (albumArt != 0) ret.albumArtPath = albumArt->getContent();
-
-			XmlNodeRef bpm = node->findChild("bpm");
-			if (bpm->getChildCount() == 2) {
-				XmlNodeRef bpmstart = bpm->findChild("start");
-				XmlNodeRef bpmend = bpm->findChild("end");
-
-				ret.bpm = AZStd::make_pair(atoi(bpmstart->getContent()), atoi(bpmend->getContent()));
-			} else {
-				int bpmret = atoi(bpm->getContent());
-				ret.bpm = AZStd::make_pair(bpmret, bpmret);
-			}
-
-			ret.valid = true;
+		XmlNodeRef authors = file->findChild("authors");
+		for (unsigned int i = 0; i < authors->getChildCount(); i++) {
+			XmlNodeRef author = authors->getChild(i);
+			AZStd::pair<AZStd::string, AZStd::string> data;
+			data.first = author->getTag();
+			data.second = author->getContent();
+			ret.authors.push_back(data);
 		}
+
+		ret.hash = AZ::Crc32(path.c_str());
+		ret.hash.Add(ret.lang.c_str());
+		ret.hash.Add(OPENDIVA_SALT);
+
+		return ret;
+	}
+
+	GroupInfo::Lang GroupInfo::GetLang(AZStd::string path) {
+		GroupInfo::Lang ret;
+
+		ret.hash = AZ_CRC("NotValid", 0x072bdcd9);
+		ret.lang = "XX";
+		ret.name = "";
+		ret.desc = "";
+
+		XmlNodeRef file = gEnv->pSystem->LoadXmlFromFile(path.c_str());
+
+		//compare if the language codes match
+		AZStd::string langfile = PathUtil::GetFileName(path.c_str());
+		ret.lang = file->getAttr("lang");
+
+		if (langfile.compare(ret.lang) != 0) return ret; //language file name doesnt match internal language code.
+
+		XmlNodeRef name = file->findChild("name");
+		XmlNodeRef desc = file->findChild("desc");
+		if (name) ret.name = name->getContent();
+		if (desc) ret.desc = desc->getContent();
+
+		ret.hash = AZ::Crc32(path.c_str());
+		ret.hash.Add(ret.lang.c_str());
+		ret.hash.Add(OPENDIVA_SALT);
 
 		return ret;
 	}

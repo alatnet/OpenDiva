@@ -33,8 +33,8 @@ namespace OpenDiva {
 			LuaEBus(DivaHudCompletion);
 			LuaEBus(DivaHudHitScore);
 			LuaEBus(DivaHudLyrics);
-			LuaEBus(DivaHudRomaji);
-			LuaEBus(DivaHudTranslation);
+			//LuaEBus(DivaHudRomaji);
+			//LuaEBus(DivaHudTranslation);
 
 			#undef LuaEBus
 		}

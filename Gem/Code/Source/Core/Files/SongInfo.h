@@ -4,57 +4,35 @@
 #pragma once
 
 namespace OpenDiva {
-	struct SongFileInfo {
-		AZStd::string name, nameR, nameE; //song name
-
-		//author information
-		struct Author {
-			AZStd::string name, nameR, nameE;
-
-			Author() :
-				name(""),
-				nameR(""),
-				nameE("")
-			{}
-		};
-
-		AZStd::vector<AZStd::pair<AZStd::string, Author>> authors;
-
-		string desc; //description of song
-		string albumArtPath; //album art path
-
-		AZStd::pair<unsigned int, unsigned int> bpm;
-
-		bool valid; //if the info is valid
-
-		SongFileInfo() :
-			name(""),
-			nameR(""),
-			nameE(""),
-			desc(""),
-			valid(false)
-		{}
-
-		void GetMemoryUsage(ICrySizer* pSizer) const {
-			pSizer->AddObject(this, sizeof(*this));
-		}
-	};
 
 	class SongInfo {
 	public:
-		SongInfo(AZStd::string path);
-		~SongInfo();
-	private:
-		SongFileInfo m_info;
+		struct Global {
+			AZ::Crc32 hash;
+			bool hasArt;
+			float length;
+			AZStd::pair<unsigned int, unsigned int> bpm;
+			AZStd::string lib, vocal, melody, song;
+		};
 
-		AZStd::pair<AZStd::string, AZStd::string> m_music;
-		AZStd::string m_stage;
-		AZStd::string m_dance;
-		AZStd::vector<AZStd::pair<int, AZStd::string>> m_models;
+		struct Lang {
+			AZ::Crc32 hash;
+			AZStd::string lang, name, desc;
+			AZStd::vector<AZStd::pair<AZStd::string, AZStd::string>> authors;
+		};
 	public:
-		static SongFileInfo GetInfo(const char * filename);
+		static Global GetGlobal(AZStd::string path);
+		static Lang GetLang(AZStd::string path);
+	};
+
+	class GroupInfo {
 	public:
-		static SongFileInfo GetInfo(XmlNodeRef node);
+		struct Lang {
+			AZ::Crc32 hash;
+			AZStd::string lang, name, desc;
+		};
+	public:
+		static Lang GetLang(AZStd::string path);
 	};
 }
 

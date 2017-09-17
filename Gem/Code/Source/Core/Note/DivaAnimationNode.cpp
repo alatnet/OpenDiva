@@ -10,11 +10,11 @@ namespace OpenDiva {
 	//-----------------------------------------------------------------------
 	DivaAnimationNode::DivaAnimationNode(ResourceCollection * rc) :
 		m_pRC(rc),
-		//m_pPASystem(paSystem),
 		m_pSequence(nullptr),
 		m_pOwner(nullptr),
 		m_pParentNode(nullptr),
-		m_pEvents(nullptr)
+		m_pEvents(nullptr),
+		m_pFader(nullptr)
 	{
 		this->m_hitNote = this->m_renderRangeStart = this->m_renderRangeEnd = 0;
 
@@ -29,8 +29,8 @@ namespace OpenDiva {
 		//this->m_seq->AddNode(this->m_DivaSeqRedirect);
 
 		//setup the zone events track
-		//this->m_pZoneEvents = this->m_seq->CreateNode(EAnimNodeType::eAnimNodeType_Event);
-		//this->m_pZoneEvents->CreateDefaultTracks();
+		//this->m_pEvents = this->m_seq->CreateNode(EAnimNodeType::eAnimNodeType_Event);
+		//this->m_pEvents->CreateDefaultTracks();
 
 		//setup the lyrics events track
 		//this->m_pLyricsEvents = this->m_seq->CreateNode(EAnimNodeType::eAnimNodeType_Event);
@@ -89,6 +89,15 @@ namespace OpenDiva {
 
 			IAnimTrack * eventTrack = this->m_pEvents->GetTrackByIndex(0);
 
+			//set beginning fade
+			IAnimTrack * faderTrack = this->m_pFader->GetTrackByIndex(0);
+			IScreenFaderKey fadeKey;
+			fadeKey.time = 0;
+			fadeKey.m_fadeTime = DIVAFADETIME;
+			fadeKey.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			fadeKey.m_fadeType = IScreenFaderKey::eFT_FadeIn;
+			faderTrack->SetKey(0, &fadeKey);
+
 			for (int i = 1; i < numNotes; i++) {
 				NoteEntry *currNote = noteFile->GetNote(i);
 
@@ -111,7 +120,7 @@ namespace OpenDiva {
 							key.event = "Zone";
 
 							//key.time = currNote->getTime(); //get the note time for the event
-							key.time = node->GetTimeRange().start;
+							key.time = node->GetTimeRange().start + DIVAFADETIME; //+offset
 
 							//set event
 							if (currNote->sType == eST_Norm && sectionEvent == eST_Tech) { //if we are exiting tech zone and entering normal
@@ -163,7 +172,7 @@ namespace OpenDiva {
 			if (sectionEvent != eST_Norm) {
 				IEventKey key;
 				key.event = "Zone";
-				key.time = endTime;
+				key.time = endTime + DIVAFADETIME;
 
 				if (sectionEvent == eST_Tech) {
 					key.eventValue = "TechExit";
@@ -176,24 +185,29 @@ namespace OpenDiva {
 				eventTrack->SetKey(keyindex, &key);
 			}
 
+			//set ending fade
+			fadeKey.time = endTime;
+			fadeKey.m_fadeType = IScreenFaderKey::eFT_FadeOut;
+			faderTrack->SetKey(1, &fadeKey);
+
 			EBUS_EVENT(DivaJudgeBus, SetTotalNotes, this->m_NoteNodes.size());
 			EBUS_EVENT(DivaHudCompletionBus, SetCompletion, 0, this->m_NoteNodes.size());
 			EBUS_EVENT(DivaJudgeBus, SetTechZoneNotes, techZoneNotesVector);
 
 			//find effect animation time and whichever biggest ending time is, tack it onto the end time of note nodes.
 			//this->m_seq->SetTimeRange(Range(0, endTime + 10));
-			this->m_pSequence->SetTimeRange(Range(0, endTime + 10));
-			this->SetTimeRange(Range(0, endTime + 10));
+			this->m_pSequence->SetTimeRange(Range(0, endTime + DIVAFADETIME)); //+offset
+			this->SetTimeRange(Range(0, endTime + DIVAFADETIME)); //+offset
 
 			IEventKey key;
 			key.event = "Song";
 
-			key.time = 0;
+			key.time = DIVAFADETIME; //+offset
 			key.eventValue = "Start";
 			int keyindex = eventTrack->CreateKey(key.time);
 			eventTrack->SetKey(keyindex, &key);
 
-			key.time = endTime;
+			key.time = endTime; //+offset
 			key.eventValue = "End";
 			keyindex = eventTrack->CreateKey(key.time);
 			eventTrack->SetKey(keyindex, &key);
@@ -208,6 +222,8 @@ namespace OpenDiva {
 	}
 
 	bool DivaAnimationNode::InitLyrics(LyricsFile * lyrics) {
+		this->m_lyrics = lyrics;
+
 		IAnimTrack * eventTrack = m_pEvents->GetTrackByIndex(0);
 
 		//this->m_seq->AddTrackEvent("lyric");
@@ -235,32 +251,11 @@ namespace OpenDiva {
 			int keyindex = eventTrack->CreateKey(key.time);
 			eventTrack->SetKey(keyindex, &key);
 
-			key.event = "Romaji";
-			key.eventValue = entry.romaji.c_str();
-			keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
-		}
-		return true;
-	}
-
-	bool DivaAnimationNode::InitTranslations(TranslationFile * translationFile) {
-		this->m_tFile = translationFile;
-
-		IAnimTrack * eventTrack = m_pEvents->GetTrackByIndex(0);
-
-		for (unsigned int i = 0; i < this->m_tFile->GetNumLines(); i++) {
-			TranslationFile::LineEntry entry = this->m_tFile->GetLine(i);
-			IEventKey key;
-			key.event = "Translation";
-			key.eventValue = entry.text.c_str();
-			key.time = entry.time;
-
-			int keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
+			CLOG("Adding Lyric to DivaAnimNode: %s - %f", entry.text.c_str(), entry.time);
 		}
 
-		for (unsigned int i = 0; i < this->m_tFile->GetNumSubtexts(); i++) {
-			TranslationFile::SubtextEntry entry = this->m_tFile->GetSubtext(i);
+		for (unsigned int i = 0; i < lyrics->GetNumSubtexts(); i++) {
+			LyricsFile::SubtextEntry entry = lyrics->GetSubtext(i);
 			IEventKey key;
 			key.event = "Subtext";
 			key.eventValue = std::to_string(i).c_str();
@@ -269,21 +264,14 @@ namespace OpenDiva {
 			int keyindex = eventTrack->CreateKey(key.time);
 			eventTrack->SetKey(keyindex, &key);
 		}
+
 		return true;
 	}
 
 	bool DivaAnimationNode::InitAudio() {
-		/*this->m_Music.m_audioVocal = AudioSourceFactory::getFactory().newAudioSource("lib", "path");
-		this->m_Music.m_audioMelody = AudioSourceFactory::getFactory().newAudioSource("lib", "path");
-		this->m_Music.m_audioSong = AudioSourceFactory::getFactory().newAudioSource("lib", "path");*/
-
-		//this->m_Music.m_idVocal = this->m_pPASystem->PlaySource(this->m_Music.m_audioVocal, EAudioSection::eAS_Music);
-		//this->m_Music.m_idMelody = this->m_pPASystem->PlaySource(this->m_Music.m_audioMelody, EAudioSection::eAS_Music);
-		//this->m_Music.m_idSong = this->m_pPASystem->PlaySource(this->m_Music.m_audioSong, EAudioSection::eAS_Music);
-
 		EBUS_EVENT_RESULT(
 			this->m_Music.m_audioVocal,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
 			AZ_CRC("lib"),
 			"path",
@@ -292,7 +280,7 @@ namespace OpenDiva {
 
 		EBUS_EVENT_RESULT(
 			this->m_Music.m_audioMelody,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
 			AZ_CRC("lib"),
 			"path",
@@ -301,7 +289,7 @@ namespace OpenDiva {
 
 		EBUS_EVENT_RESULT(
 			this->m_Music.m_audioSong,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
 			AZ_CRC("lib"),
 			"path",
@@ -428,12 +416,16 @@ namespace OpenDiva {
 	// Inherited via IAnimNode
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::Animate(SAnimContext & ec) {
+
+		//ec.time - fade + offset;
+		float time = ec.time - DIVAFADETIME;
+
 		if (this->m_NoteNodes.size() > 0) {
 			//animate first then shift ranges
 			for (unsigned int i = this->m_renderRangeStart; i <= this->m_renderRangeEnd; i++) this->m_NoteNodes[i]->Animate(ec);
 
 			//shift the start range to a note node that needs to render
-			while (this->m_NoteNodes[this->m_renderRangeStart]->NeedToRender(ec.time) == false) {
+			while (this->m_NoteNodes[this->m_renderRangeStart]->NeedToRender(time) == false) {
 				this->m_renderRangeStart++;
 
 				if (this->m_renderRangeStart >= this->m_renderRangeEnd) {
@@ -443,7 +435,7 @@ namespace OpenDiva {
 			}
 
 			//shift the end range to a note node that doesnt need to render
-			while (this->m_NoteNodes[this->m_renderRangeEnd]->NeedToRender(ec.time) == true) {
+			while (this->m_NoteNodes[this->m_renderRangeEnd]->NeedToRender(time) == true) {
 				this->m_renderRangeEnd++;
 
 				if (this->m_renderRangeEnd > this->m_NoteNodes.size() - 1) {
@@ -482,23 +474,29 @@ namespace OpenDiva {
 	// Inherited via ITrackEventListener
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::OnTrackEvent(IAnimSequence* pSequence, int reason, const char* event, void* pUserData) {
+
+		CLOG("Event: %i - %s - %s", reason, event, (const char *)pUserData);
+
 		if (pSequence != (IAnimSequence*)this) return;
 
 		if (reason == eTrackEventReason_Triggered) {
 			AZStd::string sEvent = AZStd::string(event);
 			AZStd::string sparam((const char *)pUserData);
+
+			CLOG("Event Triggered. %s - %s", sEvent, sparam);
+
 			if (sEvent.compare("Zone") == 0) {
 				if (sparam.compare("ChanceEnter") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceEnter);
 				else if (sparam.compare("ChanceExit") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceExit);
 				else if (sparam.compare("TechEnter") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechEnter);
 				else if (sparam.compare("TechExit") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechExit);
-			} else if (sEvent.compare("Lyric") == 0) EBUS_EVENT(DivaHudLyricsBus, SetLyrics, AZStd::string((const char *)pUserData));
-			else if (sEvent.compare("Translation") == 0) EBUS_EVENT(DivaHudTranslationBus, SetTranslation, AZStd::string((const char *)pUserData));
-			else if (sEvent.compare("Romaji") == 0) EBUS_EVENT(DivaHudRomajiBus, SetRomaji, AZStd::string((const char *)pUserData));
-			else if (sEvent.compare("Subtext") == 0) {
+			} else if (sEvent.compare("Lyric") == 0) {
+				CLOG("Pushing Lyric: %s", sparam);
+				EBUS_EVENT(DivaHudLyricsBus, SetLyrics, sparam);
+			} else if (sEvent.compare("Subtext") == 0) {
 				unsigned int index = std::stoi((const char *)pUserData);
 
-				TranslationFile::SubtextEntry entry = this->m_tFile->GetSubtext(index);
+				LyricsFile::SubtextEntry entry = this->m_lyrics->GetSubtext(index);
 
 				this->m_Particles.push_back(
 					new SubtextParticle(
@@ -506,9 +504,9 @@ namespace OpenDiva {
 						entry.pos,
 						entry.size,
 						entry.rot,
-						this->m_tFile->GetFont(entry.font),
+						this->m_lyrics->GetFont(entry.font),
 						entry.effect,
-						this->m_tFile->GetColor(entry.color),
+						this->m_lyrics->GetColor(entry.color),
 						entry.end - entry.start
 					)
 				);
@@ -531,30 +529,33 @@ namespace OpenDiva {
 			if (this->m_pSequence) {
 				this->m_pSequence->RemoveTrackEvent("Zone");
 				this->m_pSequence->RemoveTrackEvent("Lyric");
-				this->m_pSequence->RemoveTrackEvent("Translation");
-				this->m_pSequence->RemoveTrackEvent("Romaji");
 				this->m_pSequence->RemoveTrackEvent("Subtext");
 				this->m_pSequence->RemoveTrackEvent("Song");
 				this->m_pSequence->RemoveTrackEventListener(this);
 			}
 
 			if (this->m_pEvents) this->m_pEvents->Release();
+			if (this->m_pFader) this->m_pFader->Release();
 		}
 
 		this->m_pSequence = sequence;
 
 		if (this->m_pSequence) {
+			this->m_pSequence->AddTrackEventListener(this);
 			this->m_pSequence->AddTrackEvent("Zone");
 			this->m_pSequence->AddTrackEvent("Lyric");
-			this->m_pSequence->AddTrackEvent("Translation");
-			this->m_pSequence->AddTrackEvent("Romaji");
 			this->m_pSequence->AddTrackEvent("Subtext");
 			this->m_pSequence->AddTrackEvent("Song");
-			this->m_pSequence->AddTrackEventListener(this);
 
 			this->m_pEvents = this->m_pSequence->CreateNode(EAnimNodeType::eAnimNodeType_Event);
 			this->m_pEvents->CreateDefaultTracks();
 			this->m_pEvents->AddRef();
+
+			this->m_pFader = this->m_pSequence->CreateNode(EAnimNodeType::eAnimNodeType_ScreenFader);
+			this->m_pFader->CreateDefaultTracks();
+			this->m_pFader->AddRef();
+			IAnimTrack * faderTrack = this->m_pFader->GetTrackByIndex(0);
+			faderTrack->SetNumKeys(2);
 		}
 	}
 	void DivaAnimationNode::SetNodeOwner(IAnimNodeOwner * pOwner) {

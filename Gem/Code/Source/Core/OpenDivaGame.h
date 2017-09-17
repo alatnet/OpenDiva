@@ -20,6 +20,9 @@
 #include <PortAudio\PortAudioBus.h>
 
 #include "Bus/DivaEventsBus.h"
+#include "Bus/DivaHudBus.h"
+
+#include "Files/LyricsFile.h"
 
 //#include "CryAction.h"
 
@@ -77,6 +80,7 @@ namespace OpenDiva
         , public ISystemEventListener
         , public IGameFrameworkListener
         , public ILevelSystemListener
+		, public DivaHudLyricsBus::Handler
     {
     public:
         OpenDivaGame();
@@ -166,8 +170,6 @@ namespace OpenDiva
 		static void LoadSongRedirect(IConsoleCmdArgs* pCmdArgs);
 		void LoadSong(IConsoleCmdArgs* pCmdArgs);
 		const char * songName;
-	private: //Setup Functions
-		void SetupDatabase();
 	public: //Misc Functions
 			//AZ::EntityId GetHudID() { return this->m_HudCanvasID; }
 			//IDivaJudge * GetJudge(); //TODO!!!  //may stick with the ebus stuff...
@@ -241,6 +243,12 @@ namespace OpenDiva
 		LYSwing::LYLabel * label, *label2;*/
 
 		AZ::Entity * ent;
+
+	protected:
+		void SetLyrics(AZStd::string lyrics);
+	private:
+		AZStd::string currLyric;
+		LyricsFile * lyrics;
     };
 
     SC_API extern OpenDivaGame* g_Game;

@@ -3,6 +3,7 @@
 #include "InputSystem.h"
 
 namespace OpenDiva {
+	/*
 	//------------------------------------------------------------------------------------------------
 	//LyInputSystem
 	//------------------------------------------------------------------------------------------------
@@ -87,12 +88,13 @@ namespace OpenDiva {
 	template <class C>
 	void LyInputEvent<C>::OnReleased(float value) { this->m_sys->OnInputEvent(eIET_Released, this->m_id, value); }
 	//------------------------------------------------------------------------------------------------
+	*/
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//Default Input System
 	//////////////////////////////////////////////////////////////////////////////////////////
 	CInputSystem::CInputSystem() {
-		this->m_system = new LyInputSystem<CInputSystem>(this);
+		/*this->m_system = new LyInputSystem<CInputSystem>(this);
 		this->m_system
 			->AddInput("cross", &CInputSystem::CrossAction)
 			->AddInput("circle", &CInputSystem::CircleAction)
@@ -105,17 +107,79 @@ namespace OpenDiva {
 			->AddInput("swipeL", &CInputSystem::SwipeLAction)
 			->AddInput("swipeR", &CInputSystem::SwipeRAction)
 			->AddInput("star", &CInputSystem::StarAction)
-			->AddInput("start", &CInputSystem::StartAction);
+			->AddInput("start", &CInputSystem::StartAction);*/
+
+		InputChannelEventListener::Connect();
 	}
 
 	CInputSystem::~CInputSystem() {
-		delete this->m_system;
+		InputChannelEventListener::Disconnect();
+
+		//delete this->m_system;
 		this->listeners.clear();
 	}
 
 	void CInputSystem::RemoveListener(IInputSystemListener *l) {
 		auto it = std::find(this->listeners.begin(), this->listeners.end(), l);
 		if (it != this->listeners.end()) this->listeners.erase(it);
+	}
+
+	bool CInputSystem::OnInputChannelEventFiltered(const AzFramework::InputChannel & inputChannel) {
+		auto device_id = inputChannel.GetInputDevice().GetInputDeviceId();
+		float value = inputChannel.GetValue();
+		auto input_type = inputChannel.GetInputChannelId();
+
+		LyInputEventType eventType;
+		switch (inputChannel.GetState()) {
+		case AzFramework::InputChannel::State::Began:
+			eventType = LyInputEventType::eIET_Pressed;
+			break;
+		case AzFramework::InputChannel::State::Updated:
+			eventType = LyInputEventType::eIET_Held;
+			break;
+		case AzFramework::InputChannel::State::Ended:
+			eventType = LyInputEventType::eIET_Released;
+			break;
+		}
+
+		if (device_id == AzFramework::InputDeviceKeyboard::Id) { //keyboard input
+			if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericW) this->TriangleAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericS) this->CrossAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericA) this->SquareAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericD) this->CircleAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericI) this->UpAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericK) this->DownAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericJ) this->LeftAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericL) this->RightAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::NavigationArrowUp) this->UpAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::NavigationArrowDown) this->DownAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::NavigationArrowLeft) this->LeftAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::NavigationArrowRight) this->RightAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericQ) this->SwipeLAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericE) this->SwipeRAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericU) this->SwipeLAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::AlphanumericO) this->SwipeRAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::EditSpace) this->StarAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceKeyboard::Key::Escape) this->StartAction(eventType, value);
+		} else if (device_id == AzFramework::InputDeviceGamepad::IdForIndex0) { //first gamepad input
+			if (input_type == AzFramework::InputDeviceGamepad::Button::A) this->CrossAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::B) this->CircleAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::X) this->SquareAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::Y) this->TriangleAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::DU) this->UpAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::DD) this->DownAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::DL) this->LeftAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::DR) this->RightAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::L1) this->SwipeLAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Trigger::L2) this->SwipeLAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::R1) this->SwipeRAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Trigger::R2) this->SwipeRAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::Button::Start) this->StartAction(eventType, value);
+			else if (input_type == AzFramework::InputDeviceGamepad::ThumbStickAxis2D::L) this->StarAction(eventType, 1.0f);
+			else if (input_type == AzFramework::InputDeviceGamepad::ThumbStickAxis2D::R) this->StarAction(eventType, 1.0f);
+		}
+
+		return false;
 	}
 
 	#define ACTION_FUNC(action) \
@@ -145,63 +209,4 @@ namespace OpenDiva {
 
 		ACTION_FUNC(Start)
 	#undef ACTION_FUNC
-
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//UI Input System
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//TActionHandler<CUIInputSystem> CUIInputSystem::s_actionHandler;
-
-	//CUIInputSystem::CUIInputSystem() {
-	//	/*IActionMapManager* pActionMapManager = gEnv->pGame->GetIGameFramework()->GetIActionMapManager();
-
-	//	pActionMapManager->AddExtraActionListener(this);
-
-	//	#define ADD_HANDLER(action,function) ActionId action##Input; action##Input = #action; CUIInputSystem::s_actionHandler.AddHandler(action##Input, function);
-	//	if (CUIInputSystem::s_actionHandler.GetNumHandlers() == 0) {
-	//		ADD_HANDLER(ui_up, &CUIInputSystem::Ui_UpAction);
-	//		ADD_HANDLER(ui_down, &CUIInputSystem::Ui_DownAction);
-	//		ADD_HANDLER(ui_left, &CUIInputSystem::Ui_LeftAction);
-	//		ADD_HANDLER(ui_right, &CUIInputSystem::Ui_RightAction);
-	//		ADD_HANDLER(ui_select, &CUIInputSystem::Ui_SelectAction);
-	//		ADD_HANDLER(ui_cancel, &CUIInputSystem::Ui_CancelAction);
-	//	}
-	//	#undef ADD_HANDLER*/
-	//}
-
-	//CUIInputSystem::~CUIInputSystem() {
-	//	//gEnv->pGame->GetIGameFramework()->GetIActionMapManager()->RemoveExtraActionListener(this);
-	//	this->listeners.clear();
-	//}
-
-	//void CUIInputSystem::RemoveListener(IUIInputSystemListener *l) {
-	//	auto it = std::find(this->listeners.begin(), this->listeners.end(), l);
-
-	//	if (it != this->listeners.end()) {
-	//		std::swap(*it, this->listeners.back());
-	//		this->listeners.pop_back();
-	//	}
-	//}
-
-	///*void CUIInputSystem::OnAction(const ActionId& action, int activationMode, float value) {
-	//	CUIInputSystem::s_actionHandler.Dispatch(this, 0, action, activationMode, value);
-	//}*/
-
-	//#define ACTION_FUNC(action) \
-	//	bool CUIInputSystem::Ui_##action##Action(ODInputEventType type, float value){ \
-	//		if (!this->listeners.empty()) { \
-	//			for (IUIInputSystemListener * l : this->listeners) { \
-	//				l->OnUi_##action##(type, value); \
-	//				l->OnUIInputEvent(eUIISE_##action##, type, value); \
-	//			} \
-	//		} \
-	//		return false; \
-	//	}
-
-	//	ACTION_FUNC(Up)
-	//	ACTION_FUNC(Down)
-	//	ACTION_FUNC(Left)
-	//	ACTION_FUNC(Right)
-	//	ACTION_FUNC(Select)
-	//	ACTION_FUNC(Cancel)
-	//#undef ACTION_FUNC
 }

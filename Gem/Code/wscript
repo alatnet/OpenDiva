@@ -34,10 +34,10 @@ def build(bld):
 			#steamworks build files.
 			#this is ONLY used for the public steam builds.
 			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
-			#'WAF/opendiva.steamworks.waf_files',
+			#'opendiva.steamworks.waf_files',
 
 			#for md5 and sha hashing library
-			'WAF/opendiva.hashlib2plus.waf_files',
+			#'opendiva.hashlib2plus.waf_files',
 		],
 #		features = [ 'copy_audio_dlls' ],
         platforms = ['win_x64', 'win_x64_vs2015', 'win_x64_vs2013','linux','darwin'],
@@ -47,11 +47,11 @@ def build(bld):
         includes                = [ '.',
 			bld.Path('Code/CryEngine/CryCommon'),
 			bld.Path('Code/CryEngine/CryAction'),
-			bld.Path('Code/OpenDiva/Game/Core/Utils/hashlib2plus/include'),
+			bld.Path('OpenDiva/Gem/Code/Source/Core/Utils/hashlib2plus/include'),
                         
 			#this is ONLY used for the public steam builds.
 			#OpenDiva does not depend on steamworks to function and this can be safely commented out.
-			#bld.Path('Code/OpenDiva/Game/Core/Steamworks/steam')
+			#bld.Path('OpenDiva/Gem/Code/Source/Core/Steamworks/steam')
 		],
         
         #this is ONLY used for the public steam builds.
@@ -156,7 +156,7 @@ def build(bld):
         # Darwin
         #==============================
 		darwin_file_list = [
-			'WAF/opendiva_mac.waf_files'
+			'opendiva_mac.waf_files'
 		],
 
         #usage of openmp is to parallel process precalculations.
@@ -195,7 +195,7 @@ def build(bld):
         # 'executable_name' in 'project.json' and
         # 'Executable file' in '../Resources/IOSLauncher/Info.plist'
         # ==============================
-        #ios_file_list           = ['WAF/opendiva_ios.waf_files'],
+        #ios_file_list           = ['opendiva_ios.waf_files'],
 
         # ==============================
         # AppleTV
@@ -203,7 +203,7 @@ def build(bld):
         # 'executable_name' in 'project.json' and
         # 'Executable file' in '../Resources/AppleTVLauncher/Info.plist'
         # ==============================
-        #appletv_file_list       = ['WAF/opendiva_appletv.waf_files'],
+        #appletv_file_list       = ['opendiva_appletv.waf_files'],
 		
         # Testing
         test_all_file_list      = ['opendiva_tests.waf_files'],

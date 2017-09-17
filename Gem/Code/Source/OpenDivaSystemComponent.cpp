@@ -14,13 +14,13 @@ namespace OpenDiva
     {
         if (AZ::SerializeContext* serialize = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serialize->Class<OpenDivaNewSystemComponent, AZ::Component>()
+            serialize->Class<OpenDivaSystemComponent, AZ::Component>()
                 ->Version(0)
                 ->SerializerForEmptyClass();
 
             if (AZ::EditContext* ec = serialize->GetEditContext())
             {
-                ec->Class<OpenDivaNewSystemComponent>("OpenDiva", "[Description of functionality provided by this System Component]")
+                ec->Class<OpenDivaSystemComponent>("OpenDiva", "[Description of functionality provided by this System Component]")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         // ->Attribute(AZ::Edit::Attributes::Category, "") Set a category
                         ->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("System"))
@@ -42,7 +42,7 @@ namespace OpenDiva
 
     void OpenDivaSystemComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)
     {
-        //required.push_back(AZ_CRC("CryLegacyService"));
+        required.push_back(AZ_CRC("CryLegacyService"));
     }
 
     void OpenDivaSystemComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent)

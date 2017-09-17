@@ -92,19 +92,29 @@ namespace OpenDiva {
         }
 	}
 
-	NoteFile::NoteFileInfo NoteFile::GetInfo(const char * filename) {
+	NoteFile::Info NoteFile::GetInfo(const char * filename) {
 		//TODO: Error checking needed
 		XmlNodeRef xmlFile = gEnv->pSystem->LoadXmlFromFile(filename);
 
-		NoteFileInfo ret;
+		Info ret;
+
+		ret.hash = AZ_CRC("NotValid", 0x072bdcd9);
+		ret.author = "";
+		ret.desc = "";
+		ret.difficulty = 0;
+		ret.valid = false;
+		ret.version = 0;
 
 		if (xmlFile != 0) {
+			ret.hash = AZ::Crc32(filename);
+			ret.hash.Add(OPENDIVA_SALT);
+
 			xmlFile->getAttr("version", ret.version);
 			xmlFile->getAttr("difficulty", ret.difficulty);
 			ret.author = xmlFile->getAttr("author");
 
 			XmlNodeRef desc = xmlFile->findChild("desc");
-			if (desc != 0) ret.desc = desc->getContent();
+			if (desc) ret.desc = desc->getContent();
 
 			ret.valid = true;
 		}
@@ -112,9 +122,16 @@ namespace OpenDiva {
 		return ret;
 	}
 
-	NoteFile::NoteFileInfo NoteFile::GetInfo(XmlNodeRef xmlNode) {
+	NoteFile::Info NoteFile::GetInfo(XmlNodeRef xmlNode) {
 		//TODO: Error checking needed
-		NoteFileInfo ret;
+		Info ret;
+
+		ret.hash = AZ_CRC("NotValid", 0x072bdcd9);
+		ret.author = "";
+		ret.desc = "";
+		ret.difficulty = 0;
+		ret.valid = false;
+		ret.version = 0;
 
 		if (xmlNode != 0) {
 			xmlNode->getAttr("version", ret.version);
@@ -122,7 +139,7 @@ namespace OpenDiva {
 			ret.author = xmlNode->getAttr("author");
 
 			XmlNodeRef desc = xmlNode->findChild("desc");
-			if (desc != 0) ret.desc = desc->getContent();
+			if (desc) ret.desc = desc->getContent();
 
 			ret.valid = true;
 		}
@@ -141,7 +158,10 @@ namespace OpenDiva {
 
 	//sort notes by time;
 	bool NoteFile::noteSort(NoteEntry* a, NoteEntry* b) {
-		return a->getTime() < b->getTime();
+		float at = a->getTime(), bt = b->getTime();
+
+		if (at == bt) return a->id < b->id; //if the times are the same, sort by id.
+		return at < bt; //sort by time.
 	}
 
 	AZStd::string NoteFile::toString() {

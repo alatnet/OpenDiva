@@ -1,14 +1,14 @@
 
 #include "StdAfx.h"
 #include "GameStartup.h"
-#include "Core/OpenDivaNewGame.h"
+#include "Core/OpenDivaGame.h"
 #include "Core/EditorGame.h"
 #include "IHardwareMouse.h"
 #include <IPlayerProfiles.h>
 #include <CryLibrary.h>
 #include <IPlatformOS.h>
 
-using namespace OpenDivaNew;
+using namespace OpenDiva;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -74,12 +74,12 @@ IGameRef GameStartup::Init(SSystemInitParams& startupParams)
 
 IGameRef GameStartup::Reset()
 {
-    static char gameBuffer[sizeof(OpenDivaNew::OpenDivaNewGame)];
+    static char gameBuffer[sizeof(OpenDiva::OpenDivaGame)];
 
     ISystem* system = m_Framework->GetISystem();
-    ModuleInitISystem(system, "OpenDivaNew"); //TODO change name
+    ModuleInitISystem(system, "OpenDiva"); //TODO change name
 
-    m_Game = new(reinterpret_cast<void*>(gameBuffer)) OpenDivaNew::OpenDivaNewGame();
+    m_Game = new(reinterpret_cast<void*>(gameBuffer)) OpenDiva::OpenDivaGame();
     const bool initialized = (m_Game && m_Game->Init(m_Framework));
 
     return initialized ? &m_Game : nullptr;

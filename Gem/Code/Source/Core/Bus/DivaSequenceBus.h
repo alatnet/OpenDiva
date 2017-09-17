@@ -10,6 +10,7 @@
 namespace OpenDiva {
 	class DivaSequenceJudgeGroup : public AZ::EBusTraits {
 	public: //there will only be one sequence that recieves judge events
+		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single;
 		static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Single;
 	public:
 		virtual void UpdateNoteHit() = 0;
@@ -31,6 +32,7 @@ namespace OpenDiva {
 
 	class DivaSequenceEffectsGroup : public AZ::EBusTraits {
 	public: //there will be only one sequence that recieves effect events
+		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single;
 		static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Single;
 	public:
 		virtual void PushbackRating(AZ::Vector2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong) = 0;

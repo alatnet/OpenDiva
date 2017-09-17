@@ -15,11 +15,11 @@
 #include "../Bus/DivaJudgeBus.h"
 #include "../Bus/DivaHudBus.h"
 #include "../Files/LyricsFile.h"
-//#include "..\Sound\Port Audio System\Source\AudioSources.h"
-//#include "..\Sound\Port Audio System\PortAudioSystem.h"
 
 #include <AlternativeAudio\AlternativeAudioBus.h>
-#include <PortAudio\PortAudioBus.h>
+
+//how fast the fade in/out of the song should be
+#define DIVAFADETIME 3.0f
 
 namespace OpenDiva {
 	class DivaAnimationNode :
@@ -30,12 +30,11 @@ namespace OpenDiva {
 		public DivaSequenceEffectsBus::Handler,
 		public DivaHudHitScoreBus::Handler {
 	public:
-		DivaAnimationNode(ResourceCollection * rc/*, PortAudioSystem *paSystem*/);
+		DivaAnimationNode(ResourceCollection * rc);
 		~DivaAnimationNode();
 	public:
 		bool Init(NoteFile *noteFile);
 		bool InitLyrics(LyricsFile * lyrics);
-		bool InitTranslations(TranslationFile * translationFile);
 		bool InitAudio();
 	public: //IInputSystemListener
 		// only the current note needs to listen for input.
@@ -54,7 +53,7 @@ namespace OpenDiva {
 		void OnSwipeL(LyInputEventType mode, float value);
 		void OnSwipeR(LyInputEventType mode, float value);
 
-	public: //buses
+	protected: //buses
 		void PushbackRating(AZ::Vector2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong);
 		void PushbackEffect(AZ::Vector2 pos, EEffectList eff);
 		void PushbackHoldMulti(AZ::Vector2 pos, unsigned int score, EHitScore hitscore, bool wrong);
@@ -150,10 +149,10 @@ namespace OpenDiva {
 		AZStd::vector<DivaNoteBaseNode*> m_NoteNodes;
 		unsigned int m_hitNote;
 	private:
-		TranslationFile * m_tFile;
-	private:
 		ResourceCollection * m_pRC;
 		AZStd::vector<ParticleBase*> m_Particles;
+	private:
+		LyricsFile *m_lyrics;
 	private:
 		//PortAudioSystem *m_pPASystem;
 		struct {
@@ -163,7 +162,7 @@ namespace OpenDiva {
 			AlternativeAudio::IAudioSource *m_audioVocal, *m_audioMelody, *m_audioSong;
 		} m_Music;
 	private:
-		IAnimNode * m_pEvents;
+		IAnimNode * m_pEvents, * m_pFader;
 	};
 }
 

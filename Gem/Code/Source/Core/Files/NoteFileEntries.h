@@ -48,7 +48,6 @@ namespace OpenDiva {
 	//<bpm id="" val="60" time="" />
 	NoteEntryClass(BPM) {
 	REGISTER_NOTE_ENTRY("bpm", NoteEntryBPM)
-
 	public:
 		float getTime() { return this->time; }
 		float getDelay() { return this->getMSDelay()/1000.0f; } //to seconds
@@ -75,7 +74,6 @@ namespace OpenDiva {
 	*/
 	NoteEntryClass(Single) {
 	REGISTER_NOTE_ENTRY("note", NoteEntrySingle)
-
 	public:
 		float getTime() { return this->time; }
 		ENoteHitType getClassType() { return eNHT_Single; } // we are a hit note
@@ -103,7 +101,6 @@ namespace OpenDiva {
 	*/
 	NoteEntryClass(Hold) {
 	REGISTER_NOTE_ENTRY("hold", NoteEntryHold)
-
 	public:
 		float getTime() { return this->hold1; }
 		ENoteHitType getClassType() { return eNHT_Hold; } // we are a hold note

@@ -1,12 +1,63 @@
 {
-    "GemFormatVersion": 3,
-    "Uuid": "95e41eeb9802469b8f7dd874f19720d9",
-    "Name": "OpenDiva",
-    "DisplayName": "OpenDiva",
-    "Version": "0.1.0",
-    "LinkType": "Dynamic",
-    "Summary": "A short description of my Game Project Gem.",
-    "Tags": ["Game"],
-    "IconPath": "preview.png",
-    "IsGameGem": true
+  "Dependencies": [
+    {
+      "Uuid": "352fef7706634c92814c587e84d7165a",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "CryLegacy"
+    },
+    {
+      "Uuid": "0523ea9b22264a73a494263c165760e6",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "Cubism3"
+    },
+    {
+      "Uuid": "4b76424b22de476497488bc53b6c88b5",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "SQLite"
+    },
+    {
+      "Uuid": "632473900ed84df3a2bad2887a3bff56",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "VideoPlayback"
+    },
+    {
+      "Uuid": "96a96b530fa24e0ba3a51daa485e9b16",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "PortAudio"
+    },
+    {
+      "Uuid": "a987cb9a5fec4ed2b6266a481d5236f3",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "AlternativeAudio_Libsndfile"
+    },
+    {
+      "Uuid": "b4745a69bade49a3aacc01e4475bdee7",
+      "VersionConstraints": [
+        "~>0.1"
+      ],
+      "_comment": "AlternativeAudio"
+    }
+  ],
+  "GemFormatVersion": 3,
+  "Uuid": "95e41eeb9802469b8f7dd874f19720d9",
+  "Name": "OpenDiva",
+  "DisplayName": "OpenDiva",
+  "Version": "0.1.0",
+  "LinkType": "Dynamic",
+  "Summary": "A short description of my Game Project Gem.",
+  "Tags": [ "Game" ],
+  "IconPath": "preview.png",
+  "IsGameGem": true
 }

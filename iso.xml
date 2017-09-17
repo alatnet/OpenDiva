@@ -1,0 +1,1107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Langs>
+  <Lang>
+    <Family>Northwest Caucasian</Family>
+    <Iso>Abkhazian</Iso>
+    <Native>аҧсуа бызшәа, аҧсшәа</Native>
+    <Code>ab</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Afar</Iso>
+    <Native>Afaraf</Native>
+    <Code>aa</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Afrikaans</Iso>
+    <Native>Afrikaans</Native>
+    <Code>af</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Akan</Iso>
+    <Native>Akan</Native>
+    <Code>ak</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Albanian</Iso>
+    <Native>Shqip</Native>
+    <Code>sq</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Amharic</Iso>
+    <Native>አማርኛ</Native>
+    <Code>am</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Arabic</Iso>
+    <Native>العربية</Native>
+    <Code>ar</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Aragonese</Iso>
+    <Native>aragonés</Native>
+    <Code>an</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Armenian</Iso>
+    <Native>Հայերեն</Native>
+    <Code>hy</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Assamese</Iso>
+    <Native>অসমীয়া</Native>
+    <Code>as</Code>
+  </Lang>
+  <Lang>
+    <Family>Northeast Caucasian</Family>
+    <Iso>Avaric</Iso>
+    <Native>авар мацӀ, магӀарул мацӀ</Native>
+    <Code>av</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Avestan</Iso>
+    <Native>avesta</Native>
+    <Code>ae</Code>
+  </Lang>
+  <Lang>
+    <Family>Aymaran</Family>
+    <Iso>Aymara</Iso>
+    <Native>aymar aru</Native>
+    <Code>ay</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Azerbaijani</Iso>
+    <Native>azərbaycan dili</Native>
+    <Code>az</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Bambara</Iso>
+    <Native>bamanankan</Native>
+    <Code>bm</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Bashkir</Iso>
+    <Native>башҡорт теле</Native>
+    <Code>ba</Code>
+  </Lang>
+  <Lang>
+    <Family>Language isolate</Family>
+    <Iso>Basque</Iso>
+    <Native>euskara, euskera</Native>
+    <Code>eu</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Belarusian</Iso>
+    <Native>беларуская мова</Native>
+    <Code>be</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Bengali</Iso>
+    <Native>বাংলা</Native>
+    <Code>bn</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Bihari languages</Iso>
+    <Native>भोजपुरी</Native>
+    <Code>bh</Code>
+  </Lang>
+  <Lang>
+    <Family>Creole</Family>
+    <Iso>Bislama</Iso>
+    <Native>Bislama</Native>
+    <Code>bi</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Bosnian</Iso>
+    <Native>bosanski jezik</Native>
+    <Code>bs</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Breton</Iso>
+    <Native>brezhoneg</Native>
+    <Code>br</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Bulgarian</Iso>
+    <Native>български език</Native>
+    <Code>bg</Code>
+  </Lang>
+  <Lang>
+    <Family>Sino-Tibetan</Family>
+    <Iso>Burmese</Iso>
+    <Native>ဗမာစာ</Native>
+    <Code>my</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Catalan, Valencian</Iso>
+    <Native>català, valencià</Native>
+    <Code>ca</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Chamorro</Iso>
+    <Native>Chamoru</Native>
+    <Code>ch</Code>
+  </Lang>
+  <Lang>
+    <Family>Northeast Caucasian</Family>
+    <Iso>Chechen</Iso>
+    <Native>нохчийн мотт</Native>
+    <Code>ce</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Chichewa, Chewa, Nyanja</Iso>
+    <Native>chiCheŵa, chinyanja</Native>
+    <Code>ny</Code>
+  </Lang>
+  <Lang>
+    <Family>Sino-Tibetan</Family>
+    <Iso>Chinese</Iso>
+    <Native>中文 (Zhōngwén), 汉语, 漢語</Native>
+    <Code>zh</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Chuvash</Iso>
+    <Native>чӑваш чӗлхи</Native>
+    <Code>cv</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Cornish</Iso>
+    <Native>Kernewek</Native>
+    <Code>kw</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Corsican</Iso>
+    <Native>corsu, lingua corsa</Native>
+    <Code>co</Code>
+  </Lang>
+  <Lang>
+    <Family>Algonquian</Family>
+    <Iso>Cree</Iso>
+    <Native>ᓀᐦᐃᔭᐍᐏᐣ</Native>
+    <Code>cr</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Croatian</Iso>
+    <Native>hrvatski jezik</Native>
+    <Code>hr</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Czech</Iso>
+    <Native>čeština, český jazyk</Native>
+    <Code>cs</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Danish</Iso>
+    <Native>dansk</Native>
+    <Code>da</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Divehi, Dhivehi, Maldivian</Iso>
+    <Native>ދިވެހި</Native>
+    <Code>dv</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Dutch, Flemish</Iso>
+    <Native>Nederlands, Vlaams</Native>
+    <Code>nl</Code>
+  </Lang>
+  <Lang>
+    <Family>Sino-Tibetan</Family>
+    <Iso>Dzongkha</Iso>
+    <Native>རྫོང་ཁ</Native>
+    <Code>dz</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>English</Iso>
+    <Native>English</Native>
+    <Code>en</Code>
+  </Lang>
+  <Lang>
+    <Family>Constructed</Family>
+    <Iso>Esperanto</Iso>
+    <Native>Esperanto</Native>
+    <Code>eo</Code>
+  </Lang>
+  <Lang>
+    <Family>Uralic</Family>
+    <Iso>Estonian</Iso>
+    <Native>eesti, eesti keel</Native>
+    <Code>et</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Ewe</Iso>
+    <Native>Eʋegbe</Native>
+    <Code>ee</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Faroese</Iso>
+    <Native>føroyskt</Native>
+    <Code>fo</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Fijian</Iso>
+    <Native>vosa Vakaviti</Native>
+    <Code>fj</Code>
+  </Lang>
+  <Lang>
+    <Family>Uralic</Family>
+    <Iso>Finnish</Iso>
+    <Native>suomi, suomen kieli</Native>
+    <Code>fi</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>French</Iso>
+    <Native>français, langue française</Native>
+    <Code>fr</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Fulah</Iso>
+    <Native>Fulfulde, Pulaar, Pular</Native>
+    <Code>ff</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Galician</Iso>
+    <Native>Galego</Native>
+    <Code>gl</Code>
+  </Lang>
+  <Lang>
+    <Family>South Caucasian</Family>
+    <Iso>Georgian</Iso>
+    <Native>ქართული</Native>
+    <Code>ka</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>German</Iso>
+    <Native>Deutsch</Native>
+    <Code>de</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Greek (modern)</Iso>
+    <Native>ελληνικά</Native>
+    <Code>el</Code>
+  </Lang>
+  <Lang>
+    <Family>Tupian</Family>
+    <Iso>Guaraní</Iso>
+    <Native>Avañe'ẽ</Native>
+    <Code>gn</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Gujarati</Iso>
+    <Native>ગુજરાતી</Native>
+    <Code>gu</Code>
+  </Lang>
+  <Lang>
+    <Family>Creole</Family>
+    <Iso>Haitian, Haitian Creole</Iso>
+    <Native>Kreyòl ayisyen</Native>
+    <Code>ht</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Hausa</Iso>
+    <Native>(Hausa) هَوُسَ</Native>
+    <Code>ha</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Hebrew (modern)</Iso>
+    <Native>עברית</Native>
+    <Code>he</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Herero</Iso>
+    <Native>Otjiherero</Native>
+    <Code>hz</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Hindi</Iso>
+    <Native>हिन्दी, हिंदी</Native>
+    <Code>hi</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Hiri Motu</Iso>
+    <Native>Hiri Motu</Native>
+    <Code>ho</Code>
+  </Lang>
+  <Lang>
+    <Family>Uralic</Family>
+    <Iso>Hungarian</Iso>
+    <Native>magyar</Native>
+    <Code>hu</Code>
+  </Lang>
+  <Lang>
+    <Family>Constructed</Family>
+    <Iso>Interlingua</Iso>
+    <Native>Interlingua</Native>
+    <Code>ia</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Indonesian</Iso>
+    <Native>Bahasa Indonesia</Native>
+    <Code>id</Code>
+  </Lang>
+  <Lang>
+    <Family>Constructed</Family>
+    <Iso>Interlingue</Iso>
+    <Native>Interlingue</Native>
+    <Code>ie</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Irish</Iso>
+    <Native>Gaeilge</Native>
+    <Code>ga</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Igbo</Iso>
+    <Native>Asụsụ Igbo</Native>
+    <Code>ig</Code>
+  </Lang>
+  <Lang>
+    <Family>Eskimo–Aleut</Family>
+    <Iso>Inupiaq</Iso>
+    <Native>Iñupiaq, Iñupiatun</Native>
+    <Code>ik</Code>
+  </Lang>
+  <Lang>
+    <Family>Constructed</Family>
+    <Iso>Ido</Iso>
+    <Native>Ido</Native>
+    <Code>io</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Icelandic</Iso>
+    <Native>Íslenska</Native>
+    <Code>is</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Italian</Iso>
+    <Native>Italiano</Native>
+    <Code>it</Code>
+  </Lang>
+  <Lang>
+    <Family>Eskimo–Aleut</Family>
+    <Iso>Inuktitut</Iso>
+    <Native>ᐃᓄᒃᑎᑐᑦ</Native>
+    <Code>iu</Code>
+  </Lang>
+  <Lang>
+    <Family>Japonic</Family>
+    <Iso>Japanese</Iso>
+    <Native>日本語 (にほんご)</Native>
+    <Code>ja</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Javanese</Iso>
+    <Native>ꦧꦱꦗꦮ, Basa Jawa</Native>
+    <Code>jv</Code>
+  </Lang>
+  <Lang>
+    <Family>Eskimo–Aleut</Family>
+    <Iso>Kalaallisut, Greenlandic</Iso>
+    <Native>kalaallisut, kalaallit oqaasii</Native>
+    <Code>kl</Code>
+  </Lang>
+  <Lang>
+    <Family>Dravidian</Family>
+    <Iso>Kannada</Iso>
+    <Native>ಕನ್ನಡ</Native>
+    <Code>kn</Code>
+  </Lang>
+  <Lang>
+    <Family>Nilo-Saharan</Family>
+    <Iso>Kanuri</Iso>
+    <Native>Kanuri</Native>
+    <Code>kr</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Kashmiri</Iso>
+    <Native>कश्मीरी, كشميري‎</Native>
+    <Code>ks</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Kazakh</Iso>
+    <Native>қазақ тілі</Native>
+    <Code>kk</Code>
+  </Lang>
+  <Lang>
+    <Family>Austroasiatic</Family>
+    <Iso>Central Khmer</Iso>
+    <Native>ខ្មែរ, ខេមរភាសា, ភាសាខ្មែរ</Native>
+    <Code>km</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Kikuyu, Gikuyu</Iso>
+    <Native>Gĩkũyũ</Native>
+    <Code>ki</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Kinyarwanda</Iso>
+    <Native>Ikinyarwanda</Native>
+    <Code>rw</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Kirghiz, Kyrgyz</Iso>
+    <Native>Кыргызча, Кыргыз тили</Native>
+    <Code>ky</Code>
+  </Lang>
+  <Lang>
+    <Family>Uralic</Family>
+    <Iso>Komi</Iso>
+    <Native>коми кыв</Native>
+    <Code>kv</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Kongo</Iso>
+    <Native>Kikongo</Native>
+    <Code>kg</Code>
+  </Lang>
+  <Lang>
+    <Family>Koreanic</Family>
+    <Iso>Korean</Iso>
+    <Native>한국어</Native>
+    <Code>ko</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Kurdish</Iso>
+    <Native>كوردی‎</Native>
+    <Code>ku</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Kuanyama, Kwanyama</Iso>
+    <Native>Kuanyama</Native>
+    <Code>kj</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Latin</Iso>
+    <Native>latine, lingua latina</Native>
+    <Code>la</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Luxembourgish, Letzeburgesch</Iso>
+    <Native>Lëtzebuergesch</Native>
+    <Code>lb</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Ganda</Iso>
+    <Native>Luganda</Native>
+    <Code>lg</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Limburgan, Limburger, Limburgish</Iso>
+    <Native>Limburgs</Native>
+    <Code>li</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Lingala</Iso>
+    <Native>Lingála</Native>
+    <Code>ln</Code>
+  </Lang>
+  <Lang>
+    <Family>Tai–Kadai</Family>
+    <Iso>Lao</Iso>
+    <Native>ພາສາລາວ</Native>
+    <Code>lo</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Lithuanian</Iso>
+    <Native>lietuvių kalba</Native>
+    <Code>lt</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Luba-Katanga</Iso>
+    <Native>Kiluba</Native>
+    <Code>lu</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Latvian</Iso>
+    <Native>Latviešu Valoda</Native>
+    <Code>lv</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Manx</Iso>
+    <Native>Gaelg, Gailck</Native>
+    <Code>gv</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Macedonian</Iso>
+    <Native>македонски јазик</Native>
+    <Code>mk</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Malagasy</Iso>
+    <Native>fiteny malagasy</Native>
+    <Code>mg</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Malay</Iso>
+    <Native>بهاس ملايو‎</Native>
+    <Code>ms</Code>
+  </Lang>
+  <Lang>
+    <Family>Dravidian</Family>
+    <Iso>Malayalam</Iso>
+    <Native>മലയാളം</Native>
+    <Code>ml</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Maltese</Iso>
+    <Native>Malti</Native>
+    <Code>mt</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Maori</Iso>
+    <Native>te reo Māori</Native>
+    <Code>mi</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Marathi</Iso>
+    <Native>मराठी</Native>
+    <Code>mr</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Marshallese</Iso>
+    <Native>Kajin M̧ajeļ</Native>
+    <Code>mh</Code>
+  </Lang>
+  <Lang>
+    <Family>Mongolic</Family>
+    <Iso>Mongolian</Iso>
+    <Native>Монгол хэл</Native>
+    <Code>mn</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Nauru</Iso>
+    <Native>Dorerin Naoero</Native>
+    <Code>na</Code>
+  </Lang>
+  <Lang>
+    <Family>Dené–Yeniseian</Family>
+    <Iso>Navajo, Navaho</Iso>
+    <Native>Diné bizaad</Native>
+    <Code>nv</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>North Ndebele</Iso>
+    <Native>isiNdebele</Native>
+    <Code>nd</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Nepali</Iso>
+    <Native>नेपाली</Native>
+    <Code>ne</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Ndonga</Iso>
+    <Native>Owambo</Native>
+    <Code>ng</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Norwegian Bokmål</Iso>
+    <Native>Norsk Bokmål</Native>
+    <Code>nb</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Norwegian Nynorsk</Iso>
+    <Native>Norsk Nynorsk</Native>
+    <Code>nn</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Norwegian</Iso>
+    <Native>Norsk</Native>
+    <Code>no</Code>
+  </Lang>
+  <Lang>
+    <Family>Sino-Tibetan</Family>
+    <Iso>Sichuan Yi, Nuosu</Iso>
+    <Native>ꆈꌠ꒿ Nuosuhxop</Native>
+    <Code>ii</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>South Ndebele</Iso>
+    <Native>isiNdebele</Native>
+    <Code>nr</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Occitan</Iso>
+    <Native>occitan, lenga d'òc</Native>
+    <Code>oc</Code>
+  </Lang>
+  <Lang>
+    <Family>Algonquian</Family>
+    <Iso>Ojibwa</Iso>
+    <Native>ᐊᓂᔑᓈᐯᒧᐎᓐ</Native>
+    <Code>oj</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian</Iso>
+    <Native>ѩзыкъ словѣньскъ</Native>
+    <Code>cu</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Oromo</Iso>
+    <Native>Afaan Oromoo</Native>
+    <Code>om</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Oriya</Iso>
+    <Native>ଓଡ଼ିଆ</Native>
+    <Code>or</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Ossetian, Ossetic</Iso>
+    <Native>ирон æвзаг</Native>
+    <Code>os</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Panjabi, Punjabi</Iso>
+    <Native>ਪੰਜਾਬੀ</Native>
+    <Code>pa</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Pali</Iso>
+    <Native>पाऴि</Native>
+    <Code>pi</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Persian</Iso>
+    <Native>فارسی</Native>
+    <Code>fa</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Polish</Iso>
+    <Native>Język Polski, Polszczyzna</Native>
+    <Code>pl</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Pashto, Pushto</Iso>
+    <Native>پښتو</Native>
+    <Code>ps</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Portuguese</Iso>
+    <Native>Português</Native>
+    <Code>pt</Code>
+  </Lang>
+  <Lang>
+    <Family>Quechuan</Family>
+    <Iso>Quechua</Iso>
+    <Native>Runa Simi, Kichwa</Native>
+    <Code>qu</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Romansh</Iso>
+    <Native>Rumantsch Grischun</Native>
+    <Code>rm</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Rundi</Iso>
+    <Native>Ikirundi</Native>
+    <Code>rn</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Romanian, Moldavian, Moldovan</Iso>
+    <Native>Română</Native>
+    <Code>ro</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Russian</Iso>
+    <Native>Русский</Native>
+    <Code>ru</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Sanskrit</Iso>
+    <Native>संस्कृतम्</Native>
+    <Code>sa</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Sardinian</Iso>
+    <Native>sardu</Native>
+    <Code>sc</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Sindhi</Iso>
+    <Native>सिन्धी, سنڌي، سندھی‎</Native>
+    <Code>sd</Code>
+  </Lang>
+  <Lang>
+    <Family>Uralic</Family>
+    <Iso>Northern Sami</Iso>
+    <Native>Davvisámegiella</Native>
+    <Code>se</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Samoan</Iso>
+    <Native>gagana fa'a Samoa</Native>
+    <Code>sm</Code>
+  </Lang>
+  <Lang>
+    <Family>Creole</Family>
+    <Iso>Sango</Iso>
+    <Native>yângâ tî sängö</Native>
+    <Code>sg</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Serbian</Iso>
+    <Native>српски језик</Native>
+    <Code>sr</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Gaelic, Scottish Gaelic</Iso>
+    <Native>Gàidhlig</Native>
+    <Code>gd</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Shona</Iso>
+    <Native>chiShona</Native>
+    <Code>sn</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Sinhala, Sinhalese</Iso>
+    <Native>සිංහල</Native>
+    <Code>si</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Slovak</Iso>
+    <Native>Slovenčina, Slovenský Jazyk</Native>
+    <Code>sk</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Slovenian</Iso>
+    <Native>Slovenski Jezik, Slovenščina</Native>
+    <Code>sl</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Somali</Iso>
+    <Native>Soomaaliga, af Soomaali</Native>
+    <Code>so</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Southern Sotho</Iso>
+    <Native>Sesotho</Native>
+    <Code>st</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Spanish, Castilian</Iso>
+    <Native>Español</Native>
+    <Code>es</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Sundanese</Iso>
+    <Native>Basa Sunda</Native>
+    <Code>su</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Swahili</Iso>
+    <Native>Kiswahili</Native>
+    <Code>sw</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Swati</Iso>
+    <Native>SiSwati</Native>
+    <Code>ss</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Swedish</Iso>
+    <Native>Svenska</Native>
+    <Code>sv</Code>
+  </Lang>
+  <Lang>
+    <Family>Dravidian</Family>
+    <Iso>Tamil</Iso>
+    <Native>தமிழ்</Native>
+    <Code>ta</Code>
+  </Lang>
+  <Lang>
+    <Family>Dravidian</Family>
+    <Iso>Telugu</Iso>
+    <Native>తెలుగు</Native>
+    <Code>te</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Tajik</Iso>
+    <Native>тоҷикӣ, toçikī, تاجیکی‎</Native>
+    <Code>tg</Code>
+  </Lang>
+  <Lang>
+    <Family>Tai–Kadai</Family>
+    <Iso>Thai</Iso>
+    <Native>ไทย</Native>
+    <Code>th</Code>
+  </Lang>
+  <Lang>
+    <Family>Afro-Asiatic</Family>
+    <Iso>Tigrinya</Iso>
+    <Native>ትግርኛ</Native>
+    <Code>ti</Code>
+  </Lang>
+  <Lang>
+    <Family>Sino-Tibetan</Family>
+    <Iso>Tibetan</Iso>
+    <Native>བོད་ཡིག</Native>
+    <Code>bo</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Turkmen</Iso>
+    <Native>Türkmen, Түркмен</Native>
+    <Code>tk</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Tagalog</Iso>
+    <Native>Wikang Tagalog</Native>
+    <Code>tl</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Tswana</Iso>
+    <Native>Setswana</Native>
+    <Code>tn</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Tonga (Tonga Islands)</Iso>
+    <Native>Faka Tonga</Native>
+    <Code>to</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Turkish</Iso>
+    <Native>Türkçe</Native>
+    <Code>tr</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Tsonga</Iso>
+    <Native>Xitsonga</Native>
+    <Code>ts</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Tatar</Iso>
+    <Native>татар теле, tatar tele</Native>
+    <Code>tt</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Twi</Iso>
+    <Native>Twi</Native>
+    <Code>tw</Code>
+  </Lang>
+  <Lang>
+    <Family>Austronesian</Family>
+    <Iso>Tahitian</Iso>
+    <Native>Reo Tahiti</Native>
+    <Code>ty</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Uighur, Uyghur</Iso>
+    <Native>ئۇيغۇرچە‎</Native>
+    <Code>ug</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Ukrainian</Iso>
+    <Native>Українська</Native>
+    <Code>uk</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Urdu</Iso>
+    <Native>اردو</Native>
+    <Code>ur</Code>
+  </Lang>
+  <Lang>
+    <Family>Turkic</Family>
+    <Iso>Uzbek</Iso>
+    <Native>Oʻzbek, Ўзбек, أۇزبېك‎</Native>
+    <Code>uz</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Venda</Iso>
+    <Native>Tshivenḓa</Native>
+    <Code>ve</Code>
+  </Lang>
+  <Lang>
+    <Family>Austroasiatic</Family>
+    <Iso>Vietnamese</Iso>
+    <Native>Tiếng Việt</Native>
+    <Code>vi</Code>
+  </Lang>
+  <Lang>
+    <Family>Constructed</Family>
+    <Iso>Volapük</Iso>
+    <Native>Volapük</Native>
+    <Code>vo</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Walloon</Iso>
+    <Native>Walon</Native>
+    <Code>wa</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Welsh</Iso>
+    <Native>Cymraeg</Native>
+    <Code>cy</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Wolof</Iso>
+    <Native>Wollof</Native>
+    <Code>wo</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Western Frisian</Iso>
+    <Native>Frysk</Native>
+    <Code>fy</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Xhosa</Iso>
+    <Native>isiXhosa</Native>
+    <Code>xh</Code>
+  </Lang>
+  <Lang>
+    <Family>Indo-European</Family>
+    <Iso>Yiddish</Iso>
+    <Native>ייִדיש</Native>
+    <Code>yi</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Yoruba</Iso>
+    <Native>Yorùbá</Native>
+    <Code>yo</Code>
+  </Lang>
+  <Lang>
+    <Family>Tai–Kadai</Family>
+    <Iso>Zhuang, Chuang</Iso>
+    <Native>Saɯ cueŋƅ, Saw cuengh</Native>
+    <Code>za</Code>
+  </Lang>
+  <Lang>
+    <Family>Niger–Congo</Family>
+    <Iso>Zulu</Iso>
+    <Native>isiZulu</Native>
+    <Code>zu</Code>
+  </Lang>
+</Langs>

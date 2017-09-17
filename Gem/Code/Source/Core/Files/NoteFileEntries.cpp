@@ -107,7 +107,7 @@ namespace OpenDiva {
 						Vec2 position;
 						getAttrData(path, "pos", position)
 						this->pos = AZ::Vector2(position.x, position.y);
-						getAttrData(path,"angle", this->angle)
+						getAttrData(path, "angle", this->angle)
 						getAttrData(path, "ctrDist1", this->ctrlDist1)
 						getAttrData(path, "ctrDist2", this->ctrlDist2)
 					} else if (pathTag.compare("line") == 0) {

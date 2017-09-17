@@ -2,11 +2,15 @@
 #define _H_INPUTSYS_
 #pragma once
 
-#include <InputEventBus.h>
+#include <AzFramework/Input/Events/InputChannelEventListener.h>
+#include <AzFramework/Input/Devices/Keyboard/InputDeviceKeyboard.h>
+#include <AzFramework/Input/Devices/Gamepad/InputDeviceGamepad.h>
+#include <AzFramework/Input/Devices/Touch/InputDeviceTouch.h>
+//#include <InputEventBus.h>
 
 namespace OpenDiva {
 	//------------------------------------------------------------------------------------------------
-	template <class C> class LyInputEvent;
+	//template <class C> class LyInputEvent;
 
 	enum LyInputEventType {
 		eIET_Pressed = 0,
@@ -15,6 +19,7 @@ namespace OpenDiva {
 	};
 	//------------------------------------------------------------------------------------------------
 
+	/*
 	//------------------------------------------------------------------------------------------------
 	//LyInputSystem
 	//------------------------------------------------------------------------------------------------
@@ -76,6 +81,7 @@ namespace OpenDiva {
 		LyInputSystem<C> * m_sys;
 	};
 	//------------------------------------------------------------------------------------------------
+	*/
 
 	enum EInputSystemEvent {
 		eISE_Cross,
@@ -117,7 +123,9 @@ namespace OpenDiva {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//Default Input System
 	//////////////////////////////////////////////////////////////////////////////////////////
-	class CInputSystem {
+	class CInputSystem
+		: public AzFramework::InputChannelEventListener
+	{
 	public:
 		CInputSystem();
 		~CInputSystem();
@@ -147,57 +155,11 @@ namespace OpenDiva {
 	private:
 		AZStd::vector<IInputSystemListener*> listeners;
 	private:
-		LyInputSystem<CInputSystem> *m_system;
+		//LyInputSystem<CInputSystem> *m_system;
+
+		// Inherited via InputChannelEventListener
+		bool OnInputChannelEventFiltered(const AzFramework::InputChannel & inputChannel) override;
 	};
-
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//UI Input System
-	//////////////////////////////////////////////////////////////////////////////////////////
-
-	//enum EUIInputSystemEvent {
-	//	eUIISE_Up,
-	//	eUIISE_Down,
-	//	eUIISE_Left,
-	//	eUIISE_Right,
-	//	eUIISE_Select,
-	//	eUIISE_Cancel
-	//};
-
-	//struct IUIInputSystemListener {
-	//	#define ON_FUNC(action) virtual void On##action##(int mode, float value) {};
-	//		ON_FUNC(Ui_Up)
-	//		ON_FUNC(Ui_Down)
-	//		ON_FUNC(Ui_Left)
-	//		ON_FUNC(Ui_Right)
-	//		ON_FUNC(Ui_Select)
-	//		ON_FUNC(Ui_Cancel)
-	//	#undef ON_FUNC
-	//	virtual void OnUIInputEvent(EUIInputSystemEvent event, int mode, float value) {};
-	//};
-
-	//class CUIInputSystem /*: public IActionListener*/ {
-	//public:
-	//	CUIInputSystem();
-	//	~CUIInputSystem();
-	//public:
-	//	//void OnAction(const ActionId& action, int activationMode, float value);
-	//public:
-	//	void AddListener(IUIInputSystemListener *l) { listeners.push_back(l); }
-	//	void RemoveListener(IUIInputSystemListener *l);
-	//public:
-	//	#define ACTION_FUNC(action) bool action##Action(ODInputEventType type, float value);
-	//		ACTION_FUNC(Ui_Up)
-	//		ACTION_FUNC(Ui_Down)
-	//		ACTION_FUNC(Ui_Left)
-	//		ACTION_FUNC(Ui_Right)
-	//		ACTION_FUNC(Ui_Select)
-	//		ACTION_FUNC(Ui_Cancel)
-	//	#undef ACTION_FUNC
-	//private:
-	//	std::vector<IUIInputSystemListener*> listeners;
-	//private:
-	//	//static TActionHandler<CUIInputSystem> s_actionHandler;
-	//};
 }
 
 #endif //_H_INPUTSYS_

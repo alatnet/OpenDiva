@@ -18,6 +18,7 @@ namespace OpenDiva {
 
 	void OpenDivaComponentFactory::RegisterComponents() {
 		for (unsigned long i = 0; i < this->m_funcs->size(); i++) this->m_funcs->at(i)();
+
 		this->m_funcs->clear();
 	}
 

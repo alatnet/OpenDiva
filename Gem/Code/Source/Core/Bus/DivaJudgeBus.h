@@ -36,6 +36,7 @@ namespace OpenDiva {
 	//communication bus for diva judge
 	class DivaJudgeGroup : public AZ::EBusTraits {
 	public: //there will be only one judge to recieve events
+		static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::Single;
 		static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Single;
 	public:
 		virtual unsigned int GetScore() = 0;

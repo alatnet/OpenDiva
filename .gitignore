@@ -1,10 +1,24 @@
-Editor/
-Ideas\ and\ Data/
-Game/Not\ Used/
-Game/Core/Sound/audio\ src\ files/
-Game/Core/Sound/libsndfile/Changelog
-Game/Core/Sound/libsndfile/NEWS
-Game/Core/Sound/libsndfile/doc/
-Game/Core/Sound/libsndfile/bin/*.exe
-Game/Core/Sound/libsndfile/lib/pkgconfig/
-Game/Core/Steamworks
+bak/
+Config/Input/ActionMaps.xml.bak
+Fonts/msgothic.ttc
+Fonts/tituscbz.ttf
+Fonts/Positec/PositecBold.ttf
+Fonts/Positec/PositecRegular.ttf
+Fonts/NotoSansCJKjp/NotoSansCJKjp-hinted.zip
+Levels/test/*
+Levels/testSmall/*
+libs/FlowgraphModules/test.xml
+Resources/Hud/Project\ Diva/*
+Resources/Hud/PPDXXX/*
+Resources/Styles/PPDXXX/*
+Resources/test
+Resources/test\ canvases
+Resources/test\ flowgraphs
+Scripts/testScript.lua
+Songs/Test\ Group/*
+Test/
+/.gitignore
+Resources/MainMenus/OpenDiva/*
+/Levels/testsmallnew
+Cubism3/*
+Gem/Code/Source/Utils/*

@@ -53,7 +53,7 @@ namespace OpenDiva {
 		virtual void SetLyrics(AZStd::string lyrics) = 0;
 	};
 
-	class DivaHudRomajiGroup : public AZ::EBusTraits {
+	/*class DivaHudRomajiGroup : public AZ::EBusTraits {
 	public:
 		virtual void SetRomaji(AZStd::string romaji) = 0;
 	};
@@ -61,7 +61,7 @@ namespace OpenDiva {
 	class DivaHudTranslationGroup : public AZ::EBusTraits {
 	public:
 		virtual void SetTranslation(AZStd::string translation) = 0;
-	};
+	};*/
 
 	using DivaHudChanceEventsBus = AZ::EBus<DivaHudChanceEventsGroup>;
 	using DivaHudTechEventsBus = AZ::EBus<DivaHudTechEventsGroup>;
@@ -70,8 +70,8 @@ namespace OpenDiva {
 	using DivaHudCompletionBus = AZ::EBus<DivaHudCompletionGroup>;
 	using DivaHudHitScoreBus = AZ::EBus<DivaHudHitScoreGroup>;
 	using DivaHudLyricsBus = AZ::EBus<DivaHudLyricsGroup>;
-	using DivaHudRomajiBus = AZ::EBus<DivaHudRomajiGroup>;
-	using DivaHudTranslationBus = AZ::EBus<DivaHudTranslationGroup>;
+	//using DivaHudRomajiBus = AZ::EBus<DivaHudRomajiGroup>;
+	//using DivaHudTranslationBus = AZ::EBus<DivaHudTranslationGroup>;
 
 	//Lua Handlers
 	class DivaHudChanceEventsHandler : public DivaHudChanceEventsBus::Handler, public AZ::BehaviorEBusHandler {
@@ -168,7 +168,7 @@ namespace OpenDiva {
 	public:
 		void SetLyrics(AZStd::string lyrics) { Call(FN_SetLyrics, lyrics); }
 	};
-	class DivaHudRomajiHandler : public DivaHudRomajiBus::Handler, public AZ::BehaviorEBusHandler {
+	/*class DivaHudRomajiHandler : public DivaHudRomajiBus::Handler, public AZ::BehaviorEBusHandler {
 	public:
 		AZ_EBUS_BEHAVIOR_BINDER(
 			DivaHudRomajiHandler,
@@ -191,7 +191,7 @@ namespace OpenDiva {
 
 	public:
 		void SetTranslation(AZStd::string translation) { Call(FN_SetTranslation, translation); }
-	};
+	};*/
 }
 
 #endif

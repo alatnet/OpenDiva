@@ -17,15 +17,20 @@
 
 #include "Components/Components.h"
 
-#include <SQLite/SQLiteBus.h>
+//#include <SQLite/SQLiteBus.h>
 
 #include <AlternativeAudio\DSP\VolumeDSPBus.h>
 
+#include "Database\DatabaseManager.h"
+#include "Files\SongList.h"
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-//#define REGISTER_FACTORY(host, name, impl, isAI) \
+/*
+#define REGISTER_FACTORY(host, name, impl, isAI) \
     (host)->RegisterFactory((name), (impl*)0, (isAI), (impl*)0)
+*/
 
 namespace OpenDiva
 {
@@ -47,10 +52,15 @@ namespace OpenDiva
 		this->constructTesting();
 
 		this->masterVolumeDSP = nullptr;
+
+		this->currLyric = "";
+
+		DivaHudLyricsBus::Handler::BusConnect();
     }
 
     OpenDivaGame::~OpenDivaGame()
     {
+		DivaHudLyricsBus::Handler::BusDisconnect();
         m_gameFramework->EndGameContext(false);
 
         // Remove self as listener.
@@ -83,9 +93,9 @@ namespace OpenDiva
         LoadActionMaps("config/input/actionmaps.xml");
 
 		//set aliases
-		AZStd::string songAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(FolderStruct::Paths::sSongPath.c_str());
-		AZStd::string styleAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(FolderStruct::Paths::sStylesPath.c_str());
-		AZStd::string hudAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(FolderStruct::Paths::sHudPath.c_str());
+		AZStd::string songAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sSongPath.c_str()));
+		AZStd::string styleAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sStylesPath.c_str()));
+		AZStd::string hudAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sHudPath.c_str()));
 		gEnv->pFileIO->SetAlias("@songs@", songAlias.c_str());
 		gEnv->pFileIO->SetAlias("@styles@", styleAlias.c_str());
 		gEnv->pFileIO->SetAlias("@hud@", hudAlias.c_str());
@@ -116,7 +126,7 @@ namespace OpenDiva
 
 		this->initLyShine();
 
-		this->SetupDatabase();
+		DatabaseManager::Init();
 
 		//this->pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
 
@@ -200,6 +210,36 @@ namespace OpenDiva
 
 		//CCryAction *pCryAction = CCryAction::GetCryAction();
 		//CCryAction* pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
+
+		//setup audio devices
+		auto lib = AZ_CRC("PortAudio");
+		long long defaultDeviceId = -1;
+		AlternativeAudio::OAudioDevice* defaultDevice;
+
+		EBUS_EVENT_RESULT( //get default device id
+			defaultDeviceId,
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			GetDefaultPlaybackDevice,
+			lib
+		);
+		EBUS_EVENT_RESULT( //create new device with default device id
+			defaultDevice,
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			NewDevice,
+			lib,
+			defaultDeviceId,
+			44100.0, //samplerate
+			AlternativeAudio::AudioFrame::Type::eT_af2, //audio format
+			nullptr //userdata
+		);
+		EBUS_EVENT( //set the master device for alternative audio
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			SetMasterDevice,
+			defaultDevice
+		);
+
+		SongList::Refresh();
+
         return true;
     }
 
@@ -241,6 +281,12 @@ namespace OpenDiva
 		gEnv->pFileIO->ClearAlias("@songs@");
 		gEnv->pFileIO->ClearAlias("@styles@");
 		gEnv->pFileIO->ClearAlias("@hud@");
+
+		EBUS_EVENT( //set the master device for alternative audio
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			SetMasterDevice,
+			nullptr
+		);
 
 		this->masterVolumeDSP->Release();
 
@@ -499,13 +545,13 @@ namespace OpenDiva
 		if (pCmdArgs->GetArgCount() == 1) {
 			if (this->testAudioFileID == -1) {
 				//this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
-				if (this->testAudioFile != nullptr) EBUS_EVENT_RESULT(this->testAudioFileID, PortAudio::PortAudioRequestBus, PlaySource, this->testAudioFile);
+				if (this->testAudioFile != nullptr) EBUS_EVENT_RESULT(this->testAudioFileID, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile);
 			} else {
 				if (this->testAudioFile != nullptr) {
-					EBUS_EVENT(PortAudio::PortAudioRequestBus, StopSource, this->testAudioFileID);
+					EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID);
 					this->testAudioFileID = -1;
 					if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-						EBUS_EVENT(PortAudio::PortAudioRequestBus, StopSource, this->testAudioFileID2);
+						EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
 						this->testAudioFileID2 = -1;
 					}
 				}
@@ -515,7 +561,7 @@ namespace OpenDiva
 			while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);*/
 
 			if (this->testAudioFileID2 == -1 && this->testAudioFile2 != nullptr)
-				EBUS_EVENT_RESULT(this->testAudioFileID2, PortAudio::PortAudioRequestBus, PlaySource, this->testAudioFile2);
+				EBUS_EVENT_RESULT(this->testAudioFileID2, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile2);
 		} else if (pCmdArgs->GetArgCount() == 3) {
 			/*if (this->testAudioFileID2 != -1) {
 			this->paSystem->StopSource(this->testAudioFileID2);
@@ -523,7 +569,7 @@ namespace OpenDiva
 			}*/
 
 			if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-				EBUS_EVENT(PortAudio::PortAudioRequestBus, StopSource, this->testAudioFileID2);
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
 				this->testAudioFileID2 = -1;
 			}
 		} else if (pCmdArgs->GetArgCount() == 4 && this->masterVolumeDSP) {
@@ -653,6 +699,8 @@ namespace OpenDiva
 		//delete this->paSystem;
 		if (this->testAudioFile != nullptr) delete this->testAudioFile;
 		if (this->testAudioFile2 != nullptr) delete this->testAudioFile2;
+
+		delete this->lyrics;
 	}
 
 	void OpenDivaGame::setupTesting() {
@@ -692,12 +740,12 @@ namespace OpenDiva
 		AZStd::string path(assetsPath);
 
 		//string path(getcwd(buff, MAX_PATH + 1));
-		path += AZStd::string(OpenDiva::Paths::sStylesPath.c_str()) + "/PPDXXX/";
+		path += AZStd::string(FolderStruct::Paths::sStylesPath.c_str()) + "/PPDXXX/";
 
-		AZStd::string noteR(path + AZStd::string(OpenDiva::Folders::sNoteFolder.c_str()));
-		AZStd::string effectR(path + AZStd::string(OpenDiva::Folders::sEffectsFolder.c_str()));
-		AZStd::string tailsR(path + AZStd::string(OpenDiva::Folders::sTailFolder.c_str()));
-		AZStd::string fontsR(path + AZStd::string(OpenDiva::Folders::sFontsFolder.c_str()));
+		AZStd::string noteR(path + AZStd::string(FolderStruct::Folders::sNoteFolder.c_str()));
+		AZStd::string effectR(path + AZStd::string(FolderStruct::Folders::sEffectsFolder.c_str()));
+		AZStd::string tailsR(path + AZStd::string(FolderStruct::Folders::sTailFolder.c_str()));
+		AZStd::string fontsR(path + AZStd::string(FolderStruct::Folders::sFontsFolder.c_str()));
 		//std::string ratingR(path + "Ratings");
 
 		/*this->m_pNoteResource = new NoteResource(noteR.c_str());
@@ -722,6 +770,15 @@ namespace OpenDiva
 		this->testFont = gEnv->pSystem->GetICryFont()->NewFont("NotoSansCJKjp-Regular");
 		this->testFont->Load("Fonts/NotoSansCJKjp/NotoSansCJKjp-Regular.xml");
 		this->testFont->AddRef();
+
+		this->lyrics = new LyricsFile("@songs@/Test Group/Test Song/Lyrics/default.xml");
+		LyricsFile::Info info = this->lyrics->GetInfo();
+		if (info.valid) {
+			CryLog("Lyrics File is valid. %i", this->lyrics->GetNumLines());
+			for (int i = 0; i < this->lyrics->GetNumLines(); i++) {
+				CLOG("-Lyric: %s", this->lyrics->GetLine(i).text);
+			}
+		};
 
 		/*this->textOps.font = this->testFont;
 		this->textOps.color = this->textColor.toVec3();
@@ -761,10 +818,10 @@ namespace OpenDiva
 		//music testing
 
 		AZStd::string songpath(assetsPath);
-		songpath += AZStd::string(OpenDiva::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong.ogg";
+		songpath += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong.ogg";
 
 		AZStd::string songpath2(assetsPath);
-		songpath2 += AZStd::string(OpenDiva::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong4.ogg";
+		songpath2 += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong4.ogg";
 		//CryLog("SongPath: %s", songpath);
 		//CryLog("SongPath c_str: %s", songpath.c_str());
 		/*songpath += "/OpenDiva/Songs/Test Group/Test Song/";
@@ -784,7 +841,7 @@ namespace OpenDiva
 		AZStd::vector<AZStd::pair<AZStd::string, AZ::Crc32>> libs;
 		EBUS_EVENT_RESULT(
 			libs,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			GetAudioLibraryNames
 		);
 
@@ -794,7 +851,7 @@ namespace OpenDiva
 
 		EBUS_EVENT_RESULT(
 			this->testAudioFile,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
 			AZ_CRC("libsndfile"),
 			songpath.c_str(),
@@ -807,7 +864,7 @@ namespace OpenDiva
 
 		EBUS_EVENT_RESULT(
 			this->testAudioFile2,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
 			AZ_CRC("libsndfile_memory"),
 			songpath2.c_str(),
@@ -820,7 +877,7 @@ namespace OpenDiva
 
 		EBUS_EVENT_RESULT(
 			this->masterVolumeDSP,
-			AlternativeAudio::AlternativeAudioRequestBus,
+			AlternativeAudio::AlternativeAudioDSPBus,
 			NewDSPEffect,
 			AZ_CRC("AAVolumeControl"),
 			nullptr
@@ -1097,7 +1154,7 @@ namespace OpenDiva
 
 		if (this->testAudioFileID != -1 && this->testAudioFile != nullptr) {
 			AlternativeAudio::AudioSourceTime currTime;// = this->paSystem->GetTime(this->testAudioFileID);
-			EBUS_EVENT_RESULT(currTime, PortAudio::PortAudioRequestBus, GetTime, this->testAudioFileID);
+			EBUS_EVENT_RESULT(currTime, AlternativeAudio::AlternativeAudioDeviceBus, GetTime, this->testAudioFileID);
 			if (this->m_prevTime.totalSec != currTime.totalSec) {
 				this->iDraw2d->DrawText(std::to_string(currTime.totalSec - this->m_prevTime.totalSec).c_str(), AZ::Vector2(10, 80), 16);
 				this->m_prevTime = currTime;
@@ -1107,6 +1164,9 @@ namespace OpenDiva
 		} else {
 			this->iDraw2d->DrawText("waiting...", AZ::Vector2(10, 80), 16);
 		}
+
+		AZStd::string lyric = "CurrLyric: " + this->currLyric;
+		this->iDraw2d->DrawText(lyric.c_str(), AZ::Vector2(10, 100), 16);
 
 		OD_Draw2d::getDraw2D().EndDraw2d();
 
@@ -1150,11 +1210,10 @@ namespace OpenDiva
 
 			//this->testSeq->AddTrackEventListener(this->dsfgEventListener);
 
-			AZStd::string songpath(gEnv->pFileIO->GetAlias("@songs@"));
-			songpath += "/Test Group/Test Song/NoteMaps/test.xml";
-			NoteFile noteFile(songpath.c_str());
+			NoteFile noteFile("@songs@/Test Group/Test Song/NoteMaps/test.xml");
 
 			this->testDivaAnimationNode->Init(&noteFile);
+			this->testDivaAnimationNode->InitLyrics(this->lyrics);
 		}
 
 		/*if (this->testButtonNode2 == NULL) {
@@ -1478,221 +1537,9 @@ namespace OpenDiva
 		//gEnv->pLyShine->ReleaseCanvas(this->canvasEntityId);
 	}
 
-	void OpenDivaGame::SetupDatabase() {
-		int ret;
-		SQLite3::SQLiteDB * sysDb;
-		SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection); //get system db
-		AZ_Assert(sysDb, "sysDb is null.");
-
-		//set db path
-		//AZStd::string dbPath = gEnv->pFileIO->GetAlias("@cache@");
-		//dbPath += "/database.db";
-
-		AZStd::string dbPath = "@cache@/database.db";
-
-		//open db
-		SQLITEDB_BUS(ret, sysDb, Open, dbPath.c_str());
-		AZ_Assert(ret == SQLITE_OK, "Opening DB Failed.");
-
-		//enable foreign key support
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(ret, sysDb, Exec, "PRAGMA foreign_keys = '1';", nullptr, nullptr, nullptr);
-			AZ_Assert(ret == SQLITE_OK, "setting foreing keys failed.");
-		}
-
-		//create Versions table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Versions ("
-					"id INTEGER PRIMARY KEY UNIQUE NOT NULL,"
-					"Database CHAR(20) UNIQUE NOT NULL,"
-					"High INTEGER NOT NULL,"
-					"Low INTEGER NOT NULL,"
-					"Rev INTEGER NOT NULL"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Versions Table Failed.");
-		}
-
-		//setup versions data
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"INSERT OR IGNORE INTO Versions("
-					"Database,"
-					"High,"
-					"Low,"
-					"Rev"
-				")"
-				"VALUES"
-				"("
-					"'Versions',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-					"'Groups',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-					"'Songs',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-				"'Notemaps',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-				"'Translations',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-				"'Scores',"
-					"1,"
-					"0,"
-					"0"
-				"),"
-				"("
-				"'Players',"
-					"1,"
-					"0,"
-					"0"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Versions Data Failed.");
-		}
-
-		//create song Groups table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Groups ("
-					"uuid TEXT PRIMARY KEY UNIQUE NOT NULL,"
-					"crc TEXT NOT NULL,"
-					"name TEXT,"
-					"name_en TEXT,"
-					"name_rj TEXT,"
-					"desc TEXT,"
-					"desc_en TEXT"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Groups Table Failed.");
-		}
-
-		//create Songs table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Songs ("
-					"uuid TEXT PRIMARY KEY UNIQUE NOT NULL,"
-					"crc TEXT NOT NULL,"
-					"groupUUID TEXT NOT NULL,"
-					"name TEXT,"
-					"name_en TEXT,"
-					"name_rj TEXT,"
-					"desc TEXT,"
-					"desc_en TEXT,"
-					"albumArt TEXT,"
-					"bpm TEXT,"
-					"models TEXT,"
-					"genre TEXT,"
-					"authors TEXT,"
-					"path TEXT NOT NULL,"
-					"FOREIGN KEY(groupUUID) REFERENCES Groups(uuid)"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Songs Table Failed.");
-		}
-
-		//create song Notemaps table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Notemaps ("
-					"uuid TEXT PRIMARY KEY UNIQUE NOT NULL,"
-					"crc TEXT NOT NULL,"
-					"songUUID TEXT NOT NULL,"
-					"author TEXT,"
-					"author_en TEXT,"
-					"author_rj TEXT,"
-					"desc TEXT,"
-					"desc_en TEXT,"
-					"difficulty INTEGER NOT NULL,"
-					"version INTEGER NOT NULL,"
-					"path TEXT NOT NULL,"
-					"FOREIGN KEY(songUUID) REFERENCES Songs(uuid)"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Notemaps Table Failed.");
-		}
-
-		//create song Translations table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Translations ("
-					"uuid TEXT PRIMARY KEY UNIQUE NOT NULL,"
-					"crc TEXT NOT NULL,"
-					"songUUID TEXT NOT NULL,"
-					"locale TEXT NOT NULL,"
-					"author TEXT,"
-					"desc TEXT,"
-					"difficulty INTEGER NOT NULL,"
-					"version INTEGER NOT NULL,"
-					"path TEXT NOT NULL,"
-					"FOREIGN KEY(songUUID) REFERENCES Songs(uuid)"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Translations Table Failed.");
-		}
-
-		//create Players table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Players ("
-					"uuid TEXT PRIMARY KEY UNIQUE NOT NULL,"
-					"username TEXT UNIQUE NOT NULL"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Players Table Failed.");
-		}
-
-		//create Scores table
-		if (ret == SQLITE_OK) {
-			SQLITEDB_BUS(
-				ret, sysDb, Exec,
-				"CREATE TABLE IF NOT EXISTS Scores ("
-					"id INTEGER PRIMARY KEY UNIQUE NOT NULL,"
-					"notemapUUID TEXT NOT NULL,"
-					"songUUID TEXT NOT NULL,"
-					"playerUUID TEXT NOT NULL,"
-					"score INTEGER NOT NULL,"
-					"FOREIGN KEY (notemapUUID) REFERENCES Notemaps(uuid),"
-					"FOREIGN KEY (songUUID) REFERENCES Songs(uuid),"
-					"FOREIGN KEY (playerUUID) REFERENCES Players(uuid)"
-				");",
-				nullptr, nullptr, nullptr
-			);
-			AZ_Assert(ret == SQLITE_OK, "Creating Scores Table Failed.");
-		}
+	void OpenDivaGame::SetLyrics(AZStd::string lyrics) {
+		CLOG("Lyric update: %s", lyrics);
+		currLyric = lyrics;
 	}
 
 } // namespace OpenDivaGame

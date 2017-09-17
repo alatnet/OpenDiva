@@ -1,9 +1,0 @@
-{
-	"auto":
-	{
-		"Core/Sound/libsamplerate":
-		[
-			"Core/Sound/libsamplerate/include/samplerate.h"
-		]
-	}
-}

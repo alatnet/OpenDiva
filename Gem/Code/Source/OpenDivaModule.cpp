@@ -17,7 +17,7 @@ namespace OpenDiva
         AZ_RTTI(OpenDivaModule, "{B8D95A61-55CB-4B2D-ABD4-5C5CE7B13C7D}", CryHooksModule);
         AZ_CLASS_ALLOCATOR(OpenDivaModule, AZ::SystemAllocator, 0);
 
-        OpenDivaNewModule()
+        OpenDivaModule()
             : CryHooksModule()
         {
             // Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
@@ -41,4 +41,4 @@ namespace OpenDiva
 // DO NOT MODIFY THIS LINE UNLESS YOU RENAME THE GEM
 // The first parameter should be GemName_GemIdLower
 // The second should be the fully qualified name of the class above
-AZ_DECLARE_MODULE_CLASS(OpenDivaNew_95e41eeb9802469b8f7dd874f19720d9, OpenDivaNew::OpenDivaNewModule)
+AZ_DECLARE_MODULE_CLASS(OpenDivaNew_95e41eeb9802469b8f7dd874f19720d9, OpenDiva::OpenDivaModule)

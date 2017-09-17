@@ -1,11 +1,6 @@
 #include <StdAfx.h>
 #include <OpenDivaCommon.h>
 
-#include <AzCore\Jobs\Job.h>
-#include <AzCore\Jobs\JobManager.h>
-
-#include "../Utils/hashlib2plus/include/hashlibpp.h"
-
 #include <SQLite\SQLiteBus.h>
 
 #include "NoteFile.h"
@@ -16,393 +11,499 @@
 #include <ctime>
 
 namespace OpenDiva {
-	void SongList::Process() {
-		//verification check to be able to trim the database.
-		wrapperfactory wraper;
-		hashwrapper* hashw = wraper.create(HL_Wrappertype::HL_MD5);
+	void SongList::Refresh() {
 		time_t now = time(0);
-		std::string crchash = hashw->getHashFromString(ctime(&now));
-		delete hashw;
+		AZ::Crc32 crchash = AZ::Crc32(ctime(&now));
+		AZStd::string crchash_str = Crc32ToString(crchash);
+
+		SQLite3::SQLiteDB * sysDb;
+		SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection); //get system db
+		AZ_Assert(sysDb, "sysDb is null.");
 
 
-		gEnv->pFileIO->FindFiles(this->m_path.c_str(), "*.*",
+		sysDb->Exec("BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+
+		gEnv->pFileIO->FindFiles("@songs@", "*.*",
 			[&](const char* filePath) -> bool {
 				if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
-					if (gEnv->pFileIO->Exists(string(filePath) + "/GroupInfo.xml")) { //if the group info xml file exists in that directory
-						std::string spath = filePath;
-						size_t slash = spath.find_last_of("/\\");
-						std::string folder = spath.substr(slash + 1);
-						//PathUtil::GetPath("");
-
-						this->StartAsChild(new SongGroup(folder, filePath, crchash));
-					}
+					ProcessGroup(filePath, crchash_str, sysDb);
 				}
 				return true; // continue iterating
 			}
 		);
 
-		this->WaitForChildren();
+		sysDb->Exec("END TRANSACTION", nullptr, nullptr, nullptr);
 
-		//clean up the tables
-		std::string groupclean = "DELETE FROM Groups WHERE crc != " + crchash + ";";
-		std::string songclean = "DELETE FROM Songs WHERE crc != " + crchash + ";";
-		std::string notemapclean = "DELETE FROM Notemaps WHERE crc != " + crchash + ";";
+		//database cleanup
+		AZStd::string groupclean = "DELETE FROM Groups WHERE dbcrc != \"" + crchash_str + "\";";
+		AZStd::string groupnamesclean = "DELETE FROM GroupNames WHERE dbcrc != \"" + crchash_str + "\";";
+		AZStd::string songclean = "DELETE FROM Songs WHERE dbcrc != \"" + crchash_str + "\";";
+		AZStd::string songnamesclean = "DELETE FROM SongNames WHERE dbcrc != \"" + crchash_str + "\";";
+		AZStd::string notemapclean = "DELETE FROM Notemaps WHERE dbcrc != \"" + crchash_str + "\";";
+		AZStd::string lyricsclean = "DELETE FROM Lyrics WHERE dbcrc != \"" + crchash_str + "\";";
 
-		SQLite3::SQLiteDB * db;
-		SQLITE_BUS(db, AZ::EntityId(0), GetConnection);
-
-		if (db != nullptr) {
-			int ret;
-			SQLITEDB_BUS(ret, db, Exec, groupclean.c_str(), nullptr, nullptr, nullptr);
-			AZ_Assert(ret == SQLITE_OK, "Group table cleanup failed.");
-
-			SQLITEDB_BUS(ret, db, Exec, songclean.c_str(), nullptr, nullptr, nullptr);
-			AZ_Assert(ret == SQLITE_OK, "Song table cleanup failed.");
-
-			SQLITEDB_BUS(ret, db, Exec, notemapclean.c_str(), nullptr, nullptr, nullptr);
-			AZ_Assert(ret == SQLITE_OK, "Notemap table cleanup failed.");
-		}
+		sysDb->Exec("BEGIN TRANSACTION", nullptr, nullptr, nullptr);
+		sysDb->Exec(groupclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec(groupnamesclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec(songclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec(songnamesclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec(notemapclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec(lyricsclean.c_str(), nullptr, nullptr, nullptr);
+		sysDb->Exec("END TRANSACTION", nullptr, nullptr, nullptr);
 	}
 
-	void SongList::SongGroup::Process() {
-		SQLite3::SQLiteDB * db;
-		SQLITE_BUS(db, AZ::EntityId(0), GetConnection);
+	void SongList::ProcessGroup(AZStd::string path, AZStd::string dbcrc, SQLite3::SQLiteDB * sysDb) {
+		AZStd::string folder = PathUtil::GetFile(path.c_str());
 
-		if (db != nullptr) {
-			wrapperfactory wraper;
-			hashwrapper* hashw = wraper.create(HL_Wrappertype::HL_MD5);
-			std::string grouphash = hashw->getHashFromString(this->m_group + this->m_path);
-			delete hashw;
+		AZStd::string artPath = path + "/art.ddc";
+		artPath = PathUtil::ToNativePath(artPath.c_str()).c_str();
 
-			//get group info
-			//update or create database entry
+		if (!gEnv->pFileIO->Exists(artPath.c_str())) artPath = "";
 
-			/*
-			"CREATE TABLE IF NOT EXISTS Groups ( \
-				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
-				crc INTEGER NOT NULL, \
-				name TEXT, \
-				name_en TEXT, \
-				name_rj TEXT, \
-				desc TEXT, \
-				desc_en TEXT \
-			);"
+		AZ::Crc32 guuid = AZ::Crc32(folder.c_str());
+		guuid.Add(OPENDIVA_SALT);
+		AZStd::string guuid_str = Crc32ToString(guuid);
 
-			INSERT OR REPLACE INTO Groups(uuid, crc, name, name_en, name_rj, desc, desc_en) VALUES (grouphash, m_crc, "", "", "", "", "");
-			*/
+		AZStd::string group_sql_str =
+			"INSERT OR REPLACE INTO Groups ("
+				"guuid,"
+				"name,"
+				"artpath,"
+				"dbcrc"
+			") VALUES ("
+				"\"" + guuid_str + "\","
+				"\"" + folder + "\","
+				"\"" + artPath + "\","
+				"\"" + dbcrc + "\""
+			");";
 
-			gEnv->pFileIO->FindFiles(this->m_path.c_str(), "*.*",
+		//execute group sql string
+		sysDb->Exec(group_sql_str.c_str(), nullptr, nullptr, nullptr);
+
+		/*
+		INSERT OR REPLACE INTO Groups
+		(
+			guuid,
+			name,
+			artpath,
+			dbcrc
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			""
+		);
+		*/
+
+		AZStd::string groupInfoPath = path + "/GroupInfo";
+
+		//if we have a group info directory
+		if (gEnv->pFileIO->Exists(groupInfoPath.c_str())) {
+			gEnv->pFileIO->FindFiles(groupInfoPath.c_str(), "*.xml", //look only for xml files
 				[&](const char* filePath) -> bool {
-					if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
-						if (gEnv->pFileIO->Exists(string(filePath) + "/SongInfo.xml")) { //if the songinfo.xml exists in that directory
-							std::string spath = filePath;
-							size_t slash = spath.find_last_of("/\\");
-							std::string folder = spath.substr(slash + 1);
+					AZStd::string file = PathUtil::GetFile(filePath);
 
-							this->StartAsChild(new SongEntry(grouphash, folder, filePath, m_crc));
-						}
+					GroupInfo::Lang info = GroupInfo::GetLang(filePath);
+
+					AZ::Crc32 gnuuid = AZ::Crc32(file.c_str());
+					gnuuid.Add(guuid_str.c_str());
+					gnuuid.Add(OPENDIVA_SALT);
+
+					//if the info is valid
+					if (info.hash != AZ_CRC("NotValid", 0x072bdcd9)){
+						AZStd::string groupname_sql_str =
+							"INSERT OR REPLACE INTO GroupNames ("
+								"gnuuid,"
+								"name,"
+								"description,"
+								"lang,"
+								//"mcrc,"
+								"dbcrc,"
+								"guuid"
+							") VALUES ("
+								"\"" + Crc32ToString(gnuuid) + "\","
+								"\"" + info.name +"\","
+								"\"" + info.desc + "\","
+								"\"" + info.lang + "\","
+								//"\"" +  + "\","
+								"\"" + dbcrc +"\","
+								"\"" + guuid_str +"\""
+							");";
+
+						//execute group name sql string
+						sysDb->Exec(groupname_sql_str.c_str(), nullptr, nullptr, nullptr);
 					}
+
 					return true; // continue iterating
 				}
 			);
 		}
 
-		this->WaitForChildren();
-	}
+		/*
+		INSERT OR REPLACE INTO GroupNames
+		(
+			gnuuid,
+			name,
+			description,
+			lang,
+			//mcrc,
+			dbcrc,
+			guuid
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			""
+		);
+		*/
 
-	void SongList::SongGroup::SongEntry::Process() {
-		SQLite3::SQLiteDB * db;
-		SQLITE_BUS(db, AZ::EntityId(0), GetConnection);
-
-		if (db != nullptr) {
-			wrapperfactory wraper;
-			hashwrapper* hashw = wraper.create(HL_Wrappertype::HL_MD5);
-			std::string songhash = hashw->getHashFromString(this->m_groupHash + this->m_songName + this->m_path);
-			delete hashw;
-
-			//get song info
-			//update or create database entry
-
-			/*
-			"CREATE TABLE IF NOT EXISTS Songs ( \
-				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
-				groupUUID TEXT NOT NULL, \
-				crc INTEGER NOT NULL, \
-				name TEXT, \
-				name_en TEXT, \
-				name_rj TEXT, \
-				desc TEXT, \
-				desc_en TEXT, \
-				albumArt TEXT, \
-				bpm TEXT, \
-				models TEXT, \
-				genre TEXT, \
-				authors TEXT, \
-				path TEXT NOT NULL, \
-				FOREIGN KEY(groupUUID) REFERENCES Groups(uuid) \
-			);"
-
-			INSERT OR REPLACE INTO Songs(uuid, groupUUID, crc, name, name_en, name_rj, desc, desc_en, albumArt, bpm, models, genre, authors, path) VALUES (songhash, m_groupHash, m_crc, "", "", "", "", "", "", "", "", "", "", "");
-			*/
-
-			std::string notemapPath = this->m_path + "/NoteMaps";
-			gEnv->pFileIO->FindFiles(notemapPath.c_str(), "*.xml", //look for xml files
-				[&](const char* filePath) -> bool {
-					std::string spath = filePath;
-					size_t slash = spath.find_last_of("/\\");
-					std::string notemapFileName = spath.substr(slash + 1);
-					std::string notemapName = notemapFileName.substr(0, notemapFileName.length() - 4);
-
-					this->StartAsChild(new SongNoteMap(songhash, notemapName, filePath, m_crc));
-					return true; // continue iterating
+		//process songs
+		gEnv->pFileIO->FindFiles(path.c_str(), "*.*",
+			[&](const char* filePath) -> bool {
+				if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
+					ProcessSong(filePath, guuid_str, dbcrc, sysDb);
 				}
-			);
-
-			this->WaitForChildren();
-		}
+				return true;
+			}
+		);
 	}
 
-	void SongList::SongGroup::SongEntry::SongNoteMap::Process() {
-		SQLite3::SQLiteDB * db;
-		SQLITE_BUS(db, AZ::EntityId(0), GetConnection);
+	void SongList::ProcessSong(AZStd::string path, AZStd::string guuid, AZStd::string dbcrc, SQLite3::SQLiteDB * sysDb) {
+		AZStd::string folder = PathUtil::GetFile(path.c_str());
+		if (folder.compare("GroupInfo") == 0) return; //dont process group info.
 
-		if (db != nullptr) {
-			wrapperfactory wraper;
-			hashwrapper* hashw = wraper.create(HL_Wrappertype::HL_MD5);
-			std::string notemapHash = hashw->getHashFromString(this->m_songHash + this->m_notemapName + this->m_path);
-			delete hashw;
+		AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
 
-			//get notemap info
-			//update or create database entry
+		//folder structure
+		AZStd::string songInfoFolder = path + "/SongInfo";
+		AZStd::string globalInfo = songInfoFolder + "/global.xml";
 
-			/*
-			"CREATE TABLE IF NOT EXISTS Notemaps ( \
-				uuid TEXT PRIMARY KEY UNIQUE NOT NULL, \
-				crc INTEGER NOT NULL, \
-				songUUID TEXT NOT NULL, \
-				author TEXT, \
-				author_en TEXT, \
-				author_rj TEXT, \
-				desc TEXT, \
-				desc_en TEXT, \
-				difficulty INTEGER NOT NULL, \
-				version INTEGER NOT NULL, \
-				path TEXT NOT NULL, \
-				FOREIGN KEY(songUUID) REFERENCES Songs(uuid) \
-			);"
+		AZStd::string notemapFolder = path + "/NoteMaps";
 
-			INSERT OR REPLACE INTO Notemaps(uuid, songUUID, crc, author, author_en, author_rj, desc, desc_en, dificulty, version, path) VALUES (notemapHash, m_songHash, m_crc, "", "", "", "", "", 0, 0, "");
-			*/
+		AZStd::string lyricsFolder = path + "/Lyrics";
+		AZStd::string defaultLyrics = lyricsFolder + "/default.xml";
+
+		//error checking
+		if (!fileIO->Exists(globalInfo.c_str())) {
+			//error out
+			return;
 		}
+		if (!fileIO->Exists(defaultLyrics.c_str())) {
+			//error out
+			return;
+		}
+
+		//read global.xml
+		SongInfo::Global ginfo = SongInfo::GetGlobal(globalInfo);
+
+		if (ginfo.hash == AZ_CRC("NotValid", 0x072bdcd9)) return; //error out
+
+		//create song uuid
+		AZ::Crc32 suuid_hash = AZ::Crc32(folder.c_str());
+		suuid_hash.Add(guuid.c_str());
+		suuid_hash.Add(OPENDIVA_SALT);
+		AZStd::string suuid = Crc32ToString(suuid_hash);
+
+		AZStd::string bpm = "";
+
+		if (ginfo.bpm.first == ginfo.bpm.second) bpm = std::to_string(ginfo.bpm.first).c_str();
+		else {
+			bpm = std::to_string(ginfo.bpm.first).c_str();
+			bpm += "-";
+			bpm += std::to_string(ginfo.bpm.second).c_str();
+		}
+
+		AZStd::string artPath = path + "/art.ddc";
+		if (!ginfo.hasArt) artPath = "";
+		artPath = PathUtil::ToNativePath(artPath.c_str());
+
+		AZStd::string globalSongInfo_sql_str =
+		"INSERT OR REPLACE INTO Songs ("
+			"suuid," //dirname + guuid + salt
+			"name,"
+			"bpm,"
+			"length,"
+			"artpath,"
+			//"models"
+			"dbcrc,"
+			"guuid"
+		") VALUES ("
+			"\"" + suuid + "\","
+			"\"" + folder + "\","
+			"\"" + bpm + "\","
+			"\"" + std::to_string(ginfo.length).c_str() + "\","
+			"\"" + artPath + "\","
+			//"\"" + +"\","
+			"\"" + dbcrc + "\","
+			"\"" + guuid + "\""
+		");";
+
+		//execute global song info sql string
+		sysDb->Exec(globalSongInfo_sql_str.c_str(), nullptr, nullptr, nullptr);
+
+		/*
+		INSERT OR REPLACE INTO Songs
+		(
+			suuid, //dirname + guuid + salt
+			name,
+			bpm,
+			length,
+			artpath,
+			//models
+			dbcrc,
+			guuid
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			"",
+			"",
+			//"",
+			"",
+			""
+		);
+		*/
+
+		//read song name translations xml's
+		gEnv->pFileIO->FindFiles(songInfoFolder.c_str(), "*.xml",
+			[&](const char* filePath) -> bool {
+				AZStd::string fileStr = PathUtil::GetFileName(filePath);
+
+				if (fileStr.compare("global") == 0) return true; //skip global xml.
+				SongInfo::Lang info = SongInfo::GetLang(filePath);
+
+				//create song namd uuid
+				AZ::Crc32 snuuid_hash = AZ::Crc32(fileStr.c_str());
+				snuuid_hash.Add(suuid.c_str());
+				snuuid_hash.Add(OPENDIVA_SALT);
+
+				if (info.hash != AZ_CRC("NotValid", 0x072bdcd9)) {
+					AZStd::string authors = "";
+
+					for (AZStd::pair<AZStd::string, AZStd::string> author : info.authors) authors += author.first + "-" + author.second + ";";
+
+					AZStd::string songname_sql_str =
+						"INSERT OR REPLACE INTO SongNames ("
+							"snuuid,"
+							"name,"
+							"description,"
+							"authors,"
+							"lang,"
+							//"mcrc"
+							"dbcrc,"
+							"suuid"
+						") VALUES ("
+							"\"" + Crc32ToString(snuuid_hash) + "\","
+							"\"" + info.name + "\","
+							"\"" + info.desc + "\","
+							"\"" + authors + "\","
+							"\"" + info.lang + "\","
+							//","
+							"\"" + dbcrc + "\","
+							"\"" + suuid + "\""
+						")";
+
+					//execute song name translation sql string
+					sysDb->Exec(songname_sql_str.c_str(), nullptr, nullptr, nullptr);
+				}
+
+				return true;
+			}
+		);
+		/*
+		INSERT OR REPLACE INTO SongNames
+		(
+			snuuid, //filename + suuid + salt
+			name,
+			description,
+			authors,
+			lang,
+			//mcrc
+			dbcrc,
+			suuid
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			"",
+			"",
+			//"",
+			"",
+			""
+		);
+		*/
+
+		//process notemaps
+		gEnv->pFileIO->FindFiles(notemapFolder.c_str(), "*.xml",
+			[&](const char* filePath) -> bool {
+				CLOG("[SongList] Processing Notemap: %s", filePath);
+				AZStd::string fileStr = PathUtil::GetFile(filePath); //*.xml
+				AZStd::string fileNameStr = PathUtil::GetFileName(filePath);
+
+				NoteFile::Info info = NoteFile::GetInfo(filePath);
+
+				//create notemap uuid
+				AZ::Crc32 nmuuid_hash = AZ::Crc32(fileNameStr.c_str());
+				nmuuid_hash.Add(suuid.c_str());
+				nmuuid_hash.Add(OPENDIVA_SALT);
+
+
+				if (info.hash != AZ_CRC("NotValid", 0x072bdcd9)) {
+					AZStd::string notemap_sql_str =
+						"INSERT OR REPLACE INTO Notemaps ("
+							"nmuuid," //filename + suuid + salt
+							"filename,"
+							"name,"
+							"author,"
+							"description,"
+							"difficulty,"
+							"version,"
+							//"mcrc"
+							"dbcrc,"
+							"suuid"
+						") VALUES ("
+							"\"" + Crc32ToString(nmuuid_hash) + "\","
+							"\"" + fileStr + "\","
+							"\"" + fileNameStr + "\","
+							"\"" + info.author + "\","
+							"\"" + info.desc + "\","
+							"\"" + std::to_string(info.difficulty).c_str() + "\","
+							"\"" + std::to_string(info.version).c_str() + "\","
+							//"\"" + + "\","
+							"\"" + dbcrc + "\","
+							"\"" + suuid + "\""
+						");";
+
+					//execute notemap sql string
+					sysDb->Exec(notemap_sql_str.c_str(), nullptr, nullptr, nullptr);
+				}
+				
+				return true;
+			}
+		);
+		/*
+		INSERT OR REPLACE INTO Notemaps
+		(
+			nmuuid, //filename + suuid + salt
+			filename,
+			name,
+			author,
+			description,
+			difficulty,
+			version,
+			//mcrc
+			dbcrc,
+			suuid
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			//"",
+			"",
+			""
+		);
+		*/
+
+		//process lyrics
+		gEnv->pFileIO->FindFiles(lyricsFolder.c_str(), "*.xml",
+			[&](const char* filePath) -> bool {
+				AZStd::string fileStr = PathUtil::GetFile(filePath); //*.xml
+				AZStd::string fileNameStr = PathUtil::GetFileName(filePath);
+
+				LyricsFile::Info info = LyricsFile::GetInfo(filePath);
+
+				//create lyrics uuid
+				AZ::Crc32 luuid_hash = AZ::Crc32(fileNameStr.c_str());
+				luuid_hash.Add(suuid.c_str());
+				luuid_hash.Add(OPENDIVA_SALT);
+
+				if (info.hash != AZ_CRC("NotValid", 0x072bdcd9)){
+					AZStd::string lyrics_sql_str =
+						"INSERT OR REPLACE INTO Lyrics ("
+							"luuid," //filename + suuid + salt
+							"filename,"
+							"name,"
+							"author,"
+							"description,"
+							"version,"
+							"lang,"
+							//"mcrc,"
+							"dbcrc,"
+							"suuid"
+						") VALUES ("
+							"\"" + Crc32ToString(luuid_hash) + "\","
+							"\"" + fileStr + "\","
+							"\"" + fileNameStr + "\","
+							"\"" + info.author + "\","
+							"\"" + info.desc + "\","
+							"\"" + std::to_string(info.version).c_str() + "\","
+							"\"" + info.lang + "\","
+							//"\"" + + "\","
+							"\"" + dbcrc + "\","
+							"\"" + suuid + "\""
+							""
+						");";
+
+					//execute lyrics sql string
+					sysDb->Exec(lyrics_sql_str.c_str(), nullptr, nullptr, nullptr);
+				}
+
+				return true;
+			}
+		);
+		/*
+		INSERT OR REPLACE INTO Lyrics
+		(
+			luuid, //filename + suuid + salt
+			filename,
+			name,
+			author,
+			description,
+			lang,
+			//mcrc
+			dbcrc,
+			suuid
+		)
+		VALUES
+		(
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			//"",
+			"",
+			""
+		);
+		*/
+	}
+
+	AZStd::string SongList::Crc32ToString(AZ::Crc32 crc) {
+		//char str[11]; /* 11 bytes: 10 for the digits, 1 for the null character */
+		//uint32_t n = 12345;
+		//snprintf(str, sizeof str, "%lu", (unsigned long)n); /* Method 1 */
+		//snprintf(str, sizeof str, "%" PRIu32, n); /* Method 2 */
+
+		char str[11];
+		snprintf(str, sizeof str, "%" PRIu32, crc);
+		return AZStd::string(str);
 	}
 }
-
-//namespace LYGame {
-//	//----------------------------------------------
-//	//Song Entry
-//	//----------------------------------------------
-//	SongEntry::SongEntry(string name, string path) {
-//		this->m_name = name;
-//		this->m_path = path;
-//	}
-//
-//	SongEntry::~SongEntry() {
-//	}
-//
-//	void SongEntry::GetMemoryUsage(ICrySizer* pSizer) const {
-//		pSizer->AddObject(this, sizeof(*this));
-//		pSizer->AddObject(this->m_notemaps);
-//		//pSizer->AddObject(this->m_translations);
-//	}
-//
-//	void SongEntry::Log() {
-//		CryLog("---Name: %s", this->m_info.name);
-//		CryLog("---Authors:");
-//		for each (std::pair<string, SongFileInfo::Author> auth in this->m_info.authors) {
-//			CryLog("---- %s, %s, %s", auth.second.name, auth.second.nameE, auth.second.nameR);
-//		}
-//		CryLog("---Number of notemaps: %i", this->m_notemaps.size());
-//		//CryLog("---Number of translations: %i", this->m_translations.size());
-//	}
-//
-//	//----------------------------------------------
-//	SongEntry::SongEntryJob::SongEntryJob(SongEntry * entry) : AZ::Job(true, nullptr) {
-//		this->m_pEntry = entry;
-//	}
-//
-//	void SongEntry::SongEntryJob::Process() {
-//		/*this->m_notemaps.clear(); //clear the list of notemaps.
-//		this->m_translations.clear(); //clear the list of translations.
-//
-//		//load song info file.
-//		this->m_info = SongInfo::GetInfo(this->m_path + "/SongInfo.xml"); //get the song info.
-//
-//		if (!this->m_info.valid) return; //if the song file info is not valid, do not process.
-//
-//		//notemaps
-//		//open up the note map diretory.
-//		string nmDirStr = this->m_path + "/NoteMaps";
-//		DIR * nmDir = opendir(nmDirStr.c_str());
-//
-//		dirent *nmEntry = readdir(nmDir); //read the first entry.
-//
-//		//while we have entries.
-//		while (nmEntry != NULL) {
-//		string entryName(nmEntry->d_name); //get the entry name,
-//		if (
-//		entryName.compare(".") != 0 && //if we are not the "." directory/file
-//		entryName.compare("..") != 0 && //if we are not the ".." directory/file
-//		nmEntry->d_type == DT_REG //and if we are a file.
-//		) {
-//		string noteFilePath = nmDirStr + "/" + entryName; //get the path of the file.
-//		NoteFileInfo info = NoteFile::GetInfo(noteFilePath.c_str()); //get the note map info.
-//		if (info.valid) //if the info is valid.
-//		this->m_notemaps.push_back(std::make_pair(entryName, info)); //add it to the list of notemaps.
-//		}
-//		nmEntry = readdir(nmDir);
-//		}
-//
-//		closedir(nmDir);
-//
-//		//translations
-//		string tDirStr = this->m_path + "/Translations";
-//		DIR * tDir = opendir(tDirStr.c_str());
-//
-//		dirent *tEntry = readdir(tDir);
-//		while (tEntry != NULL) {
-//		string entryName(tEntry->d_name);
-//		if (
-//		entryName.compare(".") != 0 &&
-//		entryName.compare("..") != 0 &&
-//		tEntry->d_type == DT_REG
-//		) {
-//		string translationFilePath = tDirStr + "/" + entryName;
-//		TranslationFileInfo info = TranslationFile::GetInfo(translationFilePath.c_str());
-//		if (info.valid)
-//		this->m_translations.push_back(std::make_pair(entryName, info));
-//		}
-//		tEntry = readdir(tDir);
-//		}
-//
-//		closedir(tDir);*/
-//
-//		//load songinfo.xml
-//		//list note files
-//		//list translations
-//	}
-//	//----------------------------------------------
-//
-//
-//	//----------------------------------------------
-//	//Song Group
-//	//----------------------------------------------
-//	SongGroup::SongGroup(string name, string path) {
-//		this->m_name = name;
-//		this->m_path = path;
-//	}
-//
-//	SongGroup::~SongGroup() {
-//		this->m_entries.clear();
-//	}
-//
-//	void SongGroup::GetMemoryUsage(ICrySizer* pSizer) const {
-//		pSizer->AddObject(this, sizeof(*this));
-//		pSizer->AddObject(this->m_entries);
-//	}
-//
-//	void SongGroup::Log() {
-//		for (SongEntry *entry : this->m_entries) {
-//			CryLog("--%s", entry->getName());
-//			entry->Log();
-//		}
-//	}
-//
-//	//----------------------------------------------
-//	SongGroup::SongGroupJob::SongGroupJob(SongGroup * group) : Job(true, nullptr) {
-//		this->m_pGroup = group;
-//	}
-//
-//	void SongGroup::SongGroupJob::Process() {
-//		this->m_pGroup->m_entries.clear();
-//		//load group info
-//
-//		//list folders in group.
-//		gEnv->pFileIO->FindFiles(this->m_pGroup->m_path, "*.*",
-//			[&](const char* filePath) -> bool {
-//			if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
-//				if (gEnv->pFileIO->Exists(string(filePath) + "/SongInfo.xml")) { //if the songinfo.xml exists in that directory
-//					string spath = filePath;
-//					size_t slash = spath.find_last_of("/\\");
-//					//string path = spath.substr(0, slash);
-//					string folder = spath.substr(slash + 1);
-//
-//					SongEntry * newEntry = new SongEntry(folder, filePath); //create a new entry.
-//					this->m_pGroup->m_entries.push_back(newEntry); //push it to the list of entries.
-//					this->StartAsChild(newEntry->getJob()); //start the processing of the entry.
-//				}
-//			}
-//			return true; // continue iterating
-//		}
-//		);
-//
-//		this->WaitForChildren(); //wait until all entries have finished.
-//	}
-//	//----------------------------------------------
-//
-//	//----------------------------------------------
-//	//Song List
-//	//----------------------------------------------
-//	SongList::SongList(string path = "@songs@") {
-//		this->m_path = path;
-//		SongListJob(this);
-//	}
-//
-//	SongList::~SongList() {
-//		this->m_groups.clear();
-//	}
-//
-//	void SongList::GetMemoryUsage(ICrySizer* pSizer) const {
-//		pSizer->AddObject(this, sizeof(*this));
-//		pSizer->AddObject(this->m_groups);
-//	}
-//
-//	void SongList::Log() {
-//		CryLog("Song List:");
-//		for (SongGroup *group : this->m_groups) {
-//			CryLog("-%s", group->getName());
-//			group->Log();
-//		}
-//	}
-//
-//	//----------------------------------------------
-//	SongList::SongListJob::SongListJob(SongList * songlist) : Job(true, nullptr) {
-//		this->m_pSonglist = songlist;
-//		this->StartAndWaitForCompletion();
-//	}
-//
-//	void SongList::SongListJob::Process() {
-//		this->m_pSonglist->m_groups.clear(); //clear the groups.
-//
-//											 //list folders
-//		gEnv->pFileIO->FindFiles(this->m_pSonglist->m_path, "*.*",
-//			[&](const char* filePath) -> bool {
-//			if (gEnv->pFileIO->IsDirectory(filePath)) { //if it is a directory
-//				if (gEnv->pFileIO->Exists(string(filePath) + "/GroupInfo.xml")) { //if the group info xml file exists in that directory
-//					string spath = filePath;
-//					size_t slash = spath.find_last_of("/\\");
-//					//string path = spath.substr(0, slash);
-//					string folder = spath.substr(slash + 1);
-//
-//					SongGroup * newGroup = new SongGroup(folder, filePath);
-//					this->m_pSonglist->m_groups.push_back(newGroup); //push it to the list of groups.
-//					this->StartAsChild(newGroup->getJob()); //start the processing of the group.
-//				}
-//			}
-//			return true; // continue iterating
-//		}
-//		);
-//
-//		this->WaitForChildren(); //wait until all the groups have finished.
-//	}
-//	//----------------------------------------------
-//}

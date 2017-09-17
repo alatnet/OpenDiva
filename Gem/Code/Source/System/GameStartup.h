@@ -5,7 +5,7 @@
 #include <IWindowMessageHandler.h>
 #include <IPlatformOS.h>
 
-namespace OpenDivaNew
+namespace OpenDiva
 {
     /*!
      * Handles the initialization, running, and shutting down of the game.
@@ -29,12 +29,12 @@ namespace OpenDivaNew
 
         /*!
          * Re-initializes the Game
-         * /return a new instance of OpenDivaNew::SteveGameGame() or nullptr if failed to initialize.
+         * /return a new instance of OpenDiva::SteveGameGame() or nullptr if failed to initialize.
          */
         IGameRef Reset();
 
         // Only allow this component class to create instances of GameStartup
-        friend class OpenDivaNewSystemComponent;
+        friend class OpenDivaSystemComponent;
 
     protected:
         GameStartup();

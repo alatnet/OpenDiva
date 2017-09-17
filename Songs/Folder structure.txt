@@ -1,0 +1,18 @@
+Root
++<group name>
+-+GroupInfo (optional)
+--+<language>.xml
+-+<song name>
+--+Fonts (optional for lyric subtexts, font files themselves are in the Fonts folder at game data root, i.e. "OpenDiva/Fonts".)
+---+<font>.xml
+--+Lyrics
+---+default.xml (required)
+---+<language>.xml (optional)
+--+NoteMaps
+---+<notemap name>.xml
+--+SongInfo
+---+global.xml (required)
+---+<language>.xml (optional)
+
+Notes:
+<language> refers to the two character ISO 639-1 language code specification.

@@ -4,6 +4,14 @@
 
 #include <AzCore/std/string/string.h>
 
+#define OPENDIVA_VER_HIGH 0
+#define OPENDIVA_VER_LOW 1
+#define OPENDIVA_VER_REV 0
+
+#define OPENDIVA_SALT "OpenDivaSalt"
+
+#define CLOG(...) CryLog(__VA_ARGS__)
+
 namespace OpenDiva {
 	namespace FolderStruct {
 		namespace Folders {

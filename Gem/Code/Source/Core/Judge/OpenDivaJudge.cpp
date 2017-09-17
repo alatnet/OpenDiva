@@ -2,7 +2,7 @@
 #include <OpenDivaCommon.h>
 #include "IDivaJudge.h"
 #include "OpenDivaJudge.h"
-#include "../../Graphics/Particles.h"
+#include "../Graphics/Particles.h"
 
 namespace OpenDiva {
 	OpenDivaJudge::OpenDivaJudge(void * userdata) {
@@ -36,10 +36,12 @@ namespace OpenDiva {
 			IDivaJudgeTechZone * currTechZone = this->m_techZoneNotes.at(this->m_currTechZone);
 			//if (this->m_currSection == eST_Norm && params.sType == eST_Tech) { //entering techzone from normal
 			/*} else*/ if (this->m_currSection == eST_Tech && params.sType == eST_Norm) { //exiting techzone to normal
+				if (params.hitscore == eHS_Sad || params.hitscore == eHS_Safe || params.hitscore == eHS_Worst) currTechZone->active = false;
 				if (currTechZone->active) m_completion += currTechZone->totalNotes;
 				m_currTechZone++; //update the current tech zone to update
 			//} else if (this->m_currSection == eST_Chance && params.sType == eST_Tech) { //entering techzone from chance
 			} else if (this->m_currSection == eST_Tech && params.sType == eST_Chance) { //exiting techzone to chance
+				if (params.hitscore == eHS_Sad || params.hitscore == eHS_Safe || params.hitscore == eHS_Worst) currTechZone->active = false;
 				if (currTechZone->active) m_completion += currTechZone->totalNotes;
 				m_currTechZone++; //update the current tech zone to update
 			}

@@ -114,6 +114,10 @@
       "Source/Core/Components/OpenDivaComponentFactory.cpp",
       "Source/Core/Components/OpenDivaBusComponent.h",
       "Source/Core/Components/OpenDivaBusComponent.cpp"
+    ],
+    "Source/Core/Database": [
+      "Source/Core/Database/DatabaseManager.h",
+      "Source/Core/Database/DatabaseManager.cpp"
     ]
   }
 }
