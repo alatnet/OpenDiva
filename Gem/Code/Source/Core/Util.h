@@ -107,6 +107,7 @@ namespace OpenDiva {
 	public:
 		static bool CopyToCache(AZStd::string src, AZStd::string cacheDest);
 		static bool ClearCache(AZStd::string cacheDest);
+		static bool DeleteFromCache(AZStd::string file, AZStd::string cachePath);
 		static AZStd::string GetCachePath(AZStd::string src, AZStd::string cacheDest);
 	};
 

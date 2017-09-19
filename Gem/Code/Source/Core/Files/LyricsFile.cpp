@@ -59,31 +59,30 @@ namespace OpenDiva {
 				string tag = entry->getTag();
 
 				if (tag.compare("line") == 0) {
-					LineEntry lEntry;
+					LineEntry* lEntry = new LineEntry();
 
-					lEntry.text = entry->getContent();
-					entry->getAttr("time", lEntry.time);
+					lEntry->text = entry->getContent();
+					entry->getAttr("time", lEntry->time);
 
 					#pragma omp critical
 					{
-						CLOG("Reading Lyric: %s - %f", lEntry.text, lEntry.time);
 						this->m_lyrics.push_back(lEntry);
 					}
 				} else if (tag.compare("subtext") == 0) {
-					SubtextEntry sEntry;
+					SubtextEntry *sEntry = new SubtextEntry();
 
-					sEntry.text = entry->getContent();
+					sEntry->text = entry->getContent();
 
-					entry->getAttr("start",sEntry.start);
-					entry->getAttr("end", sEntry.end);
+					entry->getAttr("start",sEntry->start);
+					entry->getAttr("end", sEntry->end);
 					Vec2 pos;
 					entry->getAttr("pos", pos);
-					sEntry.pos.Set(pos.x, pos.y);
-					entry->getAttr("rot", sEntry.rot);
-					sEntry.font = entry->getAttr("font");
-					entry->getAttr("effect", sEntry.effect);
-					sEntry.color = entry->getAttr("color");
-					entry->getAttr("size", sEntry.size);
+					sEntry->pos.Set(pos.x, pos.y);
+					entry->getAttr("rot", sEntry->rot);
+					sEntry->font = entry->getAttr("font");
+					entry->getAttr("effect", sEntry->effect);
+					sEntry->color = entry->getAttr("color");
+					entry->getAttr("size", sEntry->size);
 
 					#pragma omp critical
 					{
@@ -94,8 +93,8 @@ namespace OpenDiva {
 
 			//sort the lyrics based on time
 			//std::stable_sort(this->m_lyrics.begin(), this->m_lyrics.end(), LyricsFile::lyricsSort);
-			//AZStd::stable_sort(this->m_lyrics.begin(), this->m_lyrics.end(), LyricsFile::lyricsSort, this->m_lyrics.get_allocator());
-			//AZStd::stable_sort(this->m_subtext.begin(), this->m_subtext.end(), TranslationFile::subtextSort, this->m_subtext.get_allocator());
+			AZStd::stable_sort(this->m_lyrics.begin(), this->m_lyrics.end(), LyricsFile::lyricsSort, this->m_lyrics.get_allocator());
+			AZStd::stable_sort(this->m_subtext.begin(), this->m_subtext.end(), LyricsFile::subtextSort, this->m_subtext.get_allocator());
 		}
 	}
 

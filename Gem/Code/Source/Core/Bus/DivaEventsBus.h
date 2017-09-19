@@ -10,13 +10,12 @@
 namespace OpenDiva {
 	class DivaEventsGroup : public AZ::EBusTraits {
 	public:
-		virtual void OnSongStart() = 0;
+		virtual void OnSongStart() = 0; //after fade in ends
 		virtual void OnSongPause() = 0;
 		virtual void OnSongResume() = 0;
-		virtual void OnSongEnd() = 0;
+		virtual void OnSongEnd() = 0; //before fade out starts
 		virtual void OnSongReset() = 0;
 	};
-
 	using DivaEventsBus = AZ::EBus<DivaEventsGroup>;
 
 	//Lua Handlers

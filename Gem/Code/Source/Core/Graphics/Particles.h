@@ -111,11 +111,9 @@ namespace OpenDiva {
 		void GetMemoryUsage(ICrySizer* pSizer) const;
 	private:
 		float m_life;
-		IDraw2d * m_draw;
-		IDraw2d::TextOptions m_options;
+		IFFont * m_font;
+		STextDrawContext m_ctx;
 		AZ::Vector2 m_pos;
-		float m_pointSize;
-		AZ::Color m_color;
 		AZStd::string m_text;
 	};
 }

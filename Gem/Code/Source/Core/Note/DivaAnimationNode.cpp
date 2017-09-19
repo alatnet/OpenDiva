@@ -2,7 +2,16 @@
 #include <OpenDivaCommon.h>
 #include "DivaAnimationNode.h"
 
-#include "../Bus/DivaEventsBus.h"
+#include <AlternativeAudio\DSP\VolumeDSPBus.h>
+
+//how fast the fade in/out of the song should be in seconds
+#define DIVAFADETIME 1.0f
+
+//how long to delay the fade at the end of the song in seconds
+#define DIVAFADEDELAY 2.0f
+
+//when a transition from one section to another should happen in seconds
+#define DIVAZONETRANSITION 2.0f
 
 namespace OpenDiva {
 	//-----------------------------------------------------------------------
@@ -40,28 +49,27 @@ namespace OpenDiva {
 		IAnimNode * events = seq->CreateNode(EAnimNodeType::eAnimNodeType_Event);
 		IAnimNode * ent = seq->CreateNode(EAnimNodeType::eAnimNodeType_AzEntity);*/
 
-		//this->m_pPASystem = nullptr;
 		this->m_Music.m_idVocal = this->m_Music.m_idMelody = this->m_Music.m_idSong = -1;
 		this->m_Music.m_wrongVol = false;
 		this->m_Music.m_type = true;
 		this->m_Music.m_audioVocal = this->m_Music.m_audioMelody = this->m_Music.m_audioSong = nullptr;
+		this->m_Music.vocalDSP = nullptr;
+
+		this->m_pEvents = new DivaEventSystem();
 
 		DivaSequenceJudgeBus::Handler::BusConnect();
 		DivaSequenceEffectsBus::Handler::BusConnect();
 		DivaHudHitScoreBus::Handler::BusConnect();
+		DivaAudioEventsBus::Handler::BusConnect();
 	}
 
 	DivaAnimationNode::~DivaAnimationNode() {
 		DivaSequenceJudgeBus::Handler::BusDisconnect();
 		DivaSequenceEffectsBus::Handler::BusDisconnect();
 		DivaHudHitScoreBus::Handler::BusDisconnect();
+		DivaAudioEventsBus::Handler::BusDisconnect();
 
-		//delete the notes
-		/*while (this->m_NoteNodes.size() > 0) {
-			DivaNoteBaseNode* node = this->m_NoteNodes.back();
-			this->m_NoteNodes.pop_back();
-			node->Release();
-		}*/
+		delete this->m_pEvents;
 
 		for (DivaNoteBaseNode * n : this->m_NoteNodes) n->Release();
 		this->m_NoteNodes.clear();
@@ -72,9 +80,10 @@ namespace OpenDiva {
 		if (this->m_Music.m_audioVocal) delete this->m_Music.m_audioVocal;
 		if (this->m_Music.m_audioMelody) delete this->m_Music.m_audioMelody;
 		if (this->m_Music.m_audioSong) delete this->m_Music.m_audioSong;
+		if (this->m_Music.vocalDSP) delete this->m_Music.vocalDSP;
 	}
 
-	bool DivaAnimationNode::Init(NoteFile *noteFile) {
+	bool DivaAnimationNode::InitNotes(NoteFile *noteFile) {
 		unsigned int numNotes = noteFile->GetNumNotes();
 
 		NoteEntryBPM * currBPM = nullptr;
@@ -87,16 +96,28 @@ namespace OpenDiva {
 			unsigned int techZoneNotes = 0;
 			AZStd::vector<unsigned int> techZoneNotesVector;
 
-			IAnimTrack * eventTrack = this->m_pEvents->GetTrackByIndex(0);
+			this->m_pEvents->Clear();
+
+			this->m_pEvents->AddEvent(
+				0,
+				DivaAnimationNode::SongEvents,
+				(void *)"AudioStart"
+			);
+
+			this->m_pEvents->AddEvent(
+				DIVAFADETIME,
+				DivaAnimationNode::SongEvents,
+				(void *)"Start"
+			);
 
 			//set beginning fade
 			IAnimTrack * faderTrack = this->m_pFader->GetTrackByIndex(0);
-			IScreenFaderKey fadeKey;
-			fadeKey.time = 0;
-			fadeKey.m_fadeTime = DIVAFADETIME;
-			fadeKey.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			fadeKey.m_fadeType = IScreenFaderKey::eFT_FadeIn;
-			faderTrack->SetKey(0, &fadeKey);
+			IScreenFaderKey fadeKeyIn;
+			fadeKeyIn.time = 0;
+			fadeKeyIn.m_fadeTime = DIVAFADETIME;
+			fadeKeyIn.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			fadeKeyIn.m_fadeType = IScreenFaderKey::eFT_FadeIn;
+			faderTrack->SetKey(0, &fadeKeyIn);
 
 			for (int i = 1; i < numNotes; i++) {
 				NoteEntry *currNote = noteFile->GetNote(i);
@@ -115,52 +136,70 @@ namespace OpenDiva {
 
 						//set zone events
 						if (currNote->sType != sectionEvent) { //if the section is different
-							//setup the sequence event
-							IEventKey key;
-							key.event = "Zone";
-
-							//key.time = currNote->getTime(); //get the note time for the event
-							key.time = node->GetTimeRange().start + DIVAFADETIME; //+offset
+							float time = node->GetTimeRange().start + DIVAFADETIME; //+offset
 
 							//set event
 							if (currNote->sType == eST_Norm && sectionEvent == eST_Tech) { //if we are exiting tech zone and entering normal
-								key.eventValue = "TechExit";
 								techZoneNotesVector.push_back(techZoneNotes);
 								techZoneNotes = 0;
+
+								this->m_pEvents->AddEvent(
+									time,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"TechExit"
+								);
 							} else if (currNote->sType == eST_Tech && sectionEvent == eST_Norm) { //if we are entering tech zone
-								key.eventValue = "TechEnter";
-								key.time -= 2;
 								techZoneNotes = 0;
+								this->m_pEvents->AddEvent(
+									time - DIVAZONETRANSITION,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"TechEnter"
+								);
 							} else if (currNote->sType == eST_Chance && sectionEvent == eST_Norm) { //if we are entering chance time zone
-								key.eventValue = "ChanceEnter";
-								key.time -= 2;
 								techZoneNotes = 0;
+								this->m_pEvents->AddEvent(
+									time - DIVAZONETRANSITION,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"ChanceEnter"
+								);
 							} else if (currNote->sType == eST_Norm && sectionEvent == eST_Chance) { //if we are exiting chance time and entering normal
-								key.eventValue = "ChanceExit";
-								techZoneNotes = 0;
-							} else if (currNote->sType == eST_Tech && sectionEvent == eST_Chance) { //if we are swaping zones (chance to tech)
-								key.eventValue = "ChanceExit";
 								techZoneNotes = 0;
 
-								IEventKey key2;
-								key2.eventValue = "TechEnter";
-								key2.time = key.time - 2;
-								int key2index = eventTrack->CreateKey(key2.time);
-								eventTrack->SetKey(key2index, &key2);
+								this->m_pEvents->AddEvent(
+									time,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"ChanceExit"
+								);
+							} else if (currNote->sType == eST_Tech && sectionEvent == eST_Chance) { //if we are swaping zones (chance to tech)
+								techZoneNotes = 0;
+
+								this->m_pEvents->AddEvent(
+									time,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"ChanceExit"
+								);
+
+								this->m_pEvents->AddEvent(
+									time - DIVAZONETRANSITION,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"TechEnter"
+								);
 							} else if (currNote->sType == eST_Chance && sectionEvent == eST_Tech) { //if we are swaping zones (tech to chance)
-								key.eventValue = "TechExit";
 								techZoneNotesVector.push_back(techZoneNotes);
 								techZoneNotes = 0;
 
-								IEventKey key2;
-								key2.eventValue = "ChanceEnter";
-								key2.time = key.time - 2;
-								int key2index = eventTrack->CreateKey(key2.time);
-								eventTrack->SetKey(key2index, &key2);
-							}
+								this->m_pEvents->AddEvent(
+									time,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"TechExit"
+								);
 
-							int keyindex = eventTrack->CreateKey(key.time);
-							eventTrack->SetKey(keyindex, &key);
+								this->m_pEvents->AddEvent(
+									time - DIVAZONETRANSITION,
+									DivaAnimationNode::ZonesEvents,
+									(void *)"ChanceEnter"
+								);
+							}
 
 							sectionEvent = currNote->sType;
 						}
@@ -170,47 +209,52 @@ namespace OpenDiva {
 
 			//make sure we exit out of a zone
 			if (sectionEvent != eST_Norm) {
-				IEventKey key;
-				key.event = "Zone";
-				key.time = endTime + DIVAFADETIME;
-
 				if (sectionEvent == eST_Tech) {
-					key.eventValue = "TechExit";
 					techZoneNotesVector.push_back(techZoneNotes);
-				} else {
-					key.eventValue = "ChanceExit";
-				}
 
-				int keyindex = eventTrack->CreateKey(key.time);
-				eventTrack->SetKey(keyindex, &key);
+					this->m_pEvents->AddEvent(
+						endTime,
+						DivaAnimationNode::ZonesEvents,
+						(void *)"TechExit"
+					);
+				} else {
+					this->m_pEvents->AddEvent(
+						endTime,
+						DivaAnimationNode::ZonesEvents,
+						(void *)"ChanceExit"
+					);
+				}
 			}
 
 			//set ending fade
-			fadeKey.time = endTime;
-			fadeKey.m_fadeType = IScreenFaderKey::eFT_FadeOut;
-			faderTrack->SetKey(1, &fadeKey);
+			IScreenFaderKey fadeKeyOut;
+			fadeKeyOut.time = endTime + DIVAFADETIME + DIVAFADEDELAY;
+			fadeKeyOut.m_fadeTime = DIVAFADETIME;
+			fadeKeyOut.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			fadeKeyOut.m_fadeType = IScreenFaderKey::eFT_FadeOut;
+			faderTrack->SetKey(1, &fadeKeyOut);
 
+			//notify busses.
 			EBUS_EVENT(DivaJudgeBus, SetTotalNotes, this->m_NoteNodes.size());
 			EBUS_EVENT(DivaHudCompletionBus, SetCompletion, 0, this->m_NoteNodes.size());
 			EBUS_EVENT(DivaJudgeBus, SetTechZoneNotes, techZoneNotesVector);
 
 			//find effect animation time and whichever biggest ending time is, tack it onto the end time of note nodes.
-			//this->m_seq->SetTimeRange(Range(0, endTime + 10));
-			this->m_pSequence->SetTimeRange(Range(0, endTime + DIVAFADETIME)); //+offset
-			this->SetTimeRange(Range(0, endTime + DIVAFADETIME)); //+offset
+			Range timeRange = Range(0, endTime + DIVAFADETIME + DIVAFADEDELAY);
+			this->m_pSequence->SetTimeRange(timeRange); //+offset
+			this->SetTimeRange(timeRange); //+offset
 
-			IEventKey key;
-			key.event = "Song";
+			this->m_pEvents->AddEvent(
+				endTime + DIVAFADETIME,
+				DivaAnimationNode::SongEvents,
+				(void *)"End"
+			);
 
-			key.time = DIVAFADETIME; //+offset
-			key.eventValue = "Start";
-			int keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
-
-			key.time = endTime; //+offset
-			key.eventValue = "End";
-			keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
+			this->m_pEvents->AddEvent(
+				endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY,
+				DivaAnimationNode::SongEvents,
+				(void *)"AudioEnd"
+			);
 
 		} else {
 			//error out
@@ -224,77 +268,99 @@ namespace OpenDiva {
 	bool DivaAnimationNode::InitLyrics(LyricsFile * lyrics) {
 		this->m_lyrics = lyrics;
 
-		IAnimTrack * eventTrack = m_pEvents->GetTrackByIndex(0);
-
-		//this->m_seq->AddTrackEvent("lyric");
-		//this->m_seq->AddTrackEvent("translation");
-		//this->m_seq->AddTrackEventListener(nullptr);
-
-		//IEventKey key;
-		//key.event = "Lyrics";
-		//key.eventValue = "1"; //lyric number
-							   //key.eventValue = "lyric";
-							   //key.eventValue = "translation";
-							   //key.value = 1; //which lyric/translation
-		//key.time = 0;
-
-		//int keyindex = eventTrack->CreateKey(key.time);
-		//eventTrack->SetKey(keyindex, &key);
-
 		for (unsigned int i = 0; i < lyrics->GetNumLines(); i++) {
-			LyricsFile::LineEntry entry = lyrics->GetLine(i);
-			IEventKey key;
-			key.event = "Lyric";
-			key.eventValue = entry.text.c_str();
-			key.time = entry.time;
-
-			int keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
-
-			CLOG("Adding Lyric to DivaAnimNode: %s - %f", entry.text.c_str(), entry.time);
+			LyricsFile::LineEntry *entry = lyrics->GetLine(i);
+			this->m_pEvents->AddEvent(
+				entry->time,
+				DivaAnimationNode::LyricEvents,
+				entry
+			);
 		}
 
 		for (unsigned int i = 0; i < lyrics->GetNumSubtexts(); i++) {
-			LyricsFile::SubtextEntry entry = lyrics->GetSubtext(i);
-			IEventKey key;
-			key.event = "Subtext";
-			key.eventValue = std::to_string(i).c_str();
-			key.time = entry.start;
-
-			int keyindex = eventTrack->CreateKey(key.time);
-			eventTrack->SetKey(keyindex, &key);
+			LyricsFile::SubtextEntry *entry = lyrics->GetSubtext(i);
+			this->m_pEvents->AddEvent(
+				entry->start,
+				DivaAnimationNode::SubtextEvents,
+				entry
+			);
 		}
 
 		return true;
 	}
 
-	bool DivaAnimationNode::InitAudio() {
-		EBUS_EVENT_RESULT(
-			this->m_Music.m_audioVocal,
-			AlternativeAudio::AlternativeAudioSourceBus,
-			NewAudioSource,
-			AZ_CRC("lib"),
-			"path",
-			nullptr
-		);
+	bool DivaAnimationNode::InitAudio(SongInfo::Global songinfo) {
+		//set the library to use
+		AZ::Crc32 lib = AZ::Crc32("libsndfile");
+		if (!songinfo.lib.empty()) lib = AZ::Crc32(songinfo.lib.c_str());
 
-		EBUS_EVENT_RESULT(
-			this->m_Music.m_audioMelody,
-			AlternativeAudio::AlternativeAudioSourceBus,
-			NewAudioSource,
-			AZ_CRC("lib"),
-			"path",
-			nullptr
-		);
+		//song and melody
+		if (!songinfo.vocal.empty() && !songinfo.melody.empty()) {
+			EBUS_EVENT_RESULT(
+				this->m_Music.m_audioMelody,
+				AlternativeAudio::AlternativeAudioSourceBus,
+				NewAudioSource,
+				lib,
+				songinfo.melody.c_str(),
+				nullptr
+			);
+			EBUS_EVENT_RESULT(
+				this->m_Music.m_audioVocal,
+				AlternativeAudio::AlternativeAudioSourceBus,
+				NewAudioSource,
+				lib,
+				songinfo.vocal.c_str(),
+				nullptr
+			);
 
-		EBUS_EVENT_RESULT(
-			this->m_Music.m_audioSong,
-			AlternativeAudio::AlternativeAudioSourceBus,
-			NewAudioSource,
-			AZ_CRC("lib"),
-			"path",
-			nullptr
-		);
+			if (!this->m_Music.m_audioMelody && !this->m_Music.m_audioVocal) {
+				if (this->m_Music.m_audioMelody) delete this->m_Music.m_audioMelody;
+				if (this->m_Music.m_audioVocal) delete this->m_Music.m_audioVocal;
+				CLOG("Error loading melody and vocals.");
+				return false;
+			}
+
+			EBUS_EVENT_RESULT(
+				this->m_Music.vocalDSP,
+				AlternativeAudio::AlternativeAudioDSPBus,
+				NewDSPEffect,
+				AZ_CRC("AAVolumeControl", 0x722dd2a9),
+				nullptr
+			);
+
+			if (!this->m_Music.vocalDSP) {
+				if (this->m_Music.m_audioMelody) delete this->m_Music.m_audioMelody;
+				if (this->m_Music.m_audioVocal) delete this->m_Music.m_audioVocal;
+				CLOG("Error creating vocal dsp.");
+				return false;
+			}
+
+			this->m_Music.m_audioVocal->AddEffectFreeSlot(this->m_Music.vocalDSP);
+
+			EBUS_EVENT_ID(this->m_Music.vocalDSP, AlternativeAudio::DSP::VolumeDSPBus, SetVol, 1.0f);
+
+			this->m_Music.m_type = true;
+
+			return true;
+		} else if (!songinfo.song.empty()) { //song only
+			EBUS_EVENT_RESULT(
+				this->m_Music.m_audioSong,
+				AlternativeAudio::AlternativeAudioSourceBus,
+				NewAudioSource,
+				lib,
+				songinfo.song.c_str(),
+				nullptr
+			);
+
+			if (!this->m_Music.m_audioSong) {
+				CLOG("Error loading song.");
+				return false;
+			}
+
+			this->m_Music.m_type = false;
+
+			return true;
+		}
 
 		return false;
 	}
@@ -315,6 +381,27 @@ namespace OpenDiva {
 		this->m_Particles.push_back(new HoldMultiParticle(this->m_pRC, pos, score, hitscore, wrong));
 	}
 
+	void DivaAnimationNode::PushbackSubtext(LyricsFile::SubtextEntry* entry) {
+		IDraw2d::TextOptions options = gEnv->pLyShine->GetDraw2d()->GetDefaultTextOptions();
+
+		IFFont* sfont = this->m_lyrics->GetFont(entry->font);
+		sfont = (sfont) ? sfont : options.font;
+		int sfonte = (sfont) ? entry->effect : options.effectIndex;
+
+		this->m_Particles.push_back(
+			new SubtextParticle(
+				entry->text,
+				entry->pos,
+				entry->size,
+				entry->rot,
+				sfont,
+				sfonte,
+				this->m_lyrics->GetColor(entry->color),
+				entry->end - entry->start
+			)
+		);
+	}
+
 	void DivaAnimationNode::UpdateNoteHit() {
 		this->m_hitNote++; //we are done scoring this note, on to the next one.
 		if (this->m_hitNote >= this->m_NoteNodes.size()) this->m_hitNote = this->m_NoteNodes.size() - 1;
@@ -324,15 +411,11 @@ namespace OpenDiva {
 	void DivaAnimationNode::SetHitScore(EHitScore hs, bool wrong) {
 		this->m_Music.m_wrongVol = wrong;
 		if (wrong) { //if the hit was wrong
-			if (this->m_Music.m_type) { //and we are a vocal/music type
-				//this->m_pPASystem->SetVolume(0.5f, this->m_Music.m_idVocal); //adjust vocal volume to half max
-				//EBUS_EVENT(PortAudio::PortAudioRequestBus, SetSourceVolume, 0.5f, this->m_Music.m_idVocal);
-			}
+			if (this->m_Music.vocalDSP)
+				EBUS_EVENT_ID(this->m_Music.vocalDSP, AlternativeAudio::DSP::VolumeDSPBus, SetVol, 0.5f);
 		} else { //else if the hit was correct
-			if (this->m_Music.m_type) { //and we are a vocal/music type
-				//this->m_pPASystem->SetVolume(1.0f, this->m_Music.m_idVocal); //adjust vocal volume to max
-				//EBUS_EVENT(PortAudio::PortAudioRequestBus, SetSourceVolume, 1.0f, this->m_Music.m_idVocal);
-			}
+			if (this->m_Music.vocalDSP)
+				EBUS_EVENT_ID(this->m_Music.vocalDSP, AlternativeAudio::DSP::VolumeDSPBus, SetVol, 1.0f);
 		}
 	}
 	// ~DivaHudHitScoreGroup
@@ -378,36 +461,29 @@ namespace OpenDiva {
 	// CAnimNode has these.
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::OnStart() {
-		//this->m_pPASystem->Play();
 	}
 	void DivaAnimationNode::OnReset() {
-		if (this->m_NoteNodes.size() > 0) for (AZStd::vector<DivaNoteBaseNode *>::iterator it1 = this->m_NoteNodes.begin(); it1 != this->m_NoteNodes.end(); it1++) (*it1)->Reset();
+		this->OnAudioEnd();
+
+		this->m_pEvents->Reset();
+		for (DivaNoteBaseNode* node : this->m_NoteNodes) node->Reset();
 		this->m_Particles.clear();
 
 		this->m_renderRangeEnd = this->m_renderRangeStart = this->m_hitNote = 0;
-
-		/*this->m_pPASystem->Stop();
-
-		if (this->m_Music.m_type){
-			this->m_Music.m_idVocal = this->m_pPASystem->PlaySource(this->m_Music.m_audioVocal, EAudioSection::eAS_Music);
-			this->m_Music.m_idMelody = this->m_pPASystem->PlaySource(this->m_Music.m_audioMelody, EAudioSection::eAS_Music);
-		} else {
-			this->m_Music.m_idSong = this->m_pPASystem->PlaySource(this->m_Music.m_audioSong, EAudioSection::eAS_Music);
-		}*/
 
 		EBUS_EVENT(DivaEventsBus, OnSongReset);
 	}
 	void DivaAnimationNode::OnResetHard() { OnReset(); }
 	void DivaAnimationNode::OnPause() {
-		//this->m_pPASystem->Pause();
+		this->OnAudioPause();
 		EBUS_EVENT(DivaEventsBus, OnSongPause);
 	}
 	void DivaAnimationNode::OnResume() {
-		//this->m_pPASystem->Play();
 		EBUS_EVENT(DivaEventsBus, OnSongResume);
+		this->OnAudioResume();
 	}
 	void DivaAnimationNode::OnStop() {
-		//this->m_pPASystem->Stop();
+		this->OnAudioEnd();
 	}
 	void DivaAnimationNode::OnLoop() {
 	}
@@ -416,16 +492,33 @@ namespace OpenDiva {
 	// Inherited via IAnimNode
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::Animate(SAnimContext & ec) {
+		this->m_pEvents->Update(ec.time); //update the events system.
 
-		//ec.time - fade + offset;
-		float time = ec.time - DIVAFADETIME;
+		SAnimContext animContext = ec;
+
+		//music and video syncing
+		if (this->m_Music.m_type) {
+			AlternativeAudio::AudioSourceTime melodyTime, vocalTime;
+			if (this->m_Music.m_idMelody != -1 && this->m_Music.m_audioMelody) //get the time for melody
+				EBUS_EVENT_RESULT(melodyTime, AlternativeAudio::AlternativeAudioDeviceBus, GetTime, this->m_Music.m_idMelody);
+			if (this->m_Music.m_idVocal != -1 && this->m_Music.m_audioVocal) //get the time for vocal
+				EBUS_EVENT_RESULT(vocalTime, AlternativeAudio::AlternativeAudioDeviceBus, GetTime, this->m_Music.m_idVocal);
+			animContext.time = (float)((melodyTime.totalSec + vocalTime.totalSec) / 2.0f); //average the times and set the current time for the context.
+		} else {
+			AlternativeAudio::AudioSourceTime musicTime;
+			if (this->m_Music.m_idSong != -1 && this->m_Music.m_audioSong) //get the time for song
+				EBUS_EVENT_RESULT(musicTime, AlternativeAudio::AlternativeAudioDeviceBus, GetTime, this->m_Music.m_idSong);
+			animContext.time = (float)musicTime.totalSec; //set the current time for the context.
+		}
+
+		//animContext.time += offset;
 
 		if (this->m_NoteNodes.size() > 0) {
 			//animate first then shift ranges
-			for (unsigned int i = this->m_renderRangeStart; i <= this->m_renderRangeEnd; i++) this->m_NoteNodes[i]->Animate(ec);
+			for (unsigned int i = this->m_renderRangeStart; i <= this->m_renderRangeEnd; i++) this->m_NoteNodes[i]->Animate(animContext);
 
 			//shift the start range to a note node that needs to render
-			while (this->m_NoteNodes[this->m_renderRangeStart]->NeedToRender(time) == false) {
+			while (this->m_NoteNodes[this->m_renderRangeStart]->NeedToRender(animContext.time) == false) {
 				this->m_renderRangeStart++;
 
 				if (this->m_renderRangeStart >= this->m_renderRangeEnd) {
@@ -435,7 +528,7 @@ namespace OpenDiva {
 			}
 
 			//shift the end range to a note node that doesnt need to render
-			while (this->m_NoteNodes[this->m_renderRangeEnd]->NeedToRender(time) == true) {
+			while (this->m_NoteNodes[this->m_renderRangeEnd]->NeedToRender(animContext.time) == true) {
 				this->m_renderRangeEnd++;
 
 				if (this->m_renderRangeEnd > this->m_NoteNodes.size() - 1) {
@@ -471,86 +564,18 @@ namespace OpenDiva {
 	}
 
 	//-----------------------------------------------------------------------
-	// Inherited via ITrackEventListener
-	//-----------------------------------------------------------------------
-	void DivaAnimationNode::OnTrackEvent(IAnimSequence* pSequence, int reason, const char* event, void* pUserData) {
-
-		CLOG("Event: %i - %s - %s", reason, event, (const char *)pUserData);
-
-		if (pSequence != (IAnimSequence*)this) return;
-
-		if (reason == eTrackEventReason_Triggered) {
-			AZStd::string sEvent = AZStd::string(event);
-			AZStd::string sparam((const char *)pUserData);
-
-			CLOG("Event Triggered. %s - %s", sEvent, sparam);
-
-			if (sEvent.compare("Zone") == 0) {
-				if (sparam.compare("ChanceEnter") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceEnter);
-				else if (sparam.compare("ChanceExit") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceExit);
-				else if (sparam.compare("TechEnter") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechEnter);
-				else if (sparam.compare("TechExit") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechExit);
-			} else if (sEvent.compare("Lyric") == 0) {
-				CLOG("Pushing Lyric: %s", sparam);
-				EBUS_EVENT(DivaHudLyricsBus, SetLyrics, sparam);
-			} else if (sEvent.compare("Subtext") == 0) {
-				unsigned int index = std::stoi((const char *)pUserData);
-
-				LyricsFile::SubtextEntry entry = this->m_lyrics->GetSubtext(index);
-
-				this->m_Particles.push_back(
-					new SubtextParticle(
-						entry.text,
-						entry.pos,
-						entry.size,
-						entry.rot,
-						this->m_lyrics->GetFont(entry.font),
-						entry.effect,
-						this->m_lyrics->GetColor(entry.color),
-						entry.end - entry.start
-					)
-				);
-			} else if (sEvent.compare("Song") == 0) {
-				if (sparam.compare("Start") == 0) {
-					EBUS_EVENT(DivaEventsBus, OnSongStart);
-				} else if (sparam.compare("End") == 0) {
-					EBUS_EVENT(DivaEventsBus, OnSongEnd);
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------------------------
 	// Inherited via IAnimNode
 	//-----------------------------------------------------------------------
 	IAnimSequence * DivaAnimationNode::GetSequence() { return this->m_pSequence; }
 	void DivaAnimationNode::SetSequence(IAnimSequence * sequence) {
 		if (this->m_pSequence || !sequence) {
-			if (this->m_pSequence) {
-				this->m_pSequence->RemoveTrackEvent("Zone");
-				this->m_pSequence->RemoveTrackEvent("Lyric");
-				this->m_pSequence->RemoveTrackEvent("Subtext");
-				this->m_pSequence->RemoveTrackEvent("Song");
-				this->m_pSequence->RemoveTrackEventListener(this);
-			}
-
-			if (this->m_pEvents) this->m_pEvents->Release();
 			if (this->m_pFader) this->m_pFader->Release();
+			this->m_pFader = nullptr;
 		}
 
 		this->m_pSequence = sequence;
 
 		if (this->m_pSequence) {
-			this->m_pSequence->AddTrackEventListener(this);
-			this->m_pSequence->AddTrackEvent("Zone");
-			this->m_pSequence->AddTrackEvent("Lyric");
-			this->m_pSequence->AddTrackEvent("Subtext");
-			this->m_pSequence->AddTrackEvent("Song");
-
-			this->m_pEvents = this->m_pSequence->CreateNode(EAnimNodeType::eAnimNodeType_Event);
-			this->m_pEvents->CreateDefaultTracks();
-			this->m_pEvents->AddRef();
-
 			this->m_pFader = this->m_pSequence->CreateNode(EAnimNodeType::eAnimNodeType_ScreenFader);
 			this->m_pFader->CreateDefaultTracks();
 			this->m_pFader->AddRef();
@@ -587,7 +612,93 @@ namespace OpenDiva {
 	void DivaAnimationNode::GetMemoryUsage(ICrySizer * pSizer) const {
 		for (DivaNoteBaseNode* n : m_NoteNodes) pSizer->AddObject(n);
 		for (ParticleBase* p : m_Particles) pSizer->AddObject(p);
-		pSizer->AddObject(m_pEvents);
+	}
+
+	//-----------------------------------------------------------------------------
+	// event funcs
+	//-----------------------------------------------------------------------------
+	void DivaAnimationNode::ZonesEvents(void* userdata) {
+		AZStd::string sparam((const char*)userdata);
+
+		if (sparam.compare("ChanceEnter") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceEnter);
+		else if (sparam.compare("ChanceExit") == 0) EBUS_EVENT(DivaHudChanceEventsBus, OnChanceExit);
+		else if (sparam.compare("TechEnter") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechEnter);
+		else if (sparam.compare("TechExit") == 0) EBUS_EVENT(DivaHudTechEventsBus, OnTechExit);
+	}
+
+	void DivaAnimationNode::LyricEvents(void* userdata) {
+		LyricsFile::LineEntry* entry = static_cast<LyricsFile::LineEntry*>(userdata);
+		if (entry) EBUS_EVENT(DivaHudLyricsBus, SetLyrics, entry->text);
+	}
+
+	void DivaAnimationNode::SubtextEvents(void* userdata) {
+		LyricsFile::SubtextEntry* entry = static_cast<LyricsFile::SubtextEntry*>(userdata);
+		if (entry) EBUS_EVENT(DivaSequenceEffectsBus, PushbackSubtext, entry);
+	}
+
+	void DivaAnimationNode::SongEvents(void* userdata) {
+		AZStd::string sparam((const char*)userdata);
+		
+		if (sparam.compare("Start") == 0) {
+			EBUS_EVENT(DivaEventsBus, OnSongStart);
+		} else if (sparam.compare("End") == 0) {
+			EBUS_EVENT(DivaEventsBus, OnSongEnd);
+		} else if (sparam.compare("AudioStart") == 0) {
+			EBUS_EVENT(DivaAudioEventsBus, OnAudioStart);
+		} else if (sparam.compare("AudioEnd") == 0) {
+			EBUS_EVENT(DivaAudioEventsBus, OnAudioEnd);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	// DivaAudioEventsBus
+	//-----------------------------------------------------------------------------
+	void DivaAnimationNode::OnAudioStart() {
+		if (this->m_Music.m_type) {
+			if (this->m_Music.m_idMelody == -1 && this->m_Music.m_audioMelody)
+				EBUS_EVENT_RESULT(this->m_Music.m_idMelody, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioMelody);
+			if (this->m_Music.m_idVocal == -1 && this->m_Music.m_audioVocal)
+				EBUS_EVENT_RESULT(this->m_Music.m_idVocal, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioVocal);
+		} else {
+			if (this->m_Music.m_idSong == -1 && this->m_Music.m_audioSong)
+				EBUS_EVENT_RESULT(this->m_Music.m_idSong, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioSong);
+		}
+	}
+	void DivaAnimationNode::OnAudioEnd() {
+		if (this->m_Music.m_type) {
+			if (this->m_Music.m_idMelody != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->m_Music.m_idMelody);
+			if (this->m_Music.m_idVocal != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->m_Music.m_idVocal);
+
+			this->m_Music.m_idMelody = this->m_Music.m_idVocal = -1;
+		} else {
+			if (this->m_Music.m_idSong != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->m_Music.m_idSong);
+			this->m_Music.m_idSong = -1;
+		}
+	}
+	void DivaAnimationNode::OnAudioPause() {
+		if (this->m_Music.m_type) {
+			if (this->m_Music.m_idMelody != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idMelody);
+			if (this->m_Music.m_idVocal != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idVocal);
+		} else {
+			if (this->m_Music.m_idSong != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idSong);
+		}
+	}
+	void DivaAnimationNode::OnAudioResume() {
+		if (this->m_Music.m_type) {
+			if (this->m_Music.m_idMelody != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idMelody);
+			if (this->m_Music.m_idVocal != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idVocal);
+		} else {
+			if (this->m_Music.m_idSong != -1)
+				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idSong);
+		}
 	}
 	//-----------------------------------------------------------------------------
 }

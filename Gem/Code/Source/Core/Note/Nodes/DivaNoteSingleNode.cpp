@@ -102,7 +102,6 @@ namespace OpenDiva {
 			params.hitscore = eHS_Worst;
 			params.hType = eNHT_Single;
 
-			//if (this->m_pDivaJudge != nullptr) this->m_pDivaJudge->DivaJudgeCallback(params);
 			EBUS_EVENT(DivaJudgeBus, OnJudge, params);
 			this->pushEffects(params);
 			this->m_noteHit = true;

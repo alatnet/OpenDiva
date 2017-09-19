@@ -72,6 +72,8 @@ namespace OpenDiva
         GetISystem()->SetIGame(nullptr);
 
         ReleaseActionMaps();
+
+		Util::ClearCache("Fonts");
     }
 
     bool OpenDivaGame::Init(IGameFramework* framework)
@@ -776,7 +778,11 @@ namespace OpenDiva
 		if (info.valid) {
 			CryLog("Lyrics File is valid. %i", this->lyrics->GetNumLines());
 			for (int i = 0; i < this->lyrics->GetNumLines(); i++) {
-				CLOG("-Lyric: %s", this->lyrics->GetLine(i).text);
+				CLOG("-Lyric: %s", this->lyrics->GetLine(i)->text);
+			}
+
+			for (int i = 0; i < this->lyrics->GetNumSubtexts(); i++) {
+				CLOG("-Subtext: %s", this->lyrics->GetSubtext(i)->text);
 			}
 		};
 
@@ -1199,7 +1205,7 @@ namespace OpenDiva
 			CryLog("Creating Test Sequence.");
 			this->testSeq = this->iMovieSys->CreateSequence("DivaSequence", false, 0U, eSequenceType_SequenceComponent);
 			this->testSeq->SetTimeRange(Range(0.0f, 15.0f + BIEZER_TACKON));
-			this->testSeq->SetFlags(IAnimSequence::eSeqFlags_NoAbort | IAnimSequence::eSeqFlags_CutScene | IAnimSequence::eSeqFlags_OutOfRangeConstant | IAnimSequence::eSeqFlags_NoMPSyncingNeeded | IAnimSequence::eSeqFlags_NoSpeed | IAnimSequence::eSeqFlags_NoMPSyncingNeeded);
+			this->testSeq->SetFlags(IAnimSequence::eSeqFlags_NoAbort | IAnimSequence::eSeqFlags_CutScene | IAnimSequence::eSeqFlags_OutOfRangeConstant | IAnimSequence::eSeqFlags_NoMPSyncingNeeded | IAnimSequence::eSeqFlags_NoSpeed);
 			this->testSeq->AddRef();
 
 			this->testDivaAnimationNode = new DivaAnimationNode(this->m_pRC);
@@ -1212,8 +1218,16 @@ namespace OpenDiva
 
 			NoteFile noteFile("@songs@/Test Group/Test Song/NoteMaps/test.xml");
 
-			this->testDivaAnimationNode->Init(&noteFile);
-			this->testDivaAnimationNode->InitLyrics(this->lyrics);
+			SongInfo::Global g = SongInfo::GetGlobal("@songs@/Test Group/Test Song/SongInfo/global.xml");
+			CLOG("Global song info:");
+			CLOG("-Lib: %s", g.lib.c_str());
+			CLOG("-vocal: %s", g.vocal.c_str());
+			CLOG("-melody: %s", g.melody.c_str());
+			CLOG("-song: %s", g.song.c_str());
+
+			if (this->testDivaAnimationNode->InitNotes(&noteFile)) CLOG("Notes Initialized.");
+			if (this->testDivaAnimationNode->InitLyrics(this->lyrics)) CLOG("Lyrics Initialized.");
+			if (this->testDivaAnimationNode->InitAudio(g)) CLOG("Audio Initialized.");
 		}
 
 		/*if (this->testButtonNode2 == NULL) {
@@ -1538,7 +1552,6 @@ namespace OpenDiva
 	}
 
 	void OpenDivaGame::SetLyrics(AZStd::string lyrics) {
-		CLOG("Lyric update: %s", lyrics);
 		currLyric = lyrics;
 	}
 

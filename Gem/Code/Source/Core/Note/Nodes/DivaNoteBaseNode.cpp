@@ -123,19 +123,16 @@ namespace OpenDiva {
 		case eHS_Worst:
 			eff = eEL_Worse;
 		}
-		//M_divaSeqEff->pushbackEffect(params.notePos, eff);
+
 		EBUS_EVENT(DivaSequenceEffectsBus, PushbackEffect, params.notePos, eff);
 
 		if (params.nType == eNT_SwipeL){
-			//M_divaSeqEff->pushbackEffect(params.notePos, eEL_SwipeL);
 			EBUS_EVENT(DivaSequenceEffectsBus, PushbackEffect, params.notePos, eEL_SwipeL);
 		} else if (params.nType == eNT_SwipeR) {
-			//M_divaSeqEff->pushbackEffect(params.notePos, eEL_SwipeR);
 			EBUS_EVENT(DivaSequenceEffectsBus, PushbackEffect, params.notePos, eEL_SwipeR);
 		}
 
 		if (params.holdMult > 0) {
-			//M_divaSeqEff->pushbackHoldMulti(params.notePos, params.holdMult, params.hitscore, params.wrong);
 			EBUS_EVENT(DivaSequenceEffectsBus, PushbackHoldMulti, params.notePos, params.holdMult, params.hitscore, params.wrong);
 		}
 	}

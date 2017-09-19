@@ -3,6 +3,7 @@
 #pragma once
 
 #include <AzCore/std/string/string.h>
+#include <string>
 
 #define OPENDIVA_VER_HIGH 0
 #define OPENDIVA_VER_LOW 1

@@ -160,7 +160,12 @@ namespace OpenDiva {
 	bool NoteFile::noteSort(NoteEntry* a, NoteEntry* b) {
 		float at = a->getTime(), bt = b->getTime();
 
-		if (at == bt) return a->id < b->id; //if the times are the same, sort by id.
+		if (at == bt) {
+			if (a->id == b->id) { //if the id's are the same, BPM has priority.
+				if (a->getClassType() == eNHT_BPM) return true; else return false;
+			}
+			return a->id < b->id; //if the times are the same, sort by id.
+		}
 		return at < bt; //sort by time.
 	}
 

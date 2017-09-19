@@ -468,14 +468,20 @@ namespace OpenDiva {
 	}
 
 	bool Util::ClearCache(AZStd::string cacheDest) {
-		AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
-		AZStd::string cacheAlias(fileIO->GetAlias("@cache@"));
-		cacheAlias += "/" + cacheDest;
-		return fileIO->DestroyPath(cacheAlias.c_str()) == AZ::IO::ResultCode::Success;
+		//AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
+		/*AZStd::string cacheAlias(fileIO->GetAlias("@cache@"));
+		cacheAlias += "/" + cacheDest;*/
+		AZStd::string cacheAlias = "@cache@/" + cacheDest;
+		return gEnv->pFileIO->DestroyPath(cacheAlias.c_str()) == AZ::IO::ResultCode::Success;
+	}
+
+	bool Util::DeleteFromCache(AZStd::string file, AZStd::string cachePath) {
+		return gEnv->pFileIO->Remove(GetCachePath(file, cachePath).c_str()) == AZ::IO::ResultCode::Success;
 	}
 
 	AZStd::string Util::GetCachePath(AZStd::string src, AZStd::string cacheDest) {
-		return gEnv->pFileIO->GetAlias("@cache@") + AZStd::string("/") + cacheDest + PathUtil::GetFile(src.c_str());
+		return "@cache@/" + cacheDest + PathUtil::GetFile(src.c_str());
+		//return gEnv->pFileIO->GetAlias("@cache@") + AZStd::string("/") + cacheDest + PathUtil::GetFile(src.c_str());
 	}
 
 	#ifdef WX_DISABLE

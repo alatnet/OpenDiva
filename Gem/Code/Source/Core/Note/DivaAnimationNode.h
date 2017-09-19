@@ -8,34 +8,35 @@
 #include "../Input/InputSystem.h"
 #include "Nodes/DivaNoteNodes.h"
 #include "../Files/NoteFile.h"
+#include "../Files/SongInfo.h"
+#include "../Files/LyricsFile.h"
 #include "../Graphics/Resources/ResourceCollection.h"
 #include "../Graphics/Particles.h"
 #include <../CryMovie/AnimSequence.h>
 #include "../Bus/DivaSequenceBus.h"
 #include "../Bus/DivaJudgeBus.h"
 #include "../Bus/DivaHudBus.h"
-#include "../Files/LyricsFile.h"
+#include "../Bus/DivaEventsBus.h"
+
+#include "DivaEventSystem.h"
 
 #include <AlternativeAudio\AlternativeAudioBus.h>
-
-//how fast the fade in/out of the song should be
-#define DIVAFADETIME 3.0f
 
 namespace OpenDiva {
 	class DivaAnimationNode :
 		public IAnimNode,
-		public ITrackEventListener,
 		public IInputSystemListener,
 		public DivaSequenceJudgeBus::Handler,
 		public DivaSequenceEffectsBus::Handler,
-		public DivaHudHitScoreBus::Handler {
+		public DivaHudHitScoreBus::Handler,
+		public DivaAudioEventsBus::Handler {
 	public:
 		DivaAnimationNode(ResourceCollection * rc);
 		~DivaAnimationNode();
 	public:
-		bool Init(NoteFile *noteFile);
+		bool InitNotes(NoteFile *noteFile);
 		bool InitLyrics(LyricsFile * lyrics);
-		bool InitAudio();
+		bool InitAudio(SongInfo::Global songinfo);
 	public: //IInputSystemListener
 		// only the current note needs to listen for input.
 		void OnCross(LyInputEventType mode, float value);
@@ -57,9 +58,16 @@ namespace OpenDiva {
 		void PushbackRating(AZ::Vector2 pos, ENoteType nType, EHitScore hitscore, unsigned int combo, bool wrong);
 		void PushbackEffect(AZ::Vector2 pos, EEffectList eff);
 		void PushbackHoldMulti(AZ::Vector2 pos, unsigned int score, EHitScore hitscore, bool wrong);
+		void PushbackSubtext(LyricsFile::SubtextEntry* entry);
 		void UpdateNoteHit();
 
-	public:
+	protected: //DivaAudioEventsBus
+		void OnAudioStart();
+		void OnAudioPause();
+		void OnAudioResume();
+		void OnAudioEnd();
+
+	protected: //bus
 		void SetHitScore(EHitScore hs, bool wrong); //using wrong to lower vocal volume
 
 	public: // CAnimNode has these.
@@ -75,10 +83,6 @@ namespace OpenDiva {
 		virtual void Animate(SAnimContext & ec) override;
 		virtual void Render() override;
 		virtual bool NeedToRender() const override { return true; }
-
-	public: // Inherited via ITrackEventListener
-		//void TriggerTrackEvent(const char* event, const char* param) {}
-		void OnTrackEvent(IAnimSequence* pSequence, int reason, const char* event, void* pUserData);
 
 	public:
 		// Inherited via IAnimNode
@@ -152,6 +156,12 @@ namespace OpenDiva {
 		ResourceCollection * m_pRC;
 		AZStd::vector<ParticleBase*> m_Particles;
 	private:
+		DivaEventSystem* m_pEvents;
+		static void ZonesEvents(void* userdata);
+		static void LyricEvents(void* userdata);
+		static void SubtextEvents(void* userdata);
+		static void SongEvents(void* userdata);
+	private:
 		LyricsFile *m_lyrics;
 	private:
 		//PortAudioSystem *m_pPASystem;
@@ -160,9 +170,10 @@ namespace OpenDiva {
 			bool m_wrongVol;
 			bool m_type; //true - vocal/melody, false - song
 			AlternativeAudio::IAudioSource *m_audioVocal, *m_audioMelody, *m_audioSong;
+			AlternativeAudio::AADSPEffect* vocalDSP;
 		} m_Music;
 	private:
-		IAnimNode * m_pEvents, * m_pFader;
+		IAnimNode /** m_pEvents,*/ * m_pFader;
 	};
 }
 

@@ -79,7 +79,9 @@
     ],
     "Source/Core/Note": [
       "Source/Core/Note/DivaAnimationNode.h",
-      "Source/Core/Note/DivaAnimationNode.cpp"
+      "Source/Core/Note/DivaAnimationNode.cpp",
+      "Source/Core/Note/DivaEventSystem.h",
+      "Source/Core/Note/DivaEventSystem.cpp"
     ],
     "Source/Core/Note/Nodes": [
       "Source/Core/Note/Nodes/DivaNoteNodes.h",

@@ -18,7 +18,6 @@ namespace OpenDiva {
 		m_score = m_combo = m_ChanceMult = m_maxCombo = m_completion = 0;
 		m_health = 100;
 		for (int i = 0; i < eHS_None; i++) m_numHits[i] = 0;
-		//m_divaSeq = nullptr;
 		m_currTechZone = 0;
 	}
 
@@ -29,7 +28,7 @@ namespace OpenDiva {
 	}
 
 	void OpenDivaJudge::OnJudge(IDivaJudgeParams params) {
-		CryLog("[OnJudge] Begin");
+		CLOG("[OnJudge] Begin");
 
 		//tech zone section update
 		if (this->m_currSection != params.sType && m_currTechZone < this->m_techZoneNotes.size()) {
@@ -203,7 +202,7 @@ namespace OpenDiva {
 		} else if (params.hitscore != eHS_None && params.hold && params.holdRelease) {
 			EBUS_EVENT(DivaSequenceJudgeBus, UpdateNoteHit);
 		}
-		CryLog("[OnJudge] End");
+		CLOG("[OnJudge] End");
 	}
 
 	//WX_DISABLE_(4244)

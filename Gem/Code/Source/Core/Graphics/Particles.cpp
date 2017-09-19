@@ -178,24 +178,37 @@ namespace OpenDiva {
 		AZ::Color color = AZ::Color(1.0f, 1.0f, 1.0f, 1.0f),
 		float life = 0
 	) {
-		this->m_draw = Draw2dHelper::GetDraw2d();
-		
 		AZ::Vector2 scale = AZ::Vector2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
 
 		this->m_text = text;
-		this->m_pos = pos * scale;
-		this->m_pointSize = pointSize;
 		this->m_life = life;
-		this->m_color = color;
+		this->m_font = font;
 
-		this->m_options.font = font; //IFFont
-		this->m_options.effectIndex = effectIndex;
-		this->m_options.color = AZ::Vector3(color.GetR(), color.GetG(), color.GetB());
-		this->m_options.rotation = rot;
+		this->m_ctx.SetColor(ColorF(color.GetR(), color.GetG(), color.GetB(), color.GetA()));
+		this->m_ctx.SetSize(Vec2(pointSize, pointSize));
+		this->m_ctx.SetEffect(effectIndex);
+		this->m_ctx.SetSizeIn800x600(false);
+
+		this->m_ctx.SetOverrideViewProjMatrices(false);
+		this->m_ctx.SetBaseState(Draw2dHelper::GetDraw2d()->GetDefaultTextOptions().baseState);
+
+		Vec2 tSize = font->GetTextSize(text.c_str(), true, this->m_ctx);
+		this->m_pos = OD_Draw2d::Align(pos, AZ::Vector2(tSize.x, tSize.y), OD_Draw2d::HAlign::Center, OD_Draw2d::VAlign::Center);
+
+		float rotRad = DEG2RAD(rot);
+		Vec3 pivot(pos.GetX(), pos.GetY(), 0.0f);
+		Matrix34A moveToPivotSpaceMat = Matrix34A::CreateTranslationMat(-pivot);
+		Matrix34A rotMat = Matrix34A::CreateRotationZ(rotRad);
+		Matrix34A moveFromPivotSpaceMat = Matrix34A::CreateTranslationMat(pivot);
+
+		Matrix34A transform = moveFromPivotSpaceMat * rotMat * moveToPivotSpaceMat;
+		this->m_ctx.SetTransform(transform);
+
+		this->m_ctx.SetFlags(eDrawText_UseTransform | eDrawText_Center | eDrawText_CenterV);
 	}
 
 	void SubtextParticle::Render() {
-		this->m_draw->DrawText(this->m_text.c_str(), this->m_pos, this->m_pointSize, this->m_color.GetA(), &this->m_options);
+		this->m_font->DrawString(this->m_pos.GetX(), this->m_pos.GetY(), this->m_text.c_str(), true, this->m_ctx);
 	}
 
 	void SubtextParticle::Tick(float dt) {
