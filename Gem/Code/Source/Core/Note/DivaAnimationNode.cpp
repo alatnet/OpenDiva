@@ -55,6 +55,9 @@ namespace OpenDiva {
 		this->m_Music.m_audioVocal = this->m_Music.m_audioMelody = this->m_Music.m_audioSong = nullptr;
 		this->m_Music.vocalDSP = nullptr;
 
+		m_prevMusicTime = 0.0f;
+		m_musicDeltaTotal = 0.0f;
+
 		this->m_pEvents = new DivaEventSystem();
 
 		DivaSequenceJudgeBus::Handler::BusConnect();
@@ -83,7 +86,82 @@ namespace OpenDiva {
 		if (this->m_Music.vocalDSP) delete this->m_Music.vocalDSP;
 	}
 
-	bool DivaAnimationNode::InitNotes(NoteFile *noteFile) {
+	//timeline
+	/*
+	//start of timeline
+	0     DIVAFADETIME
+	|-----|----->
+	^     ^
+	|     fade in end
+	|     song start event
+	song audio start (event)
+	fade in start
+
+	//end of timeline
+	     endTime
+	     |     endTime+DIVAFADETIME
+	     v     v     endTime+(DIVAFADETIME*2)+DIVAFADEDELAY
+	<----|-----|-----|
+	     ^     ^     ^
+	     |     |     fade out end
+	     |     |     song audio end event
+	     |     fade out start
+	     |     song end event
+	     Tech/Change exit event
+	*/
+
+	bool DivaAnimationNode::InitDemo(SongInfo::Global songinfo) {
+		this->m_pEvents->AddEvent(
+			0,
+			DivaAnimationNode::SongEvents,
+			(void *)"AudioStart"
+		);
+
+		this->m_pEvents->AddEvent(
+			DIVAFADETIME,
+			DivaAnimationNode::SongEvents,
+			(void *)"Start"
+		);
+
+		float endTime = songinfo.length;
+
+		//set beginning fade
+		IAnimTrack * faderTrack = this->m_pFader->GetTrackByIndex(0);
+		IScreenFaderKey fadeKeyIn;
+		fadeKeyIn.time = 0;
+		fadeKeyIn.m_fadeTime = DIVAFADETIME;
+		fadeKeyIn.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		fadeKeyIn.m_fadeType = IScreenFaderKey::eFT_FadeIn;
+		faderTrack->SetKey(0, &fadeKeyIn);
+
+		//set ending fade
+		IScreenFaderKey fadeKeyOut;
+		fadeKeyOut.time = endTime + DIVAFADETIME + DIVAFADEDELAY;
+		fadeKeyOut.m_fadeTime = DIVAFADETIME;
+		fadeKeyOut.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		fadeKeyOut.m_fadeType = IScreenFaderKey::eFT_FadeOut;
+		faderTrack->SetKey(1, &fadeKeyOut);
+
+		Range timeRange = Range(0, endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY);
+		this->m_pSequence->SetTimeRange(timeRange); //+offset
+		this->SetTimeRange(timeRange); //+offset
+
+		this->m_pEvents->AddEvent(
+			endTime + DIVAFADETIME,
+			DivaAnimationNode::SongEvents,
+			(void *)"End"
+		);
+
+		this->m_pEvents->AddEvent(
+			endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY,
+			DivaAnimationNode::SongEvents,
+			(void *)"AudioEnd"
+		);
+
+		return true;
+	}
+
+	bool DivaAnimationNode::InitNotes(NoteFile *noteFile, SongInfo::Global songinfo) {
 		unsigned int numNotes = noteFile->GetNumNotes();
 
 		NoteEntryBPM * currBPM = nullptr;
@@ -91,7 +169,7 @@ namespace OpenDiva {
 		if (noteFile->GetNote(0)->getClassType() == eNHT_BPM) {
 			currBPM = (NoteEntryBPM*)(noteFile->GetNote(0));
 
-			float endTime = 0;
+			//float endTime = 0;
 			SectionType sectionEvent = eST_Norm;
 			unsigned int techZoneNotes = 0;
 			AZStd::vector<unsigned int> techZoneNotesVector;
@@ -130,7 +208,7 @@ namespace OpenDiva {
 						node->AddRef(); //add a reference (smart pointer thing)
 						node->Init(*currBPM); //initialize it with the current bpm
 						this->m_NoteNodes.push_back(node); //add this note to the list of notes to render
-						if (endTime < node->GetTimeRange().end) endTime = node->GetTimeRange().end; //check end times
+						//if (endTime < node->GetTimeRange().end) endTime = node->GetTimeRange().end; //check end times
 
 						techZoneNotes++; //increase the number of tech zone notes
 
@@ -207,6 +285,8 @@ namespace OpenDiva {
 				}
 			}
 
+			float endTime = songinfo.length;
+
 			//make sure we exit out of a zone
 			if (sectionEvent != eST_Norm) {
 				if (sectionEvent == eST_Tech) {
@@ -240,7 +320,7 @@ namespace OpenDiva {
 			EBUS_EVENT(DivaJudgeBus, SetTechZoneNotes, techZoneNotesVector);
 
 			//find effect animation time and whichever biggest ending time is, tack it onto the end time of note nodes.
-			Range timeRange = Range(0, endTime + DIVAFADETIME + DIVAFADEDELAY);
+			Range timeRange = Range(0, endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY);
 			this->m_pSequence->SetTimeRange(timeRange); //+offset
 			this->SetTimeRange(timeRange); //+offset
 
@@ -255,7 +335,6 @@ namespace OpenDiva {
 				DivaAnimationNode::SongEvents,
 				(void *)"AudioEnd"
 			);
-
 		} else {
 			//error out
 			//first note should ALWAYS be bpm note
@@ -461,9 +540,13 @@ namespace OpenDiva {
 	// CAnimNode has these.
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::OnStart() {
+		this->OnAudioStart();
 	}
 	void DivaAnimationNode::OnReset() {
 		this->OnAudioEnd();
+
+		this->m_musicDeltaTotal = 0.0f;
+		this->m_prevMusicTime = 0.0f;
 
 		this->m_pEvents->Reset();
 		for (DivaNoteBaseNode* node : this->m_NoteNodes) node->Reset();
@@ -484,6 +567,15 @@ namespace OpenDiva {
 	}
 	void DivaAnimationNode::OnStop() {
 		this->OnAudioEnd();
+		this->m_pEvents->Reset();
+
+		this->m_musicDeltaTotal = 0.0f;
+		this->m_prevMusicTime = 0.0f;
+
+		for (DivaNoteBaseNode* node : this->m_NoteNodes) node->Reset();
+		this->m_Particles.clear();
+
+		this->m_renderRangeEnd = this->m_renderRangeStart = this->m_hitNote = 0;
 	}
 	void DivaAnimationNode::OnLoop() {
 	}
@@ -511,8 +603,20 @@ namespace OpenDiva {
 			animContext.time = (float)musicTime.totalSec; //set the current time for the context.
 		}
 
+		//music and video smoothing. (for when there is high audio latency)
+		if (m_prevMusicTime != animContext.time) { //when the time reported from the music changes
+			m_prevMusicTime = animContext.time; //update the prev music time
+			m_musicDeltaTotal = 0.0f; //reset delta total
+		} else { //otherwise
+			//update delta total
+			if (m_musicDeltaTotal == 0.0f) m_musicDeltaTotal = ec.dt; //set initial delta time
+			else m_musicDeltaTotal = ((m_musicDeltaTotal + ec.dt) / 2.0f); //average out the delta times
+			animContext.time += m_musicDeltaTotal; //add delta total to reported music time
+		}
+
 		//animContext.time += offset;
 
+		//update nodes
 		if (this->m_NoteNodes.size() > 0) {
 			//animate first then shift ranges
 			for (unsigned int i = this->m_renderRangeStart; i <= this->m_renderRangeEnd; i++) this->m_NoteNodes[i]->Animate(animContext);
@@ -644,9 +748,10 @@ namespace OpenDiva {
 		} else if (sparam.compare("End") == 0) {
 			EBUS_EVENT(DivaEventsBus, OnSongEnd);
 		} else if (sparam.compare("AudioStart") == 0) {
-			EBUS_EVENT(DivaAudioEventsBus, OnAudioStart);
+			EBUS_EVENT(DivaEventsBus, OnSongAudioStart);
 		} else if (sparam.compare("AudioEnd") == 0) {
 			EBUS_EVENT(DivaAudioEventsBus, OnAudioEnd);
+			EBUS_EVENT(DivaEventsBus, OnSongAudioEnd);
 		}
 	}
 
@@ -655,10 +760,12 @@ namespace OpenDiva {
 	//-----------------------------------------------------------------------------
 	void DivaAnimationNode::OnAudioStart() {
 		if (this->m_Music.m_type) {
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, true);
 			if (this->m_Music.m_idMelody == -1 && this->m_Music.m_audioMelody)
 				EBUS_EVENT_RESULT(this->m_Music.m_idMelody, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioMelody);
 			if (this->m_Music.m_idVocal == -1 && this->m_Music.m_audioVocal)
 				EBUS_EVENT_RESULT(this->m_Music.m_idVocal, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioVocal);
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, false);
 		} else {
 			if (this->m_Music.m_idSong == -1 && this->m_Music.m_audioSong)
 				EBUS_EVENT_RESULT(this->m_Music.m_idSong, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->m_Music.m_audioSong);
@@ -666,10 +773,12 @@ namespace OpenDiva {
 	}
 	void DivaAnimationNode::OnAudioEnd() {
 		if (this->m_Music.m_type) {
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, true);
 			if (this->m_Music.m_idMelody != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->m_Music.m_idMelody);
 			if (this->m_Music.m_idVocal != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->m_Music.m_idVocal);
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, false);
 
 			this->m_Music.m_idMelody = this->m_Music.m_idVocal = -1;
 		} else {
@@ -680,10 +789,12 @@ namespace OpenDiva {
 	}
 	void DivaAnimationNode::OnAudioPause() {
 		if (this->m_Music.m_type) {
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, true);
 			if (this->m_Music.m_idMelody != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idMelody);
 			if (this->m_Music.m_idVocal != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idVocal);
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, false);
 		} else {
 			if (this->m_Music.m_idSong != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PauseSource, this->m_Music.m_idSong);
@@ -691,10 +802,12 @@ namespace OpenDiva {
 	}
 	void DivaAnimationNode::OnAudioResume() {
 		if (this->m_Music.m_type) {
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, true);
 			if (this->m_Music.m_idMelody != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idMelody);
 			if (this->m_Music.m_idVocal != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idVocal);
+			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, Queue, false);
 		} else {
 			if (this->m_Music.m_idSong != -1)
 				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, ResumeSource, this->m_Music.m_idSong);

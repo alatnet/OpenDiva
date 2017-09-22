@@ -10,9 +10,11 @@
 namespace OpenDiva {
 	class DivaEventsGroup : public AZ::EBusTraits {
 	public:
+		virtual void OnSongAudioStart() = 0; //before fade in starts
 		virtual void OnSongStart() = 0; //after fade in ends
 		virtual void OnSongPause() = 0;
 		virtual void OnSongResume() = 0;
+		virtual void OnSongAudioEnd() = 0; //after fade out ends
 		virtual void OnSongEnd() = 0; //before fade out starts
 		virtual void OnSongReset() = 0;
 	};
@@ -29,7 +31,9 @@ namespace OpenDiva {
 			OnSongPause,
 			OnSongResume,
 			OnSongEnd,
-			OnSongReset
+			OnSongReset,
+			OnSongAudioStart,
+			OnSongAudioEnd
 		);
 
 	public:
@@ -38,6 +42,8 @@ namespace OpenDiva {
 		void OnSongResume() { Call(FN_OnSongResume); }
 		void OnSongEnd() { Call(FN_OnSongEnd); }
 		void OnSongReset() { Call(FN_OnSongReset); }
+		void OnSongAudioStart() { Call(FN_OnSongAudioStart); }
+		void OnSongAudioEnd() { Call(FN_OnSongAudioEnd); }
 	};
 }
 

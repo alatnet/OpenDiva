@@ -6,6 +6,8 @@
 
 #include "OpenDivaSystemComponent.h"
 
+#include "Source\Core\Components\Components.h"
+
 #include <IGem.h>
 
 namespace OpenDiva
@@ -22,7 +24,7 @@ namespace OpenDiva
         {
             // Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
             m_descriptors.insert(m_descriptors.end(), {
-                OpenDivaSystemComponent::CreateDescriptor(),
+                OpenDivaSystemComponent::CreateDescriptor()
             });
         }
 
@@ -32,7 +34,7 @@ namespace OpenDiva
         AZ::ComponentTypeList GetRequiredSystemComponents() const override
         {
             return AZ::ComponentTypeList{
-                azrtti_typeid<OpenDivaSystemComponent>(),
+				azrtti_typeid<OpenDivaSystemComponent>()
             };
         }
     };

@@ -55,7 +55,7 @@ namespace OpenDiva {
 	void SongList::ProcessGroup(AZStd::string path, AZStd::string dbcrc, SQLite3::SQLiteDB * sysDb) {
 		AZStd::string folder = PathUtil::GetFile(path.c_str());
 
-		AZStd::string artPath = path + "/art.ddc";
+		AZStd::string artPath = path + "/GroupInfo/art.dds";
 		artPath = PathUtil::ToNativePath(artPath.c_str()).c_str();
 
 		if (!gEnv->pFileIO->Exists(artPath.c_str())) artPath = "";
@@ -220,7 +220,8 @@ namespace OpenDiva {
 			bpm += std::to_string(ginfo.bpm.second).c_str();
 		}
 
-		AZStd::string artPath = path + "/art.ddc";
+		AZStd::string artPath = songInfoFolder + "/art.dds";
+		artPath = PathUtil::ToNativePath(artPath.c_str()).c_str();
 		if (!ginfo.hasArt) artPath = "";
 		artPath = PathUtil::ToNativePath(artPath.c_str());
 

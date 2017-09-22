@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SQLite\SQLiteBus.h>
+#include <OpenDivaCommon.h>
 
 namespace OpenDiva {
 	class DatabaseManager {
@@ -28,7 +29,7 @@ namespace OpenDiva {
 		//paths
 		//[0] - song path - @songs@/<groupdir>/<songdir>/
 		//[1] - songinfo - @songs@/<groupdir>/<songdir>/SongInfo/global.xml
-		//[3] - lyrics - @songs@/<groupdir>/<songdir>/Lyrics/<Lyrics filename>.xml
+		//[2] - lyrics - @songs@/<groupdir>/<songdir>/Lyrics/<Lyrics filename>.xml
 		static AZStd::array<AZStd::string,3> BuildSongPathsWatch(AZStd::string suuid, AZStd::string luuid);
 	};
 }

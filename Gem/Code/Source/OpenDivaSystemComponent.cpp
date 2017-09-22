@@ -8,6 +8,8 @@
 #include <Core/EditorGame.h>
 #include "System/GameStartup.h"
 
+#include "Core\Components\Components.h"
+
 namespace OpenDiva
 {
     void OpenDivaSystemComponent::Reflect(AZ::ReflectContext* context)
@@ -20,7 +22,7 @@ namespace OpenDiva
 
             if (AZ::EditContext* ec = serialize->GetEditContext())
             {
-                ec->Class<OpenDivaSystemComponent>("OpenDiva", "[Description of functionality provided by this System Component]")
+                ec->Class<OpenDivaSystemComponent>("OpenDiva", "Open Diva System Component.")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         // ->Attribute(AZ::Edit::Attributes::Category, "") Set a category
                         ->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("System"))
@@ -28,6 +30,9 @@ namespace OpenDiva
                     ;
             }
         }
+
+		OpenDivaComponent::Reflect(context);
+		OpenDivaBusComponent::Reflect(context);
     }
 
     void OpenDivaSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)

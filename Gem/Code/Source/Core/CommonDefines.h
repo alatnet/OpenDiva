@@ -8,6 +8,7 @@
 #define OPENDIVA_VER_HIGH 0
 #define OPENDIVA_VER_LOW 1
 #define OPENDIVA_VER_REV 0
+#define OPENDIVA_VER_STR "0.1.0"
 
 #define OPENDIVA_SALT "OpenDivaSalt"
 

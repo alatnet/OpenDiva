@@ -310,6 +310,12 @@ namespace OpenDiva {
 		SQLite3::SQLiteStmt * lyrics_stmt = sysDb->Prepare_v2(lyrics_stmt_str.c_str(), -1, nullptr);
 
 		notemap_stmt->Step();
+
+		if (notemap_stmt->Column_Count() != 2) {
+			CLOG("Notemap Column Count: %i", notemap_stmt->Column_Count());
+			return ret; //error out
+		}
+
 		suuid = notemap_stmt->Column_Text(0); //suuid
 		notemapfn = notemap_stmt->Column_Text(1); //filename
 		delete notemap_stmt;
@@ -317,6 +323,12 @@ namespace OpenDiva {
 		if (suuid.empty() || notemapfn.empty()) return ret; //error out
 
 		lyrics_stmt->Step();
+
+		if (lyrics_stmt->Column_Count() != 1) {
+			CLOG("Lyrics Column Count: %i", lyrics_stmt->Column_Count());
+			return ret; //error out
+		}
+
 		lyricsfn = lyrics_stmt->Column_Text(0); //filename
 		delete lyrics_stmt;
 
@@ -328,6 +340,12 @@ namespace OpenDiva {
 		SQLite3::SQLiteStmt * song_stmt = sysDb->Prepare_v2(song_stmt_str.c_str(), -1, nullptr);
 
 		song_stmt->Step();
+
+		if (song_stmt->Column_Count() != 2) {
+			CLOG("Song Column Count: %i", song_stmt->Column_Count());
+			return ret; //error out
+		}
+
 		guuid = song_stmt->Column_Text(0); //guuid
 		songdir = song_stmt->Column_Text(1); //songdir
 		delete song_stmt;
@@ -340,6 +358,12 @@ namespace OpenDiva {
 		SQLite3::SQLiteStmt * group_stmt = sysDb->Prepare_v2(group_stmt_str.c_str(), -1, nullptr);
 
 		group_stmt->Step();
+
+		if (group_stmt->Column_Count() != 1) {
+			CLOG("Group Column Count: %i", group_stmt->Column_Count());
+			return ret; //error out
+		}
+
 		groupdir = group_stmt->Column_Text(0); //groupdir
 		delete group_stmt;
 

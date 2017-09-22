@@ -148,7 +148,7 @@ namespace OpenDiva {
 	public:
 		AZ_EBUS_BEHAVIOR_BINDER(
 			DivaHudHitScoreHandler,
-			"",
+			"{CE7DF352-10BD-4AF8-AED8-DC26DCA44CB0}",
 			AZ::SystemAllocator,
 			SetHitScore
 		);
@@ -168,30 +168,6 @@ namespace OpenDiva {
 	public:
 		void SetLyrics(AZStd::string lyrics) { Call(FN_SetLyrics, lyrics); }
 	};
-	/*class DivaHudRomajiHandler : public DivaHudRomajiBus::Handler, public AZ::BehaviorEBusHandler {
-	public:
-		AZ_EBUS_BEHAVIOR_BINDER(
-			DivaHudRomajiHandler,
-			"{D03AF42A-782E-481F-BC67-183E8B8A5276}",
-			AZ::SystemAllocator,
-			SetRomaji
-		);
-
-	public:
-		void SetRomaji(AZStd::string romaji) { Call(FN_SetRomaji, romaji); }
-	};
-	class DivaHudTranslationHandler : public DivaHudTranslationBus::Handler, public AZ::BehaviorEBusHandler {
-	public:
-		AZ_EBUS_BEHAVIOR_BINDER(
-			DivaHudTranslationHandler,
-			"{9A392F87-22E4-420B-814E-358A03663CC3}",
-			AZ::SystemAllocator,
-			SetTranslation
-		);
-
-	public:
-		void SetTranslation(AZStd::string translation) { Call(FN_SetTranslation, translation); }
-	};*/
 }
 
 #endif

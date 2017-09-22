@@ -24,6 +24,8 @@
 #include "Database\DatabaseManager.h"
 #include "Files\SongList.h"
 
+#include <PortAudio\PortAudioUserData.h>
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,15 +54,10 @@ namespace OpenDiva
 		this->constructTesting();
 
 		this->masterVolumeDSP = nullptr;
-
-		this->currLyric = "";
-
-		DivaHudLyricsBus::Handler::BusConnect();
     }
 
     OpenDivaGame::~OpenDivaGame()
     {
-		DivaHudLyricsBus::Handler::BusDisconnect();
         m_gameFramework->EndGameContext(false);
 
         // Remove self as listener.
@@ -118,7 +115,7 @@ namespace OpenDiva
 		//this->dsfgEventListener = new DSFGEventListener();
 
 		//setup console commands
-		this->setupCommands();
+		//this->setupCommands();
 
 		//initialize music system
 		this->musicInit();
@@ -142,7 +139,7 @@ namespace OpenDiva
 		this->setupFlowgraph();
 		this->setupLua();
 
-		OpenDivaComponentFactory::getFactory().RegisterComponents();
+		//OpenDivaComponentFactory::getFactory().RegisterComponents(); //may not use
 
 		//------------------------------
 		//Entity Component Stuff
@@ -213,33 +210,6 @@ namespace OpenDiva
 		//CCryAction *pCryAction = CCryAction::GetCryAction();
 		//CCryAction* pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
 
-		//setup audio devices
-		auto lib = AZ_CRC("PortAudio");
-		long long defaultDeviceId = -1;
-		AlternativeAudio::OAudioDevice* defaultDevice;
-
-		EBUS_EVENT_RESULT( //get default device id
-			defaultDeviceId,
-			AlternativeAudio::AlternativeAudioDeviceBus,
-			GetDefaultPlaybackDevice,
-			lib
-		);
-		EBUS_EVENT_RESULT( //create new device with default device id
-			defaultDevice,
-			AlternativeAudio::AlternativeAudioDeviceBus,
-			NewDevice,
-			lib,
-			defaultDeviceId,
-			44100.0, //samplerate
-			AlternativeAudio::AudioFrame::Type::eT_af2, //audio format
-			nullptr //userdata
-		);
-		EBUS_EVENT( //set the master device for alternative audio
-			AlternativeAudio::AlternativeAudioDeviceBus,
-			SetMasterDevice,
-			defaultDevice
-		);
-
 		SongList::Refresh();
 
         return true;
@@ -266,9 +236,6 @@ namespace OpenDiva
 
 		//destroy testing
 		this->destroyTesting();
-
-		//shutdown music
-		this->musicShutdown();
 
 		//shutdown input system
 		delete this->iSys;
@@ -492,8 +459,6 @@ namespace OpenDiva
 	void OpenDivaGame::OnPostUpdate(float fDeltaTime) {
 		//this->audioMovieSys->Render();
 
-		this->musicUpdate();
-
 		this->renderTesting();
 
 		/*SAnimContext ec;
@@ -515,136 +480,167 @@ namespace OpenDiva
 			this->testDivaSeq->pushbackEffect({ 150,50 }, eEL_Fine);
 			this->testDivaSeq->pushbackEffect({ 200,50 }, eEL_Safe);
 			this->testDivaSeq->pushbackEffect({ 250,50 }, eEL_Sad);*/
-			gEnv->pMovieSystem->PlaySequence(this->testSeq, NULL, false, false, 0, 10);
+			gEnv->pMovieSystem->PlaySequence(this->testSeq, NULL, false, false);
 		}
 	}
+	
+	void OpenDivaGame::LoadSong(AZStd::string uuid, AZStd::string luuid, bool demo) {
+		CryLog("LoadSong called %s - %s - %i", uuid, luuid, demo);
 
-	void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is always the command name
-		/*if (pCmdArgs->GetArgCount() == 2) {
-			this->songName = pCmdArgs->GetArg(1);
+		if (!demo) {
+			AZStd::array<AZStd::string, 4> paths = DatabaseManager::BuildSongPaths(uuid, luuid);
+			paths[0]; //song path
+			paths[1]; //song info
+			paths[2]; //notemap
+			paths[3]; //lyrics
 
-			//XmlNodeRef xmlFile = gEnv->pSystem->LoadXmlFromFile("");
-
-			//gEnv->p3DEngine->UnloadLevel();
-			//gEnv->p3DEngine->LoadLevel("foldername", "missionname"); //folder name is where level is. mission name is environment info.
-
-			//LOOK IN CryAction/LevelSystem.cpp
-			//Function LoadLevelInternal!
-
-			//load song
-			//load map
+			CLOG("Paths:\n-%s\n-%s\n-%s\n-%s", paths[0].c_str(), paths[1].c_str(), paths[2].c_str(), paths[3].c_str());
 		} else {
-			CryLog("Error, correct syntax is: g_loadSong songname");
-		}*/
-
-		/*if (!this->testSong.isPlaying()) this->testSong.play();
-		else this->testSong.stop();*/
-
-		//if (pCmdArgs->GetArgCount() == 1) this->musicStartStop();
-		//else if (pCmdArgs->GetArgCount() == 2) this->musicStream->SetVol(0.5f);
-		//else if (pCmdArgs->GetArgCount() == 3) this->musicStream->SetVol(1.0f);
-
-		if (pCmdArgs->GetArgCount() == 1) {
-			if (this->testAudioFileID == -1) {
-				//this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
-				if (this->testAudioFile != nullptr) EBUS_EVENT_RESULT(this->testAudioFileID, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile);
-			} else {
-				if (this->testAudioFile != nullptr) {
-					EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID);
-					this->testAudioFileID = -1;
-					if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-						EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
-						this->testAudioFileID2 = -1;
-					}
-				}
-			}
-		} else if (pCmdArgs->GetArgCount() == 2) {
-			/*if (this->testAudioFileID2 == -1) this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
-			while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);*/
-
-			if (this->testAudioFileID2 == -1 && this->testAudioFile2 != nullptr)
-				EBUS_EVENT_RESULT(this->testAudioFileID2, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile2);
-		} else if (pCmdArgs->GetArgCount() == 3) {
-			/*if (this->testAudioFileID2 != -1) {
-			this->paSystem->StopSource(this->testAudioFileID2);
-			this->testAudioFileID2 = -1;
-			}*/
-
-			if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
-				this->testAudioFileID2 = -1;
-			}
-		} else if (pCmdArgs->GetArgCount() == 4 && this->masterVolumeDSP) {
-			EBUS_EVENT_ID(
-				this->masterVolumeDSP,
-				AlternativeAudio::DSP::VolumeDSPBus,
-				SetVol,
-				0.5f
-			);
-		} else if (pCmdArgs->GetArgCount() == 5 && this->masterVolumeDSP) {
-			EBUS_EVENT_ID(
-				this->masterVolumeDSP,
-				AlternativeAudio::DSP::VolumeDSPBus,
-				SetVol,
-				1.0f
-			);
+			AZStd::array<AZStd::string, 3> paths = DatabaseManager::BuildSongPathsWatch(uuid, luuid);
+			paths[0]; //song path
+			paths[1]; //song info
+			paths[2]; //lyrics
+			CLOG("Paths:\n-%s\n-%s\n-%s", paths[0].c_str(), paths[1].c_str(), paths[2].c_str());
 		}
 
-		/* else if (pCmdArgs->GetArgCount() == 4) {
-			if (this->testAudioFileID != -1) {
-				//stop
-				this->paSystem->StopSource(this->testAudioFileID);
-				this->testAudioFileID = -1;
-			} else {
-				//play
-				this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
-			}
+		//set state to before song start
+	}
 
-			if (this->testAudioFileID2 != -1) {
-				//stop
-				this->paSystem->StopSource(this->testAudioFileID2);
-				this->testAudioFileID = -1;
-			} else {
-				//play
-				this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
-			}
-		}*/
+	void OpenDivaGame::PlaySong() {
+		//set state to song start
 	}
-	void OpenDivaGame::LoadSongRedirect(IConsoleCmdArgs* pCmdArgs) {
-		g_Game->LoadSong(pCmdArgs);
-	}
+
+	//void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is always the command name
+	//	/*if (pCmdArgs->GetArgCount() == 2) {
+	//		this->songName = pCmdArgs->GetArg(1);
+
+	//		//XmlNodeRef xmlFile = gEnv->pSystem->LoadXmlFromFile("");
+
+	//		//gEnv->p3DEngine->UnloadLevel();
+	//		//gEnv->p3DEngine->LoadLevel("foldername", "missionname"); //folder name is where level is. mission name is environment info.
+
+	//		//LOOK IN CryAction/LevelSystem.cpp
+	//		//Function LoadLevelInternal!
+
+	//		//load song
+	//		//load map
+	//	} else {
+	//		CryLog("Error, correct syntax is: g_loadSong songname");
+	//	}*/
+
+	//	/*if (!this->testSong.isPlaying()) this->testSong.play();
+	//	else this->testSong.stop();*/
+
+	//	//if (pCmdArgs->GetArgCount() == 1) this->musicStartStop();
+	//	//else if (pCmdArgs->GetArgCount() == 2) this->musicStream->SetVol(0.5f);
+	//	//else if (pCmdArgs->GetArgCount() == 3) this->musicStream->SetVol(1.0f);
+
+	//	//if (pCmdArgs->GetArgCount() == 1) {
+	//	//	if (this->testAudioFileID == -1) {
+	//	//		//this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
+	//	//		if (this->testAudioFile != nullptr) EBUS_EVENT_RESULT(this->testAudioFileID, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile);
+	//	//	} else {
+	//	//		if (this->testAudioFile != nullptr) {
+	//	//			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID);
+	//	//			this->testAudioFileID = -1;
+	//	//			if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
+	//	//				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
+	//	//				this->testAudioFileID2 = -1;
+	//	//			}
+	//	//		}
+	//	//	}
+	//	//} else if (pCmdArgs->GetArgCount() == 2) {
+	//	//	/*if (this->testAudioFileID2 == -1) this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
+	//	//	while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);*/
+
+	//	//	if (this->testAudioFileID2 == -1 && this->testAudioFile2 != nullptr)
+	//	//		EBUS_EVENT_RESULT(this->testAudioFileID2, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile2);
+	//	//} else if (pCmdArgs->GetArgCount() == 3) {
+	//	//	/*if (this->testAudioFileID2 != -1) {
+	//	//	this->paSystem->StopSource(this->testAudioFileID2);
+	//	//	this->testAudioFileID2 = -1;
+	//	//	}*/
+
+	//	//	if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
+	//	//		EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
+	//	//		this->testAudioFileID2 = -1;
+	//	//	}
+	//	//} else if (pCmdArgs->GetArgCount() == 4 && this->masterVolumeDSP) {
+	//	//	EBUS_EVENT_ID(
+	//	//		this->masterVolumeDSP,
+	//	//		AlternativeAudio::DSP::VolumeDSPBus,
+	//	//		SetVol,
+	//	//		0.5f
+	//	//	);
+	//	//} else if (pCmdArgs->GetArgCount() == 5 && this->masterVolumeDSP) {
+	//	//	EBUS_EVENT_ID(
+	//	//		this->masterVolumeDSP,
+	//	//		AlternativeAudio::DSP::VolumeDSPBus,
+	//	//		SetVol,
+	//	//		1.0f
+	//	//	);
+	//	//}
+
+	//	/* else if (pCmdArgs->GetArgCount() == 4) {
+	//		if (this->testAudioFileID != -1) {
+	//			//stop
+	//			this->paSystem->StopSource(this->testAudioFileID);
+	//			this->testAudioFileID = -1;
+	//		} else {
+	//			//play
+	//			this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
+	//		}
+
+	//		if (this->testAudioFileID2 != -1) {
+	//			//stop
+	//			this->paSystem->StopSource(this->testAudioFileID2);
+	//			this->testAudioFileID = -1;
+	//		} else {
+	//			//play
+	//			this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
+	//		}
+	//	}*/
+	//}
+	//void OpenDivaGame::LoadSongRedirect(IConsoleCmdArgs* pCmdArgs) {
+	//	g_Game->LoadSong(pCmdArgs);
+	//}
 
 	void OpenDivaGame::musicInit() {
-		/*int err = Pa_Initialize();
+		//setup audio devices
+		auto lib = AZ_CRC("PortAudio");
+		long long defaultDeviceId = -1;
+		AlternativeAudio::OAudioDevice* defaultDevice;
 
-		if (err != paNoError) {
-			string errString("PA Error: \n");
-			errString += Pa_GetErrorText(err);
-			CryLog("[OpenDiva] Music Init Error: %s",errString);
-		}
+		/*PortAudio::PortAudioUserData userdata;
+		userdata.suggestedLatency = (200.0f / 1000.0f);*/
 
-		CryLog("[OpenDiva] Port Audio Version: %s", Pa_GetVersionText());
-		CryLog("[OpenDiva] libsndfile Version: %s", sf_version_string());
-		CryLog("[OpenDiva] libsamplerate Version: %s", src_get_version());*/
+		EBUS_EVENT_RESULT( //get default device id
+			defaultDeviceId,
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			GetDefaultPlaybackDevice,
+			lib
+		);
+		EBUS_EVENT_RESULT( //create new device with default device id
+			defaultDevice,
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			NewDevice,
+			lib,
+			defaultDeviceId,
+			44100.0, //samplerate
+			AlternativeAudio::AudioFrame::Type::eT_af2, //audio format
+			nullptr//&userdata //userdata
+		);
+		EBUS_EVENT( //set the master device for alternative audio
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			SetMasterDevice,
+			defaultDevice
+		);
 	}
 
-	void OpenDivaGame::musicShutdown() {
-		/*int err = Pa_Terminate();
-
-		if (err != paNoError) {
-			string errString("PA Error: \n");
-			errString += Pa_GetErrorText(err);
-			CryLog(errString);
-		}*/
-	}
-
-	void OpenDivaGame::musicUpdate() {
-	}
-
-	void OpenDivaGame::setupCommands() {
-		IConsole* pConsole = gEnv->pSystem->GetIConsole();
-		pConsole->AddCommand("loadSong", OpenDivaGame::LoadSongRedirect);
-	}
+	//void OpenDivaGame::setupCommands() {
+	//	//IConsole* pConsole = gEnv->pSystem->GetIConsole();
+	//	//pConsole->AddCommand("loadSong", OpenDivaGame::LoadSongRedirect);
+	//}
 
 	/*IDivaJudge * OpenDivaGame::GetJudge() {
 		return nullptr;
@@ -701,8 +697,6 @@ namespace OpenDiva
 		//delete this->paSystem;
 		if (this->testAudioFile != nullptr) delete this->testAudioFile;
 		if (this->testAudioFile2 != nullptr) delete this->testAudioFile2;
-
-		delete this->lyrics;
 	}
 
 	void OpenDivaGame::setupTesting() {
@@ -759,9 +753,7 @@ namespace OpenDiva
 
 		this->m_pRC->p_NoteResource = new NoteResource(noteR.c_str());
 		this->m_pRC->p_TailResource = new TailResource(tailsR.c_str());
-		//this->m_pRC->p_EffectResource = new EffectResource(effectR.c_str());
 		this->m_pRC->p_EffectResource = new EffectResource(effectR.c_str());
-		//this->m_pRC->p_RatingResource = new RatingResource(ratingR.c_str());
 		this->m_pRC->p_FontResource = new FontResource(fontsR.c_str());
 
 		AZ::Vector2 scale = AZ::Vector2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
@@ -772,19 +764,6 @@ namespace OpenDiva
 		this->testFont = gEnv->pSystem->GetICryFont()->NewFont("NotoSansCJKjp-Regular");
 		this->testFont->Load("Fonts/NotoSansCJKjp/NotoSansCJKjp-Regular.xml");
 		this->testFont->AddRef();
-
-		this->lyrics = new LyricsFile("@songs@/Test Group/Test Song/Lyrics/default.xml");
-		LyricsFile::Info info = this->lyrics->GetInfo();
-		if (info.valid) {
-			CryLog("Lyrics File is valid. %i", this->lyrics->GetNumLines());
-			for (int i = 0; i < this->lyrics->GetNumLines(); i++) {
-				CLOG("-Lyric: %s", this->lyrics->GetLine(i)->text);
-			}
-
-			for (int i = 0; i < this->lyrics->GetNumSubtexts(); i++) {
-				CLOG("-Subtext: %s", this->lyrics->GetSubtext(i)->text);
-			}
-		};
 
 		/*this->textOps.font = this->testFont;
 		this->textOps.color = this->textColor.toVec3();
@@ -1171,9 +1150,6 @@ namespace OpenDiva
 			this->iDraw2d->DrawText("waiting...", AZ::Vector2(10, 80), 16);
 		}
 
-		AZStd::string lyric = "CurrLyric: " + this->currLyric;
-		this->iDraw2d->DrawText(lyric.c_str(), AZ::Vector2(10, 100), 16);
-
 		OD_Draw2d::getDraw2D().EndDraw2d();
 
 		//this->iDraw2d->BeginDraw2d(true);
@@ -1225,8 +1201,9 @@ namespace OpenDiva
 			CLOG("-melody: %s", g.melody.c_str());
 			CLOG("-song: %s", g.song.c_str());
 
-			if (this->testDivaAnimationNode->InitNotes(&noteFile)) CLOG("Notes Initialized.");
-			if (this->testDivaAnimationNode->InitLyrics(this->lyrics)) CLOG("Lyrics Initialized.");
+			if (this->testDivaAnimationNode->InitDemo(g)) CLOG("Demo Initialized.");
+			//if (this->testDivaAnimationNode->InitNotes(&noteFile, g)) CLOG("Notes Initialized.");
+			//if (this->testDivaAnimationNode->InitLyrics(this->lyrics)) CLOG("Lyrics Initialized.");
 			if (this->testDivaAnimationNode->InitAudio(g)) CLOG("Audio Initialized.");
 		}
 
@@ -1441,9 +1418,6 @@ namespace OpenDiva
 		}
 	}
 
-	void OpenDivaGame::musicStartStop() {
-	}
-
 	void OpenDivaGame::setupLua() {
 		IScriptSystem* iScript = gEnv->pScriptSystem;
 
@@ -1549,10 +1523,6 @@ namespace OpenDiva
 	}
 	void OpenDivaGame::destroyLyShine() {
 		//gEnv->pLyShine->ReleaseCanvas(this->canvasEntityId);
-	}
-
-	void OpenDivaGame::SetLyrics(AZStd::string lyrics) {
-		currLyric = lyrics;
 	}
 
 } // namespace OpenDivaGame

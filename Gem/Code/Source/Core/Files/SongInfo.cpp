@@ -22,7 +22,7 @@ namespace OpenDiva {
 		if (!file) return ret;
 
 		AZStd::string rootPath = PathUtil::GetParentDirectory(PathUtil::GetPath(path.c_str()));
-		AZStd::string artPath = rootPath + "/art.ddc";
+		AZStd::string artPath = rootPath + "/SongInfo/art.dds";
 		ret.hasArt = fileIO->Exists(artPath.c_str());
 
 		ret.length = (float)atof(file->findChild("length")->getContent());

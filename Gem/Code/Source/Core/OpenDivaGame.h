@@ -80,7 +80,6 @@ namespace OpenDiva
         , public ISystemEventListener
         , public IGameFrameworkListener
         , public ILevelSystemListener
-		, public DivaHudLyricsBus::Handler
     {
     public:
         OpenDivaGame();
@@ -162,23 +161,13 @@ namespace OpenDiva
         PlatformInfo                m_platformInfo;
 	private: //Music stuff
 			void musicInit();
-			void musicShutdown();
-			void musicUpdate();
-	private: //CONSOLE COMMANDS
-		void setupCommands();
-	private: //CONSOLE COMMANDS
-		static void LoadSongRedirect(IConsoleCmdArgs* pCmdArgs);
-		void LoadSong(IConsoleCmdArgs* pCmdArgs);
-		const char * songName;
-	public: //Misc Functions
-			//AZ::EntityId GetHudID() { return this->m_HudCanvasID; }
-			//IDivaJudge * GetJudge(); //TODO!!!  //may stick with the ebus stuff...
+	//private: //CONSOLE COMMANDS
+	//	void setupCommands();
+	public:
+		void LoadSong(AZStd::string uuid, AZStd::string luuid, bool demo);
+		void PlaySong();
 	private: //Misc Variables
 		CInputSystem * iSys;
-		//CUIInputSystem * uiSys;
-		//CMovieSystem * audioMovieSys;
-		float audioMovieSysTime;
-		AZ::EntityId m_HudCanvasID;
 		//CCryAction* pCryAction;
 	private: //TESTING FUNCTIONS
 		void constructTesting();
@@ -188,7 +177,6 @@ namespace OpenDiva
 		void renderTesting();
 		void loadSequences();
 		void unloadSequences();
-		void musicStartStop();
 		void setupLua();
 		void unloadLua();
 		//void testLyShine();
@@ -243,12 +231,6 @@ namespace OpenDiva
 		LYSwing::LYLabel * label, *label2;*/
 
 		AZ::Entity * ent;
-
-	protected:
-		void SetLyrics(AZStd::string lyrics);
-	private:
-		AZStd::string currLyric;
-		LyricsFile * lyrics;
     };
 
     SC_API extern OpenDivaGame* g_Game;

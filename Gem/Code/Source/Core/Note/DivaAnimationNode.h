@@ -34,7 +34,8 @@ namespace OpenDiva {
 		DivaAnimationNode(ResourceCollection * rc);
 		~DivaAnimationNode();
 	public:
-		bool InitNotes(NoteFile *noteFile);
+		bool InitDemo(SongInfo::Global songinfo);
+		bool InitNotes(NoteFile *noteFile, SongInfo::Global songinfo);
 		bool InitLyrics(LyricsFile * lyrics);
 		bool InitAudio(SongInfo::Global songinfo);
 	public: //IInputSystemListener
@@ -172,6 +173,9 @@ namespace OpenDiva {
 			AlternativeAudio::IAudioSource *m_audioVocal, *m_audioMelody, *m_audioSong;
 			AlternativeAudio::AADSPEffect* vocalDSP;
 		} m_Music;
+	private:
+		float m_prevMusicTime;
+		float m_musicDeltaTotal;
 	private:
 		IAnimNode /** m_pEvents,*/ * m_pFader;
 	};

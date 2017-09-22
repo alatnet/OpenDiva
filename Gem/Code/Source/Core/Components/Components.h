@@ -6,5 +6,6 @@
 #include <AzCore/Component/ComponentApplicationBus.h>
 #include "OpenDivaComponentFactory.h"
 #include "OpenDivaBusComponent.h"
+#include "OpenDivaComponent.h"
 
 #endif
