@@ -1,9 +1,6 @@
 #include <StdAfx.h>
 #include <OpenDivaCommon.h>
 
-#include "IDivaJudge.h"
-#include <AzCore\std\functional.h>
-
 #include "DivaJudgeFactory.h"
 
 namespace OpenDiva {

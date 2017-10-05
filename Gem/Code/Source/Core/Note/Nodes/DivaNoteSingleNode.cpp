@@ -12,6 +12,10 @@ namespace OpenDiva {
 		this->m_noteHit = false;
 	}
 
+	DivaNoteSingleNode::~DivaNoteSingleNode() {
+		this->m_pBeizerTrack->release();
+	}
+
 	void DivaNoteSingleNode::Init(NoteEntryBPM bpm) {
 		this->CreateDefaultTracks();
 		float start_time = this->m_NoteEntry->time - bpm.getDelay();
@@ -61,7 +65,9 @@ namespace OpenDiva {
 	void DivaNoteSingleNode::CreateDefaultTracks() {
 		DivaNoteBaseNode::CreateDefaultTracks();
 
-		this->m_pBeizerTrack = gEnv->pMovieSystem->CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat); /* this->CreateTrackInternal(
+		this->m_pBeizerTrack = IMovieExt::CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
+		//this->m_pBeizerTrack = gEnv->pMovieSystem->CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
+		/* this->CreateTrackInternal(
 			CAnimParamType(eAnimParamType_Float),
 			EAnimCurveType::eAnimCurveType_TCBFloat,
 			EAnimValue::eAnimValue_Float

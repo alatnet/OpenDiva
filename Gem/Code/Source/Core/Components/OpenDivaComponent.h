@@ -20,6 +20,7 @@ namespace OpenDiva {
 	protected:
 		static void LoadSong(AZStd::string uuid, AZStd::string luuid, bool demo);
 		static void PlaySong();
+		static void SetResolution(int width, int height, bool fullscreen);
 	};
 }
 

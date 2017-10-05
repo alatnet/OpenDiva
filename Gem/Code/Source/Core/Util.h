@@ -7,7 +7,7 @@ namespace OpenDiva {
 	//Class is used for misc static functions that can be used everywhere or as a dumping ground for functions that dont fit anywhere else.
 	class Util {
 	public: //Beizer Curve Functions
-		static AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2) { //Linear Beizer Curve, or a straight line.
+		static inline AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2) { //Linear Beizer Curve, or a straight line.
 			/*return AZ::Vector2(
 				(1 - time)*p1.x + time*p2.x,
 				(1 - time)*p1.y + time*p2.y
@@ -15,7 +15,7 @@ namespace OpenDiva {
 
 			return (1 - time) * p1 + time * p2;
 		}
-		static AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3) { //Quadratic Beizer Curve
+		static inline AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3) { //Quadratic Beizer Curve
 			/*return Vec2(
 				square(1 - time)*p1.x + 2 * (1 - time)*time*p2.x + square(time)*p3.x,
 				square(1 - time)*p1.y + 2 * (1 - time)*time*p2.y + square(time)*p3.y
@@ -23,7 +23,7 @@ namespace OpenDiva {
 
 			return square(1 - time)*p1 + 2 * (1 - time)*time*p2 + square(time)*p3;
 		}
-		static AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, AZ::Vector2 p4) { //Cubic Beizer Curve
+		static inline AZ::Vector2 BCurve(float time, AZ::Vector2 p1, AZ::Vector2 p2, AZ::Vector2 p3, AZ::Vector2 p4) { //Cubic Beizer Curve
 			/*return Vec2(
 				cube(1 - time)*p1.x + 3 * square(1 - time)*time*p2.x + 3 * (1 - time)*square(time)*p3.x + cube(time)*p4.x,
 				cube(1 - time)*p1.y + 3 * square(1 - time)*time*p2.y + 3 * (1 - time)*square(time)*p3.y + cube(time)*p4.y
@@ -105,10 +105,22 @@ namespace OpenDiva {
 		//https://www.desmos.com/calculator/2ysl6hklqg
 		static AZ::Vector2 GetEdgePoint(AZ::Vector2 point, float angle, float x_min, float x_max, float y_min, float y_max);
 	public:
-		static bool CopyToCache(AZStd::string src, AZStd::string cacheDest);
-		static bool ClearCache(AZStd::string cacheDest);
-		static bool DeleteFromCache(AZStd::string file, AZStd::string cachePath);
-		static AZStd::string GetCachePath(AZStd::string src, AZStd::string cacheDest);
+		//use resolve to automatically resolve the cache alias to return a full path.
+		static bool CopyToCache(AZStd::string src, AZStd::string cacheDest, bool resolve = false);
+		static bool ClearCache(AZStd::string cacheDest, bool resolve = false);
+		static bool DeleteFromCache(AZStd::string file, AZStd::string cachePath, bool resolve = false);
+		static AZStd::string GetCachePath(AZStd::string src, AZStd::string cacheDest, bool resolve = false);
+	public:
+		//activated entity before return
+		static AZ::Entity * CreateLyShineCanvasEntity(AZStd::string canvasPath, AZStd::string entityName);
+		//does not activate entity before return
+		static AZ::Entity * CreateLuaEntityScriptEntity(AZStd::string scriptPath, AZStd::string entityName);
+	public:
+		static inline AZStd::string Crc32ToString(AZ::Crc32 crc) {
+			char str[11];
+			snprintf(str, sizeof str, "%" PRIu32, crc);
+			return AZStd::string(str);
+		}
 	};
 
 }

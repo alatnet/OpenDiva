@@ -11,6 +11,7 @@ namespace OpenDiva {
 	REGISTER_DIVA_NOTE_NODE("note", DivaNoteSingleNode, NoteEntrySingle)
 	public:
 		DivaNoteSingleNode(ResourceCollection *rc, NoteEntrySingle* entry/*, NoteEntryBPM bpm*/);
+		~DivaNoteSingleNode();
 	public:
 		void Init(NoteEntryBPM bpm);
 		void Reset();

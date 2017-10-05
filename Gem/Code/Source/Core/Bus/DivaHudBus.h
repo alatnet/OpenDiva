@@ -45,7 +45,7 @@ namespace OpenDiva {
 
 	class DivaHudHitScoreGroup : public AZ::EBusTraits {
 	public:
-		virtual void SetHitScore(EHitScore hitScore, bool wrong) = 0;
+		virtual void SetHitScore(ENoteType noteType, EHitScore hitScore, bool wrong) = 0;
 	};
 
 	class DivaHudLyricsGroup : public AZ::EBusTraits {
@@ -154,7 +154,7 @@ namespace OpenDiva {
 		);
 
 	public:
-		void SetHitScore(EHitScore hitScore, bool wrong) { Call(FN_SetHitScore, hitScore, wrong); }
+		void SetHitScore(ENoteType noteType, EHitScore hitScore, bool wrong) { Call(FN_SetHitScore, noteType, hitScore, wrong); }
 	};
 	class DivaHudLyricsHandler : public DivaHudLyricsBus::Handler, public AZ::BehaviorEBusHandler {
 	public:

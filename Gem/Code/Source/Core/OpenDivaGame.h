@@ -7,22 +7,22 @@
 //------------------------------------------------------
 //#include "LyShine\ILyShine.h"
 
-//#include "Core/CryMovie/Node/Note/PrototypeNoteNode.h"
 #include "Core/Graphics/Resources/ResourceCollection.h"
 #include "Core\Input\InputSystem.h"
 #include "Core\Note\DivaAnimationNode.h"
 
 #include "Core\Judge\OpenDivaJudge.h"
 
-//#include "Sound\Port Audio System\Source\AudioSources.h"
-//#include "Sound\Port Audio System\PortAudioSystem.h"
 #include <AlternativeAudio/AlternativeAudioBus.h>
-#include <PortAudio\PortAudioBus.h>
 
 #include "Bus/DivaEventsBus.h"
 #include "Bus/DivaHudBus.h"
 
-#include "Files/LyricsFile.h"
+//#include "Files/LyricsFile.h"
+
+#include <AzCore/Jobs/JobFunction.h>
+
+#include "Graphics/Intro/OpenDivaIntro.h"
 
 //#include "CryAction.h"
 
@@ -159,16 +159,57 @@ namespace OpenDiva
         IGameFramework*             m_gameFramework;
         IActionMap*                 m_defaultActionMap;
         PlatformInfo                m_platformInfo;
+	private:
+		enum EDivaState {
+			eDS_EngineInit,
+			eDS_Intro,
+			eDS_MainMenu,
+			eDS_Loading,
+			eDS_SongSetup,
+			eDS_Song,
+			eDS_Grading,
+			eDS_Editor
+		};
+
+		EDivaState m_DivaState;
+		AZStd::mutex m_introMutex;
+		IIntro *m_intro;
 	private: //Music stuff
-			void musicInit();
+		void musicInit();
+		void musicShutdown();
+	public:
+		static void changeResolution(int w, int h, bool f);
 	//private: //CONSOLE COMMANDS
 	//	void setupCommands();
+	private:
+		struct CanvasEnt{
+			AZ::Entity * m_ent;
+			AZ::EntityId m_canvasId;
+			bool m_active;
+			bool m_visible;
+			bool m_loaded;
+		};
 	public:
 		void LoadSong(AZStd::string uuid, AZStd::string luuid, bool demo);
 		void PlaySong();
+	private:
+		void LoadMainMenu();
+		void DisplayMainMenu();
+		void HideMainMenu();
+		void DestroyMainMenu();
+		CanvasEnt m_menuCanvas;
+	private:
+		CanvasEnt m_songSetupCanvas, m_songGradeCanvas;
+	private:
+		static void RefreshDatabase(IConsoleCmdArgs* args);
 	private: //Misc Variables
-		CInputSystem * iSys;
 		//CCryAction* pCryAction;
+		CInputSystem * iSys;
+		IRenderer * iRenderer;
+		IDraw2d * iDraw2d;
+		IMovieSystem * iMovieSys;
+		AlternativeAudio::AADSPEffect * m_masterVolumeDSP;
+		ResourceCollection * m_pRC;
 	private: //TESTING FUNCTIONS
 		void constructTesting();
 		void destroyTesting();
@@ -179,30 +220,24 @@ namespace OpenDiva
 		void unloadSequences();
 		void setupLua();
 		void unloadLua();
-		//void testLyShine();
-
-		void initLyShine();
-		void destroyLyShine();
 	private: //TESTING VARIABLES
-		ColorF textColor;
-
-		IMovieSystem * iMovieSys;
-		IAnimSequence * testSeq;
-		IDivaJudge * testJudge;
-		DivaAnimationNode * testDivaAnimationNode;
+		//ColorF textColor;
+		//IAnimSequence * testSeq;
+		//IDivaJudge * testJudge;
+		//DivaAnimationNode * testDivaAnimationNode;
 
 		//int renderTarget;
 
 		//IEntity *testEnt;
 
-		ITexture * testTex;
-		IFFont * testFont;
-		STextDrawContext testFontDrawContext;
+		//ITexture * testTex;
+		//IFFont * testFont;
+		//STextDrawContext testFontDrawContext;
 
 		//IDraw2d::TextOptions textOps;
 
 		//const char * unicodeChar;
-		AZStd::string * unicodeStr;
+		//AZStd::string * unicodeStr;
 
 		/*DivaNoteSingleNode * testSingleNode;
 		DivaNoteSingleNode * testSingleNode2;*/
@@ -211,19 +246,14 @@ namespace OpenDiva
 		//TailResource *m_pTailResource;
 		//EffectResource * m_pEffectResource;
 		//RatingResource * m_pRatingResource;
-		ResourceCollection * m_pRC;
-
-		IRenderer * iRenderer;
-		IDraw2d * iDraw2d;
 
 		//PortAudioSystem *paSystem;
-		/*AudioSource_Libsnd*/AlternativeAudio::IAudioSource *testAudioFile, *testAudioFile2;
-		long long testAudioFileID, testAudioFileID2;
-		AlternativeAudio::AudioSourceTime m_prevTime;
-		double m_songDelta;
-		AlternativeAudio::AADSPEffect * masterVolumeDSP;
+		/*AudioSource_Libsnd*///AlternativeAudio::IAudioSource *testAudioFile, *testAudioFile2;
+		//long long testAudioFileID, testAudioFileID2;
+		//AlternativeAudio::AudioSourceTime m_prevTime;
+		//double m_songDelta;
 
-		IFlowGraphPtr testGraph;
+		//IFlowGraphPtr testGraph;
 
 		/*AZ::EntityId canvasEntityId;
 		UiCanvasInterface* canvas;

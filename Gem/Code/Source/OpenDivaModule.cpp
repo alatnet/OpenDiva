@@ -43,4 +43,4 @@ namespace OpenDiva
 // DO NOT MODIFY THIS LINE UNLESS YOU RENAME THE GEM
 // The first parameter should be GemName_GemIdLower
 // The second should be the fully qualified name of the class above
-AZ_DECLARE_MODULE_CLASS(OpenDivaNew_95e41eeb9802469b8f7dd874f19720d9, OpenDiva::OpenDivaModule)
+AZ_DECLARE_MODULE_CLASS(OpenDiva_95e41eeb9802469b8f7dd874f19720d9, OpenDiva::OpenDivaModule)

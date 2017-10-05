@@ -9,13 +9,17 @@
 #endif*/
 
 #include "Util.h"
+#include "CommonDefines.h"
+
+#include <LyShine/Bus/World/UiCanvasRefBus.h>
+#include <AzFramework\Script\ScriptComponent.h>
+#include <AzCore\Asset\AssetManagerBus.h>
 
 namespace OpenDiva {
 
 	//because /WX is fucking with us...
-	#ifdef WX_DISABLE
-		#pragma warning(disable : 4244)
-	#endif
+
+	WX_DISABLE_(4244)
 
 	//could be slow so better to use the ones with defined parameters than this one.
 	AZ::Vector2 Util::BCurve(float time, AZ::Vector2 * p, int numPoints) {
@@ -463,28 +467,95 @@ namespace OpenDiva {
 		return AZ::Vector2();
 	}
 
-	bool Util::CopyToCache(AZStd::string src, AZStd::string cacheDest) {
-		return gEnv->pFileIO->Copy(src.c_str(), GetCachePath(src,cacheDest).c_str()) == AZ::IO::ResultCode::Success;
+	bool Util::CopyToCache(AZStd::string src, AZStd::string cacheDest, bool resolve) {
+		return gEnv->pFileIO->Copy(src.c_str(), GetCachePath(src,cacheDest, resolve).c_str()) == AZ::IO::ResultCode::Success;
 	}
 
-	bool Util::ClearCache(AZStd::string cacheDest) {
-		//AZ::IO::FileIOBase* fileIO = gEnv->pFileIO;
-		/*AZStd::string cacheAlias(fileIO->GetAlias("@cache@"));
-		cacheAlias += "/" + cacheDest;*/
+	bool Util::ClearCache(AZStd::string cacheDest, bool resolve) {
 		AZStd::string cacheAlias = "@cache@/" + cacheDest;
+
+		if (resolve) {
+			cacheAlias = gEnv->pFileIO->GetAlias("@cache@");
+			cacheAlias += "/" + cacheDest;
+		}
+
 		return gEnv->pFileIO->DestroyPath(cacheAlias.c_str()) == AZ::IO::ResultCode::Success;
 	}
 
-	bool Util::DeleteFromCache(AZStd::string file, AZStd::string cachePath) {
-		return gEnv->pFileIO->Remove(GetCachePath(file, cachePath).c_str()) == AZ::IO::ResultCode::Success;
+	bool Util::DeleteFromCache(AZStd::string file, AZStd::string cachePath, bool resolve) {
+		return gEnv->pFileIO->Remove(GetCachePath(file, cachePath, resolve).c_str()) == AZ::IO::ResultCode::Success;
 	}
 
-	AZStd::string Util::GetCachePath(AZStd::string src, AZStd::string cacheDest) {
+	AZStd::string Util::GetCachePath(AZStd::string src, AZStd::string cacheDest, bool resolve) {
+		if (resolve)
+			return gEnv->pFileIO->GetAlias("@cache@") + AZStd::string("/") + cacheDest + PathUtil::GetFile(src.c_str());
 		return "@cache@/" + cacheDest + PathUtil::GetFile(src.c_str());
 		//return gEnv->pFileIO->GetAlias("@cache@") + AZStd::string("/") + cacheDest + PathUtil::GetFile(src.c_str());
 	}
 
-	#ifdef WX_DISABLE
-		#pragma warning(default : 4244)
-	#endif
+	AZ::Entity * Util::CreateLyShineCanvasEntity(AZStd::string canvasPath, AZStd::string entityName = "") {
+		//create entity
+		AZ::Entity * ret;
+
+		if (!entityName.empty()) ret = new AZ::Entity(entityName.c_str());
+		else ret = new AZ::Entity();
+
+		//add canvas asset ref component.
+		AZ::Component * component = ret->CreateComponent("{05BED4D7-E331-4020-9C17-BD3F4CE4DE85}"); //Gems/LyShine/UiCanvasAssetRefComponent
+
+		if (!component) {
+			delete ret;
+			return nullptr;
+		}
+
+		//initialize and activate entity
+		ret->Init();
+		ret->Activate();
+
+		EBUS_EVENT_ID(ret->GetId(), UiCanvasAssetRefBus, SetIsAutoLoad, false);
+		EBUS_EVENT_ID(ret->GetId(), UiCanvasAssetRefBus, SetShouldLoadDisabled, true);
+
+		//set canvas path
+		EBUS_EVENT_ID(ret->GetId(), UiCanvasAssetRefBus, SetCanvasPathname, canvasPath);
+
+		return ret;
+	}
+	AZ::Entity * Util::CreateLuaEntityScriptEntity(AZStd::string scriptPath, AZStd::string entityName = "") {
+		//create entity
+		AZ::Entity * ret;
+
+		if (!entityName.empty()) ret = new AZ::Entity(entityName.c_str());
+		else ret = new AZ::Entity();
+
+		//initialize entity
+		ret->Init();
+
+		//add Script component.
+		AzFramework::ScriptComponent * component = ret->CreateComponent<AzFramework::ScriptComponent>();
+
+		if (!component) {
+			delete ret;
+			return nullptr;
+		}
+
+		//load script
+		const AZ::Data::AssetType& scriptAssetType = azrtti_typeid<AZ::ScriptAsset>();
+		AZ::Data::AssetId assetId;
+		EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, scriptPath.c_str(), scriptAssetType, true);
+
+		if (assetId.IsValid()) {
+			AZ::Data::Asset<AZ::ScriptAsset> scriptAsset(assetId, scriptAssetType);
+			component->SetScript(scriptAsset);
+		} else {
+			delete ret;
+			return nullptr;
+		}
+
+		//activate entity
+		//ret->Activate();
+
+		return ret;
+	}
+
+	WX_ENABLE_(4224)
 }

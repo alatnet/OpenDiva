@@ -12,7 +12,7 @@
 #include "../Files/LyricsFile.h"
 #include "../Graphics/Resources/ResourceCollection.h"
 #include "../Graphics/Particles.h"
-#include <../CryMovie/AnimSequence.h>
+//#include <../CryMovie/AnimSequence.h>
 #include "../Bus/DivaSequenceBus.h"
 #include "../Bus/DivaJudgeBus.h"
 #include "../Bus/DivaHudBus.h"
@@ -38,6 +38,8 @@ namespace OpenDiva {
 		bool InitNotes(NoteFile *noteFile, SongInfo::Global songinfo);
 		bool InitLyrics(LyricsFile * lyrics);
 		bool InitAudio(SongInfo::Global songinfo);
+	public:
+		void SetOffset(float offset);
 	public: //IInputSystemListener
 		// only the current note needs to listen for input.
 		void OnCross(LyInputEventType mode, float value);
@@ -69,7 +71,7 @@ namespace OpenDiva {
 		void OnAudioEnd();
 
 	protected: //bus
-		void SetHitScore(EHitScore hs, bool wrong); //using wrong to lower vocal volume
+		void SetHitScore(ENoteType noteType, EHitScore hs, bool wrong); //using wrong to lower vocal volume
 
 	public: // CAnimNode has these.
 		virtual void OnStart();
@@ -90,7 +92,7 @@ namespace OpenDiva {
 		virtual void SetName(const char * name) override {}
 		virtual const char * GetName() override { return "DivaAnimationNode"; }
 		virtual EAnimNodeType GetType() const override { return EAnimNodeType(); }
-		virtual IAnimSequence * GetSequence() override;
+		//virtual IAnimSequence * GetSequence() override;
 		virtual void SetSequence(IAnimSequence * sequence) override;
 		virtual void Activate(bool bActivate) override {}
 		virtual void SetFlags(int flags) override {}
@@ -142,7 +144,7 @@ namespace OpenDiva {
 		virtual void SetParent(IAnimNode * pParent) override;
 		virtual IAnimNode * GetParent() const override;
 		virtual IAnimNode * HasDirectorAsParent() const override;
-		virtual void GetMemoryUsage(ICrySizer * pSizer) const override;
+		//virtual void GetMemoryUsage(ICrySizer * pSizer) const override;
 		virtual void UpdateDynamicParams() override {}
 
 	private:
@@ -153,6 +155,7 @@ namespace OpenDiva {
 		unsigned int m_renderRangeStart, m_renderRangeEnd; //the render range we need to render.
 		AZStd::vector<DivaNoteBaseNode*> m_NoteNodes;
 		unsigned int m_hitNote;
+		bool m_DemoMode;
 	private:
 		ResourceCollection * m_pRC;
 		AZStd::vector<ParticleBase*> m_Particles;
@@ -164,8 +167,8 @@ namespace OpenDiva {
 		static void SongEvents(void* userdata);
 	private:
 		LyricsFile *m_lyrics;
+		ITexture * m_bgTexture;
 	private:
-		//PortAudioSystem *m_pPASystem;
 		struct {
 			long long m_idVocal, m_idMelody, m_idSong;
 			bool m_wrongVol;
@@ -176,6 +179,9 @@ namespace OpenDiva {
 	private:
 		float m_prevMusicTime;
 		float m_musicDeltaTotal;
+	private:
+		float m_offset;
+		AZStd::mutex m_offsetMutex;
 	private:
 		IAnimNode /** m_pEvents,*/ * m_pFader;
 	};

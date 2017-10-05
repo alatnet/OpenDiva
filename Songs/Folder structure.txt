@@ -1,26 +1,27 @@
-Root
-+<group name>
--+GroupInfo (optional)
---+<language>.xml
---+art.ddc (optional)
--+<song name>
---+Fonts (optional for lyric subtexts, font files themselves are in the Fonts folder at game data root, i.e. "OpenDiva/Fonts".)
----+<font>.xml
---+Lyrics
----+default.xml (required)
----+<language>.xml (optional)
---+NoteMaps
----+<notemap name>.xml
---+SongInfo
----+global.xml (required)
----+<language>.xml (optional)
----+art.ddc (optional)
---+vocal.<audio> (required/prefered)
---+melody.<audio> (required/prefered)
---+song.<audio> (required/if no vocal&melody)
---+bg.ddc (optional)
+﻿Songs/
+└── <group name>/
+    ├── GroupInfo/ (optional)
+    │   ├── <language>.xml
+    │   └── art.dds (optional)
+    └── <song name>/
+        ├── Fonts/ (optional for lyric subtexts, font files themselves are in the Fonts folder at game data root, i.e. "OpenDiva/Fonts".)
+        │   └── <font>.xml
+        ├── Lyrics/
+        │   ├── default.xml (required)
+        │   └── <lanugage>.xml (optional)
+        ├── NoteMaps/
+        │   └── <notemap name>.xml
+        ├── SongInfo/
+        │   ├── global.xml (required)
+        │   ├── <language>.xml (optional)
+        │   └── art.dds (optional)
+        ├── vocal.<audio> (required/prefered)
+        ├── melody.<audio> (required/prefered)
+        ├── song.<audio> (required/if no vocal&melody)
+        └── bg.dds (optional)
 
 Notes:
 <language> refers to the two character ISO 639-1 language code specification.
 <audio> refers to the audio type that will be used and is supported by an audio library.
 For music, either vocal+melody (prefered) or song will be used.
+

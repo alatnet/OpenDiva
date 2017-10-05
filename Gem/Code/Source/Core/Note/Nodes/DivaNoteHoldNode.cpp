@@ -25,6 +25,15 @@ namespace OpenDiva {
 	}
 
 	DivaNoteHoldNode::~DivaNoteHoldNode() {
+		this->m_ptimeArrowTrack2->release();
+		this->m_pBeizerTrack1->release();
+		this->m_pBeizerTrack2->release();
+
+		for (ENoteTrack * track : this->m_pENoteTracks2) {
+			track->posTrack->release();
+			track->sroTrack->release();
+		}
+
 		this->m_pENoteTracks2.clear();
 		DivaNoteBaseNode::~DivaNoteBaseNode();
 	}
@@ -89,7 +98,9 @@ namespace OpenDiva {
 
 		IMovieSystem *iMovie = gEnv->pMovieSystem;
 
-		this->m_ptimeArrowTrack2 = iMovie->CreateTrack(eAnimCurveType_TCBFloat); /*this->CreateTrackInternal(
+		this->m_ptimeArrowTrack2 = IMovieExt::CreateTrack(eAnimCurveType_TCBFloat);
+		//this->m_ptimeArrowTrack2 = iMovie->CreateTrack(eAnimCurveType_TCBFloat);
+		/*this->CreateTrackInternal(
 			CAnimParamType(eAnimParamType_Float),
 			EAnimCurveType::eAnimCurveType_TCBFloat,
 			EAnimValue::eAnimValue_Float
@@ -113,7 +124,9 @@ namespace OpenDiva {
 		this->AddTrack(this->m_pRippleTrack2);
 		this->m_pRippleTrack2->SetValue(0, { 0.0f, 0.0f, 1.0f }, true);*/
 
-		this->m_pBeizerTrack1 = iMovie->CreateTrack(eAnimCurveType_TCBFloat); /*this->CreateTrackInternal(
+		this->m_pBeizerTrack1 = IMovieExt::CreateTrack(eAnimCurveType_TCBFloat);
+		//this->m_pBeizerTrack1 = iMovie->CreateTrack(eAnimCurveType_TCBFloat);
+		/*this->CreateTrackInternal(
 			CAnimParamType(eAnimParamType_Float),
 			EAnimCurveType::eAnimCurveType_TCBFloat,
 			EAnimValue::eAnimValue_Float
@@ -121,7 +134,9 @@ namespace OpenDiva {
 		this->AddTrack(this->m_pBeizerTrack1);*/
 		this->m_pBeizerTrack1->SetValue(0, 0.0f, true);
 
-		this->m_pBeizerTrack2 = iMovie->CreateTrack(eAnimCurveType_TCBFloat); /*this->CreateTrackInternal(
+		this->m_pBeizerTrack2 = IMovieExt::CreateTrack(eAnimCurveType_TCBFloat);
+		//this->m_pBeizerTrack2 = iMovie->CreateTrack(eAnimCurveType_TCBFloat);
+		/*this->CreateTrackInternal(
 			CAnimParamType(eAnimParamType_Float),
 			EAnimCurveType::eAnimCurveType_TCBFloat,
 			EAnimValue::eAnimValue_Float
@@ -170,14 +185,18 @@ namespace OpenDiva {
 				track->img = entry.img; //assign the image
 
 				//create the pos track
-				track->posTrack = iMovie->CreateTrack(eAnimCurveType_TCBVector);/*this->CreateTrackInternal(
+				track->posTrack = IMovieExt::CreateTrack(eAnimCurveType_TCBVector);
+				//track->posTrack = iMovie->CreateTrack(eAnimCurveType_TCBVector);
+				/*this->CreateTrackInternal(
 					CAnimParamType(eAnimParamType_Position),
 					EAnimCurveType::eAnimCurveType_TCBVector,
 					EAnimValue::eAnimValue_Vector
 					);*/
 					
 				//create the sro track
-				track->sroTrack = iMovie->CreateTrack(eAnimCurveType_TCBVector);/*this->CreateTrackInternal(
+				track->sroTrack = IMovieExt::CreateTrack(eAnimCurveType_TCBVector);
+				//track->sroTrack = iMovie->CreateTrack(eAnimCurveType_TCBVector);
+				/*this->CreateTrackInternal(
 					CAnimParamType(eAnimParamType_Position),
 					EAnimCurveType::eAnimCurveType_TCBVector,
 					EAnimValue::eAnimValue_Vector

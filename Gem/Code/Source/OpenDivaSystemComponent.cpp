@@ -25,7 +25,7 @@ namespace OpenDiva
                 ec->Class<OpenDivaSystemComponent>("OpenDiva", "Open Diva System Component.")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         // ->Attribute(AZ::Edit::Attributes::Category, "") Set a category
-                        ->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("System"))
+                        ->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("System", 0xc94d118b))
                         ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
                     ;
             }
@@ -37,22 +37,29 @@ namespace OpenDiva
 
     void OpenDivaSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
     {
-        provided.push_back(AZ_CRC("EditorGameService"));
+        provided.push_back(AZ_CRC("EditorGameService", 0x8bb59498));
     }
 
     void OpenDivaSystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
     {
-        incompatible.push_back(AZ_CRC("EditorGameService"));
+        incompatible.push_back(AZ_CRC("EditorGameService", 0x8bb59498));
     }
 
     void OpenDivaSystemComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)
     {
-        required.push_back(AZ_CRC("CryLegacyService"));
+        required.push_back(AZ_CRC("CryLegacyService", 0xdfa3b326));
+		required.push_back(AZ_CRC("SQLiteLYService", 0x9aac87df));
+		required.push_back(AZ_CRC("AlternativeAudioService", 0x2eb4e627));
+		required.push_back(AZ_CRC("AlternativeAudio_LibsndfileService", 0xf6713d77));
+		required.push_back(AZ_CRC("PortAudioService", 0x3553a550));
     }
 
     void OpenDivaSystemComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent)
     {
-        (void)dependent;
+		dependent.push_back(AZ_CRC("SQLiteLYService", 0x9aac87df));
+		dependent.push_back(AZ_CRC("AlternativeAudioService", 0x2eb4e627));
+		dependent.push_back(AZ_CRC("AlternativeAudio_LibsndfileService", 0xf6713d77));
+		dependent.push_back(AZ_CRC("PortAudioService", 0x3553a550));
     }
 
     IGameStartup* OpenDivaSystemComponent::CreateGameStartup()
@@ -66,10 +73,10 @@ namespace OpenDiva
         return new EditorGame();
     }
 
-    const char* OpenDivaSystemComponent::GetGameName() const
+    /*const char* OpenDivaSystemComponent::GetGameName() const
     {
         return "OpenDiva";
-    }
+    }*/
 
     void OpenDivaSystemComponent::Init()
     {

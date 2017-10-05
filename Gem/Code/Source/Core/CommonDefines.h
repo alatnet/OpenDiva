@@ -26,12 +26,10 @@ namespace OpenDiva {
 			//songs folder
 			static const std::string sSongFolder = "Songs";
 
-			//resources folder
-			static const std::string sResourcesFolder = "Resources";
-			static const std::string sHudFolder = "Hud";
-
-			//style folders
+			//style folder
 			static const std::string sStylesFolder = "Styles";
+
+			//style subfolders
 			static const std::string sEffectsFolder = "Effects";
 			static const std::string sNoteFolder = "Note";
 			static const std::string sTailFolder = "Tails";
@@ -39,9 +37,7 @@ namespace OpenDiva {
 		}
 		namespace Paths {
 			static const std::string sSongPath = "/" + Folders::sSongFolder;
-			static const std::string sResourcesPath = "/" + Folders::sResourcesFolder;
-			static const std::string sHudPath = sResourcesPath + "/" + Folders::sHudFolder;
-			static const std::string sStylesPath = sResourcesPath + "/" + Folders::sStylesFolder;
+			static const std::string sStylesPath = "/" + Folders::sStylesFolder;
 			static const std::string sScriptsPath = "/" + Folders::sScriptsFolder;
 		}
 		/*namespace Paths {
@@ -53,20 +49,20 @@ namespace OpenDiva {
 		}*/
 	}
 
-	#ifndef STATIC_CONSTRUCTOR
-		#define STATIC_CONSTRUCTOR
-		//so that we can have a simple way of static constructors
-		//http://stackoverflow.com/questions/1197106/static-constructors-in-c-i-need-to-initialize-private-static-objects
-		template<void(*ctor)()>
-		struct static_constructor
-		{
-			struct constructor { constructor() { ctor(); } };
-			static constructor c;
-		};
+#ifndef STATIC_CONSTRUCTOR
+#define STATIC_CONSTRUCTOR
+	//so that we can have a simple way of static constructors
+	//http://stackoverflow.com/questions/1197106/static-constructors-in-c-i-need-to-initialize-private-static-objects
+	template<void(*ctor)()>
+	struct static_constructor
+	{
+		struct constructor { constructor() { ctor(); } };
+		static constructor c;
+	};
 
-		template<void(*ctor)()>
-		typename static_constructor<ctor>::constructor static_constructor<ctor>::c;
-	#endif
+	template<void(*ctor)()>
+	typename static_constructor<ctor>::constructor static_constructor<ctor>::c;
+#endif
 }
 
 //because /WX is fucking with us...

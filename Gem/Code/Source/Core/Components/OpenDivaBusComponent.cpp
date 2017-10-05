@@ -3,6 +3,11 @@
 
 #include "OpenDivaBusComponent.h"
 
+#include "../Bus/DivaHudBus.h"
+#include "../Bus/DivaEventsBus.h"
+#include "../Bus/DivaJudgeBus.h"
+#include "../Bus/DivaSequenceBus.h"
+
 namespace OpenDiva {
 	void OpenDivaBusComponent::Reflect(AZ::ReflectContext* context) {
 		AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
@@ -20,6 +25,8 @@ namespace OpenDiva {
 			LuaEBus(DivaHudCompletion);
 			LuaEBus(DivaHudHitScore);
 			LuaEBus(DivaHudLyrics);
+			LuaEBus(DivaJudge);
+			behaviorContext->EBus<DivaSequenceJudgeBus>("DivaSequenceJudgeBus");
 
 			#undef LuaEBus
 		}

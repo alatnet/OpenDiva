@@ -2,6 +2,8 @@
 #include <OpenDivaCommon.h>
 #include "Particles.h"
 
+#include "../IMovieExt.h"
+
 namespace OpenDiva {
 
 	//-----------------------------------------------------------------------
@@ -50,8 +52,12 @@ namespace OpenDiva {
 		if (effect->effects.size() > 0) {
 			for (int i = 0; i < effect->effects.size(); i++) { //for each effect.
 				EffectParticleTrack * track = new EffectParticleTrack(); //create a new effect track.
-				track->posTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector); //create a new effect position track.
-				track->sroTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector); //create a new effect scale, rotation, and opacity track.
+				//track->posTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector); //create a new effect position track.
+				//track->sroTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector); //create a new effect scale, rotation, and opacity track.
+
+				track->posTrack = IMovieExt::CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector);
+				track->sroTrack = IMovieExt::CreateTrack(EAnimCurveType::eAnimCurveType_TCBVector);
+
 				track->img = effect->effects.at(i).img; //assign the effect image.
 
 				for (int i2 = 0; i2 < effect->effects.at(i).anim.size(); i2++) { //for each animation for this track.
@@ -84,6 +90,12 @@ namespace OpenDiva {
 			tracks.pop_back();
 			delete entry;
 		}*/
+
+		for (EffectParticleTrack * track : tracks) {
+			track->posTrack->release();
+			track->sroTrack->release();
+		}
+
 		tracks.clear(); //calls deconstructor.
 	}
 
@@ -122,7 +134,9 @@ namespace OpenDiva {
 	//-----------------------------------------------------------------------
 	HoldMultiParticle::HoldMultiParticle(ResourceCollection * rc, AZ::Vector2 pos, unsigned int score, EHitScore hitscore, bool wrong) : m_pRC(rc), m_pos(pos), m_score(score){
 		IMovieSystem * iMovie = gEnv->pSystem->GetIMovieSystem();
-		this->posTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
+		//this->posTrack = iMovie->CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
+
+		this->posTrack = IMovieExt::CreateTrack(EAnimCurveType::eAnimCurveType_TCBFloat);
 
 		float ypos = pos.GetY() - rc->p_FontResource->getMultiSize().GetY();
 
@@ -139,7 +153,7 @@ namespace OpenDiva {
 	}
 
 	HoldMultiParticle::~HoldMultiParticle() {
-		this->posTrack->Release();
+		this->posTrack->release();
 	}
 
 	void HoldMultiParticle::Render() {

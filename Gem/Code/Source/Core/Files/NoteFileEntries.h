@@ -119,4 +119,8 @@ namespace OpenDiva {
 	#undef NoteEntryClass
 }
 
+namespace AZ {
+	AZ_TYPE_INFO_SPECIALIZE(OpenDiva::SectionType, "{0F587B36-6FD2-4EE9-AE57-143245A7ACE9}");
+}
+
 #endif //_H_NOTEFILEENTRIES_

@@ -2,9 +2,9 @@ bak/
 Config/Input/ActionMaps.xml.bak
 Fonts/msgothic.ttc
 Fonts/tituscbz.ttf
-Fonts/Positec/PositecBold.ttf
-Fonts/Positec/PositecRegular.ttf
+Fonts/Positec/*.ttf
 Fonts/NotoSansCJKjp/NotoSansCJKjp-hinted.zip
+Fonts/NotoSansCJKjp/*.otf
 Levels/test/*
 Levels/testSmall/*
 libs/FlowgraphModules/test.xml
@@ -22,3 +22,7 @@ Resources/MainMenus/OpenDiva/*
 /Levels/testsmallnew
 Cubism3/*
 Gem/Code/Source/Utils/*
+/CreateFontXMLS.ps1
+/Styles/PPDXXX/*
+.gitignore
+/Gem/Code/Source/Core/Listing/old/*

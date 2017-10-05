@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../CryEngine/CryMovie/AnimSequence.h"
+//#include "../../CryEngine/CryMovie/AnimSequence.h"
 #include "Resources\ResourceCollection.h"
 
 namespace OpenDiva {
@@ -13,6 +13,8 @@ namespace OpenDiva {
 		virtual void Tick(float dt) = 0;
 		virtual bool Alive() = 0;
 		virtual void GetMemoryUsage(ICrySizer* pSizer) const = 0;
+	protected:
+	private:
 	};
 
 	//used to display ratings
@@ -104,6 +106,7 @@ namespace OpenDiva {
 			AZ::Color color,
 			float life
 		);
+		~SubtextParticle();
 	public:
 		void Render();
 		void Tick(float dt);

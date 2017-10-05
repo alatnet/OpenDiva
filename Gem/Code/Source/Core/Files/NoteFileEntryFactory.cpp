@@ -6,7 +6,6 @@
 
 #include "NoteFileEntryFactory.h"
 
-
 namespace OpenDiva {
 	NoteFileEntryFactory::NoteFileEntryFactory() {
 		this->m_funcs = new std::unordered_map<std::string, NewNoteEntryFunc>();

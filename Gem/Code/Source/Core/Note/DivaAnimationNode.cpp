@@ -58,7 +58,11 @@ namespace OpenDiva {
 		m_prevMusicTime = 0.0f;
 		m_musicDeltaTotal = 0.0f;
 
+		this->m_DemoMode = false;
+
 		this->m_pEvents = new DivaEventSystem();
+
+		this->m_bgTexture = nullptr;
 
 		DivaSequenceJudgeBus::Handler::BusConnect();
 		DivaSequenceEffectsBus::Handler::BusConnect();
@@ -84,6 +88,8 @@ namespace OpenDiva {
 		if (this->m_Music.m_audioMelody) delete this->m_Music.m_audioMelody;
 		if (this->m_Music.m_audioSong) delete this->m_Music.m_audioSong;
 		if (this->m_Music.vocalDSP) delete this->m_Music.vocalDSP;
+
+		if (this->m_bgTexture) this->m_bgTexture->Release();
 	}
 
 	//timeline
@@ -94,13 +100,14 @@ namespace OpenDiva {
 	^     ^
 	|     fade in end
 	|     song start event
+	|     notemap begin
 	song audio start (event)
 	fade in start
 
 	//end of timeline
-	     endTime
-	     |     endTime+DIVAFADETIME
-	     v     v     endTime+(DIVAFADETIME*2)+DIVAFADEDELAY
+	     endTime + offset
+	     |     endTime + DIVAFADETIME + offset
+	     v     v     endTime + (DIVAFADETIME*2) + DIVAFADEDELAY + offset
 	<----|-----|-----|
 	     ^     ^     ^
 	     |     |     fade out end
@@ -130,7 +137,7 @@ namespace OpenDiva {
 		IScreenFaderKey fadeKeyIn;
 		fadeKeyIn.time = 0;
 		fadeKeyIn.m_fadeTime = DIVAFADETIME;
-		fadeKeyIn.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		fadeKeyIn.m_fadeColor = AZ::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		fadeKeyIn.m_fadeType = IScreenFaderKey::eFT_FadeIn;
 		faderTrack->SetKey(0, &fadeKeyIn);
 
@@ -138,7 +145,7 @@ namespace OpenDiva {
 		IScreenFaderKey fadeKeyOut;
 		fadeKeyOut.time = endTime + DIVAFADETIME + DIVAFADEDELAY;
 		fadeKeyOut.m_fadeTime = DIVAFADETIME;
-		fadeKeyOut.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		fadeKeyOut.m_fadeColor = AZ::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		fadeKeyOut.m_fadeType = IScreenFaderKey::eFT_FadeOut;
 		faderTrack->SetKey(1, &fadeKeyOut);
 
@@ -157,6 +164,13 @@ namespace OpenDiva {
 			DivaAnimationNode::SongEvents,
 			(void *)"AudioEnd"
 		);
+
+		if (gEnv->pFileIO->Exists(songinfo.bg.c_str())) {
+			this->m_bgTexture = gEnv->pSystem->GetIRenderer()->EF_LoadTexture(songinfo.bg.c_str(), FT_DONT_STREAM);
+			if (this->m_bgTexture) this->m_bgTexture->AddRef();
+		}
+
+		this->m_DemoMode = true;
 
 		return true;
 	}
@@ -193,7 +207,7 @@ namespace OpenDiva {
 			IScreenFaderKey fadeKeyIn;
 			fadeKeyIn.time = 0;
 			fadeKeyIn.m_fadeTime = DIVAFADETIME;
-			fadeKeyIn.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			fadeKeyIn.m_fadeColor = AZ::Color(1.0f, 1.0f, 1.0f, 1.0f);
 			fadeKeyIn.m_fadeType = IScreenFaderKey::eFT_FadeIn;
 			faderTrack->SetKey(0, &fadeKeyIn);
 
@@ -310,7 +324,7 @@ namespace OpenDiva {
 			IScreenFaderKey fadeKeyOut;
 			fadeKeyOut.time = endTime + DIVAFADETIME + DIVAFADEDELAY;
 			fadeKeyOut.m_fadeTime = DIVAFADETIME;
-			fadeKeyOut.m_fadeColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			fadeKeyOut.m_fadeColor = AZ::Color(1.0f, 1.0f, 1.0f, 1.0f);
 			fadeKeyOut.m_fadeType = IScreenFaderKey::eFT_FadeOut;
 			faderTrack->SetKey(1, &fadeKeyOut);
 
@@ -319,8 +333,8 @@ namespace OpenDiva {
 			EBUS_EVENT(DivaHudCompletionBus, SetCompletion, 0, this->m_NoteNodes.size());
 			EBUS_EVENT(DivaJudgeBus, SetTechZoneNotes, techZoneNotesVector);
 
-			//find effect animation time and whichever biggest ending time is, tack it onto the end time of note nodes.
-			Range timeRange = Range(0, endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY);
+			//find effect animation time and whichever biggest ending time is, tack it onto the end time of note nodes. (ignore)
+			Range timeRange = Range(0, endTime + (DIVAFADETIME*2.0f) + DIVAFADEDELAY + this->m_offset);
 			this->m_pSequence->SetTimeRange(timeRange); //+offset
 			this->SetTimeRange(timeRange); //+offset
 
@@ -335,6 +349,11 @@ namespace OpenDiva {
 				DivaAnimationNode::SongEvents,
 				(void *)"AudioEnd"
 			);
+
+			if (gEnv->pFileIO->Exists(songinfo.bg.c_str())) {
+				this->m_bgTexture = gEnv->pSystem->GetIRenderer()->EF_LoadTexture(songinfo.bg.c_str(), FT_DONT_STREAM);
+				if (this->m_bgTexture) this->m_bgTexture->AddRef();
+			}
 		} else {
 			//error out
 			//first note should ALWAYS be bpm note
@@ -444,6 +463,18 @@ namespace OpenDiva {
 		return false;
 	}
 
+	void DivaAnimationNode::SetOffset(float offset) {
+		this->m_offsetMutex.lock();
+		this->m_offset = offset;
+
+		//adjust time ranges to account for offset.
+		Range timeRange = Range(0, this->m_pSequence->GetTimeRange().end + offset);
+		this->m_pSequence->SetTimeRange(timeRange);
+		this->SetTimeRange(timeRange);
+
+		this->m_offsetMutex.unlock();
+	}
+
 	//-----------------------------------------------------------------------
 	// Buses
 	//-----------------------------------------------------------------------
@@ -482,12 +513,15 @@ namespace OpenDiva {
 	}
 
 	void DivaAnimationNode::UpdateNoteHit() {
+		if (this->m_DemoMode) return;
 		this->m_hitNote++; //we are done scoring this note, on to the next one.
 		if (this->m_hitNote >= this->m_NoteNodes.size()) this->m_hitNote = this->m_NoteNodes.size() - 1;
 	}
 	
 	// DivaHudHitScoreGroup
-	void DivaAnimationNode::SetHitScore(EHitScore hs, bool wrong) {
+	void DivaAnimationNode::SetHitScore(ENoteType noteType, EHitScore hs, bool wrong) {
+		if (hs == eHS_None) return;
+
 		this->m_Music.m_wrongVol = wrong;
 		if (wrong) { //if the hit was wrong
 			if (this->m_Music.vocalDSP)
@@ -496,6 +530,29 @@ namespace OpenDiva {
 			if (this->m_Music.vocalDSP)
 				EBUS_EVENT_ID(this->m_Music.vocalDSP, AlternativeAudio::DSP::VolumeDSPBus, SetVol, 1.0f);
 		}
+
+		//hit sound playback here.
+		switch (noteType) {
+		case eNT_Cross:
+		case eNT_Circle:
+		case eNT_Square:
+		case eNT_Triangle:
+		case eNT_Left:
+		case eNT_Right:
+		case eNT_Up:
+		case eNT_Down:
+		default:
+			//EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PlaySFXSource, nullptr);
+			break;
+		case eNT_Star:
+		case eNT_BigStar:
+			//EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PlaySFXSource, nullptr);
+			break;
+		case eNT_SwipeL:
+		case eNT_SwipeR:
+			//EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, PlaySFXSource, nullptr);
+			break;
+		}
 	}
 	// ~DivaHudHitScoreGroup
 
@@ -503,37 +560,37 @@ namespace OpenDiva {
 	//Input
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::OnCross(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnCross(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnCross(mode, value);
 	}
 	void DivaAnimationNode::OnCircle(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnCircle(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnCircle(mode, value);
 	}
 	void DivaAnimationNode::OnSquare(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnSquare(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnSquare(mode, value);
 	}
 	void DivaAnimationNode::OnTriangle(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnTriangle(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnTriangle(mode, value);
 	}
 	void DivaAnimationNode::OnLeft(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnLeft(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnLeft(mode, value);
 	}
 	void DivaAnimationNode::OnRight(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnRight(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnRight(mode, value);
 	}
 	void DivaAnimationNode::OnUp(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnUp(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnUp(mode, value);
 	}
 	void DivaAnimationNode::OnDown(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnDown(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnDown(mode, value);
 	}
 	void DivaAnimationNode::OnStar(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnStar(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnStar(mode, value);
 	}
 	void DivaAnimationNode::OnSwipeL(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnSwipeL(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnSwipeL(mode, value);
 	}
 	void DivaAnimationNode::OnSwipeR(LyInputEventType mode, float value) {
-		m_NoteNodes[m_hitNote]->OnSwipeR(mode, value);
+		if (!this->m_DemoMode) m_NoteNodes[m_hitNote]->OnSwipeR(mode, value);
 	}
 
 	//-----------------------------------------------------------------------
@@ -584,7 +641,8 @@ namespace OpenDiva {
 	// Inherited via IAnimNode
 	//-----------------------------------------------------------------------
 	void DivaAnimationNode::Animate(SAnimContext & ec) {
-		this->m_pEvents->Update(ec.time); //update the events system.
+		this->m_offsetMutex.lock();
+		this->m_pEvents->Update(ec.time + this->m_offset); //update the events system.
 
 		SAnimContext animContext = ec;
 
@@ -603,7 +661,7 @@ namespace OpenDiva {
 			animContext.time = (float)musicTime.totalSec; //set the current time for the context.
 		}
 
-		//music and video smoothing. (for when there is high audio latency)
+		//music and video sync smoothing. (for when there is high audio latency)
 		if (m_prevMusicTime != animContext.time) { //when the time reported from the music changes
 			m_prevMusicTime = animContext.time; //update the prev music time
 			m_musicDeltaTotal = 0.0f; //reset delta total
@@ -614,7 +672,8 @@ namespace OpenDiva {
 			animContext.time += m_musicDeltaTotal; //add delta total to reported music time
 		}
 
-		//animContext.time += offset;
+		//set animation offset
+		animContext.time += this->m_offset;
 
 		//update nodes
 		if (this->m_NoteNodes.size() > 0) {
@@ -654,9 +713,14 @@ namespace OpenDiva {
 				}
 			}
 		}
+		this->m_offsetMutex.unlock();
 	}
 	void DivaAnimationNode::Render() {
 		OD_Draw2d::getDraw2D().BeginDraw2d(1280, 720);
+		//render bg if there is one
+		if (this->m_bgTexture)
+			Draw2dHelper::GetDraw2d()->DrawImage(this->m_bgTexture->GetTextureID(), AZ::Vector2(0, 0), AZ::Vector2(1280, 720));
+
 		//render particles
 		if (this->m_Particles.size() > 0) for (ParticleBase* particle : this->m_Particles) particle->Render();
 
@@ -670,10 +734,10 @@ namespace OpenDiva {
 	//-----------------------------------------------------------------------
 	// Inherited via IAnimNode
 	//-----------------------------------------------------------------------
-	IAnimSequence * DivaAnimationNode::GetSequence() { return this->m_pSequence; }
+	//IAnimSequence * DivaAnimationNode::GetSequence() { return this->m_pSequence; }
 	void DivaAnimationNode::SetSequence(IAnimSequence * sequence) {
 		if (this->m_pSequence || !sequence) {
-			if (this->m_pFader) this->m_pFader->Release();
+			if (this->m_pFader) this->m_pFader->release();
 			this->m_pFader = nullptr;
 		}
 
@@ -682,7 +746,7 @@ namespace OpenDiva {
 		if (this->m_pSequence) {
 			this->m_pFader = this->m_pSequence->CreateNode(EAnimNodeType::eAnimNodeType_ScreenFader);
 			this->m_pFader->CreateDefaultTracks();
-			this->m_pFader->AddRef();
+			this->m_pFader->add_ref();
 			IAnimTrack * faderTrack = this->m_pFader->GetTrackByIndex(0);
 			faderTrack->SetNumKeys(2);
 		}
@@ -713,10 +777,10 @@ namespace OpenDiva {
 		return nullptr;
 	}
 
-	void DivaAnimationNode::GetMemoryUsage(ICrySizer * pSizer) const {
+	/*void DivaAnimationNode::GetMemoryUsage(ICrySizer * pSizer) const {
 		for (DivaNoteBaseNode* n : m_NoteNodes) pSizer->AddObject(n);
 		for (ParticleBase* p : m_Particles) pSizer->AddObject(p);
-	}
+	}*/
 
 	//-----------------------------------------------------------------------------
 	// event funcs

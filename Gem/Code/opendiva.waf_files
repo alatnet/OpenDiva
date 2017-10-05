@@ -1,127 +1,140 @@
 {
-  "none": {
-    "Source": [
-      "Source/StdAfx.cpp",
-      "Source/StdAfx.h"
-    ]
-  },
-  "auto": {
-    "Include": [
-      "Include/OpenDiva/OpenDivaBus.h"
-    ],
-    "Source": [
-      "Source/OpenDivaModule.cpp",
-      "Source/OpenDivaSystemComponent.cpp",
-      "Source/OpenDivaSystemComponent.h",
-      "Source/OpenDivaCommon.h"
-    ],
-    "Source/Core": [
-      "Source/Core/EditorGame.cpp",
-      "Source/Core/EditorGame.h",
-      "Source/Core/OpenDivaGame.cpp",
-      "Source/Core/OpenDivaGame.h",
-      "Source/Core/Util.h",
-      "Source/Core/Util.cpp",
-      "Source/Core/CommonEnums.h",
-      "Source/Core/CommonDefines.h"
-    ],
-    "Source/System": [
-      "Source/System/GameStartup.cpp",
-      "Source/System/GameStartup.h",
-      "Source/System/dirent.h"
-    ],
-    "Source/Core/Loaders": [
-      "Source/Core/Loaders/StageLoader.h",
-      "Source/Core/Loaders/StageLoader.cpp"
-    ],
-    "Source/Core/Files": [
-      "Source/Core/Files/NoteFile.h",
-      "Source/Core/Files/NoteFile.cpp",
-      "Source/Core/Files/NoteFileEntries.h",
-      "Source/Core/Files/NoteFileEntries.cpp",
-      "Source/Core/Files/NoteFileEntryFactory.h",
-      "Source/Core/Files/NoteFileEntryFactory.cpp",
-      "Source/Core/Files/SongList.h",
-      "Source/Core/Files/SongList.cpp",
-      "Source/Core/Files/SongInfo.h",
-      "Source/Core/Files/SongInfo.cpp",
-      "Source/Core/Files/LyricsFile.h",
-      "Source/Core/Files/LyricsFile.cpp"
-    ],
-    "Source/Core/Graphics": [
-      "Source/Core/Graphics/OD_Draw2d.h",
-      "Source/Core/Graphics/OD_Draw2d.cpp",
-      "Source/Core/Graphics/NoteImage.h",
-      "Source/Core/Graphics/NoteImage.cpp",
-      "Source/Core/Graphics/Particles.h",
-      "Source/Core/Graphics/Particles.cpp"
-    ],
-    "Source/Core/Graphics/Tails": [
-      "Source/Core/Graphics/Tails/CometTail.h",
-      "Source/Core/Graphics/Tails/CometTail.cpp",
-      "Source/Core/Graphics/Tails/HoldTail.h",
-      "Source/Core/Graphics/Tails/HoldTail.cpp"
-    ],
-    "Source/Core/Graphics/Resources": [
-      "Source/Core/Graphics/Resources/NoteResource.h",
-      "Source/Core/Graphics/Resources/NoteResource.cpp",
-      "Source/Core/Graphics/Resources/TailResource.h",
-      "Source/Core/Graphics/Resources/TailResource.cpp",
-      "Source/Core/Graphics/Resources/EffectResource.h",
-      "Source/Core/Graphics/Resources/EffectResource.cpp",
-      "Source/Core/Graphics/Resources/FontResource.h",
-      "Source/Core/Graphics/Resources/FontResource.cpp",
-      "Source/Core/Graphics/Resources/ResourceCollection.h"
-    ],
-    "Source/Core/Input": [
-      "Source/Core/Input/InputSystem.h",
-      "Source/Core/Input/InputSystem.cpp"
-    ],
-    "Source/Core/Note": [
-      "Source/Core/Note/DivaAnimationNode.h",
-      "Source/Core/Note/DivaAnimationNode.cpp",
-      "Source/Core/Note/DivaEventSystem.h",
-      "Source/Core/Note/DivaEventSystem.cpp"
-    ],
-    "Source/Core/Note/Nodes": [
-      "Source/Core/Note/Nodes/DivaNoteNodes.h",
-      "Source/Core/Note/Nodes/DivaNoteBaseNode.h",
-      "Source/Core/Note/Nodes/DivaNoteBaseNode.cpp",
-      "Source/Core/Note/Nodes/DivaNoteSingleNode.h",
-      "Source/Core/Note/Nodes/DivaNoteSingleNode.cpp",
-      "Source/Core/Note/Nodes/DivaNoteHoldNode.h",
-      "Source/Core/Note/Nodes/DivaNoteHoldNode.cpp",
-      "Source/Core/Note/Nodes/DivaNoteNodeFactory.h",
-      "Source/Core/Note/Nodes/DivaNoteNodeFactory.cpp"
-    ],
-    "Source/Core/Judge": [
-      "Source/Core/Judge/IDivaJudge.h",
-      "Source/Core/Judge/IDivaJudge.cpp",
-      "Source/Core/Judge/DivaJudgeFactory.h",
-      "Source/Core/Judge/DivaJudgeFactory.cpp"
-    ],
-    "Source/Core/Judge/Judges": [
-      "Source/Core/Judge/OpenDivaJudge.h",
-      "Source/Core/Judge/OpenDivaJudge.cpp"
-    ],
-    "Source/Core/Bus": [
-      "Source/Core/Bus/DivaSequenceBus.h",
-      "Source/Core/Bus/DivaJudgeBus.h",
-      "Source/Core/Bus/DivaHudBus.h",
-      "Source/Core/Bus/DivaEventsBus.h"
-    ],
-    "Source/Core/Components": [
-      "Source/Core/Components/Components.h",
-      "Source/Core/Components/OpenDivaComponentFactory.h",
-      "Source/Core/Components/OpenDivaComponentFactory.cpp",
-      "Source/Core/Components/OpenDivaBusComponent.h",
-      "Source/Core/Components/OpenDivaBusComponent.cpp",
-      "Source/Core/Components/OpenDivaComponent.h",
-      "Source/Core/Components/OpenDivaComponent.cpp"
-    ],
-    "Source/Core/Database": [
-      "Source/Core/Database/DatabaseManager.h",
-      "Source/Core/Database/DatabaseManager.cpp"
-    ]
-  }
+	"none": {
+		"Source": [
+			"Source/StdAfx.cpp",
+			"Source/StdAfx.h"
+		]
+	},
+	"auto": {
+		"Include": [
+			"Include/OpenDiva/OpenDivaBus.h"
+		],
+		"Source" : [
+			"Source/OpenDivaModule.cpp",
+			"Source/OpenDivaSystemComponent.cpp",
+			"Source/OpenDivaSystemComponent.h",
+			"Source/OpenDivaCommon.h"
+		],
+		"Source/Core": [
+			"Source/Core/EditorGame.cpp",
+			"Source/Core/EditorGame.h",
+			"Source/Core/OpenDivaGame.cpp",
+			"Source/Core/OpenDivaGame.h",
+			"Source/Core/Util.h",
+			"Source/Core/Util.cpp",
+			"Source/Core/CommonEnums.h",
+			"Source/Core/CommonDefines.h",
+			"Source/Core/IMovieExt.h",
+			"Source/Core/IMovieExt.cpp"
+		],
+		"Source/System": [
+			"Source/System/GameStartup.cpp",
+			"Source/System/GameStartup.h"
+		],
+		"Source/Core/Loaders" : [
+			"Source/Core/Loaders/StageLoader.h",
+			"Source/Core/Loaders/StageLoader.cpp"
+		],
+		"Source/Core/Files" : [
+			"Source/Core/Files/NoteFile.h",
+			"Source/Core/Files/NoteFile.cpp",
+			"Source/Core/Files/NoteFileEntries.h",
+			"Source/Core/Files/NoteFileEntries.cpp",
+			"Source/Core/Files/NoteFileEntryFactory.h",
+			"Source/Core/Files/NoteFileEntryFactory.cpp",
+			"Source/Core/Files/SongInfo.h",
+			"Source/Core/Files/SongInfo.cpp",
+			"Source/Core/Files/LyricsFile.h",
+			"Source/Core/Files/LyricsFile.cpp"
+		],
+		"Source/Core/Listing": [
+			"Source/Core/Listing/Listings.h",
+			"Source/Core/Listing/SongList.h",
+			"Source/Core/Listing/SongList.cpp",
+			"Source/Core/Listing/JudgeList.h",
+			"Source/Core/Listing/JudgeList.cpp",
+			"Source/Core/Listing/StylesList.h",
+			"Source/Core/Listing/StylesList.cpp"
+		],
+		"Source/Core/Graphics" : [
+			"Source/Core/Graphics/OD_Draw2d.h",
+			"Source/Core/Graphics/OD_Draw2d.cpp",
+			"Source/Core/Graphics/NoteImage.h",
+			"Source/Core/Graphics/NoteImage.cpp",
+			"Source/Core/Graphics/Particles.h",
+			"Source/Core/Graphics/Particles.cpp"
+		],
+		"Source/Core/Graphics/Intro" : [
+			"Source/Core/Graphics/Intro/IIntro.h",
+			"Source/Core/Graphics/Intro/OpenDivaIntro.h",
+			"Source/Core/Graphics/Intro/OpenDivaIntro.cpp"
+		],
+		"Source/Core/Graphics/Tails" : [
+			"Source/Core/Graphics/Tails/CometTail.h",
+			"Source/Core/Graphics/Tails/CometTail.cpp",
+			"Source/Core/Graphics/Tails/HoldTail.h",
+			"Source/Core/Graphics/Tails/HoldTail.cpp"
+		],
+		"Source/Core/Graphics/Resources": [
+			"Source/Core/Graphics/Resources/NoteResource.h",
+			"Source/Core/Graphics/Resources/NoteResource.cpp",
+			"Source/Core/Graphics/Resources/TailResource.h",
+			"Source/Core/Graphics/Resources/TailResource.cpp",
+			"Source/Core/Graphics/Resources/EffectResource.h",
+			"Source/Core/Graphics/Resources/EffectResource.cpp",
+			"Source/Core/Graphics/Resources/FontResource.h",
+			"Source/Core/Graphics/Resources/FontResource.cpp",
+			"Source/Core/Graphics/Resources/ResourceCollection.h"
+		],
+		"Source/Core/Input": [
+			"Source/Core/Input/InputSystem.h",
+			"Source/Core/Input/InputSystem.cpp"
+		],
+		"Source/Core/Note" : [
+			"Source/Core/Note/DivaAnimationNode.h",
+			"Source/Core/Note/DivaAnimationNode.cpp",
+			"Source/Core/Note/DivaEventSystem.h",
+			"Source/Core/Note/DivaEventSystem.cpp"
+		],
+		"Source/Core/Note/Nodes": [
+			"Source/Core/Note/Nodes/DivaNoteNodes.h",
+			"Source/Core/Note/Nodes/DivaNoteBaseNode.h",
+			"Source/Core/Note/Nodes/DivaNoteBaseNode.cpp",
+			"Source/Core/Note/Nodes/DivaNoteSingleNode.h",
+			"Source/Core/Note/Nodes/DivaNoteSingleNode.cpp",
+			"Source/Core/Note/Nodes/DivaNoteHoldNode.h",
+			"Source/Core/Note/Nodes/DivaNoteHoldNode.cpp",
+			"Source/Core/Note/Nodes/DivaNoteNodeFactory.h",
+			"Source/Core/Note/Nodes/DivaNoteNodeFactory.cpp"
+		],
+		"Source/Core/Judge": [
+			"Source/Core/Judge/IDivaJudge.h",
+			"Source/Core/Judge/IDivaJudge.cpp",
+			"Source/Core/Judge/DivaJudgeFactory.h",
+			"Source/Core/Judge/DivaJudgeFactory.cpp"
+		],
+		"Source/Core/Judge/Judges": [
+			"Source/Core/Judge/OpenDivaJudge.h",
+			"Source/Core/Judge/OpenDivaJudge.cpp"
+		],
+		"Source/Core/Bus" : [
+			"Source/Core/Bus/DivaSequenceBus.h",
+			"Source/Core/Bus/DivaJudgeBus.h",
+			"Source/Core/Bus/DivaHudBus.h",
+			"Source/Core/Bus/DivaEventsBus.h"
+		],
+		"Source/Core/Components": [
+			"Source/Core/Components/Components.h",
+			"Source/Core/Components/OpenDivaComponentFactory.h",
+			"Source/Core/Components/OpenDivaComponentFactory.cpp",
+			"Source/Core/Components/OpenDivaBusComponent.h",
+			"Source/Core/Components/OpenDivaBusComponent.cpp",
+			"Source/Core/Components/OpenDivaComponent.h",
+			"Source/Core/Components/OpenDivaComponent.cpp"
+		],
+		"Source/Core/Database": [
+			"Source/Core/Database/DatabaseManager.h",
+			"Source/Core/Database/DatabaseManager.cpp"
+		]
+	}
 }

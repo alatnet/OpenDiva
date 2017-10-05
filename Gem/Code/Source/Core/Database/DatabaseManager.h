@@ -15,8 +15,12 @@ namespace OpenDiva {
 		static bool InitLyrics(SQLite3::SQLiteDB * sysDb);
 		static bool InitPlayers(SQLite3::SQLiteDB * sysDb);
 		static bool InitScores(SQLite3::SQLiteDB * sysDb);
-	public:
-
+		static bool InitJudges(SQLite3::SQLiteDB * sysDb);
+		static bool InitStyles(SQLite3::SQLiteDB * sysDb);
+		static bool InitGlobal(SQLite3::SQLiteDB * sysDb);
+		static bool InitSettings(SQLite3::SQLiteDB * sysDb);
+		//static bool InitMenuSettings(SQLite3::SQLiteDB * sysDb);
+	public: //song management
 		//for playing a song
 		//paths
 		//[0] - song path - @songs@/<groupdir>/<songdir>/
@@ -31,5 +35,16 @@ namespace OpenDiva {
 		//[1] - songinfo - @songs@/<groupdir>/<songdir>/SongInfo/global.xml
 		//[2] - lyrics - @songs@/<groupdir>/<songdir>/Lyrics/<Lyrics filename>.xml
 		static AZStd::array<AZStd::string,3> BuildSongPathsWatch(AZStd::string suuid, AZStd::string luuid);
+	public: //setting management
+		//per player settings
+		static AZStd::string GetSetting(AZStd::string setting);
+		static bool SetSetting(AZStd::string setting, AZStd::string value);
+		//global settings
+		static AZStd::string GetGlobalSetting(AZStd::string setting);
+		static bool SetGlobalSetting(AZStd::string setting, AZStd::string value);
+
+		//menu settings
+		//static AZStd::string GetMenuSetting(AZStd::string setting);
+		//static bool SetMenuSetting(AZStd::string setting, AZStd::string value);
 	};
 }

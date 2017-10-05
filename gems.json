@@ -2,6 +2,12 @@
     "GemListFormatVersion": 2,
     "Gems": [
         {
+            "Path": "Gems/EMotionFX",
+            "Uuid": "044a63ea67d04479aa5daf62ded9d9ca",
+            "Version": "0.1.0",
+            "_comment": "EMotionFX"
+        },
+        {
             "Path": "Gems/Cubism3",
             "Uuid": "0523ea9b22264a73a494263c165760e6",
             "Version": "0.1.0",
@@ -50,6 +56,12 @@
             "_comment": "CryLegacy"
         },
         {
+            "Path": "Gems/Maestro",
+            "Uuid": "3b9a978ed6f742a1acb99f74379a342c",
+            "Version": "0.1.0",
+            "_comment": "Maestro"
+        },
+        {
             "Path": "Gems/SQLite",
             "Uuid": "4b76424b22de476497488bc53b6c88b5",
             "Version": "0.1.0",
@@ -68,6 +80,12 @@
             "_comment": "Clouds"
         },
         {
+            "Path": "Gems/CameraFramework",
+            "Uuid": "54f2763fe191432fa681ce4a354eedf5",
+            "Version": "0.1.0",
+            "_comment": "CameraFramework"
+        },
+        {
             "Path": "Gems/InputManagementFramework",
             "Uuid": "59b1b2acc1974aae9f18faddcaddac5b",
             "Version": "0.1.0",
@@ -80,10 +98,40 @@
             "_comment": "VideoPlayback"
         },
         {
+            "Path": "Gems/CertificateManager",
+            "Uuid": "659cffff33b14a10835bafc6ea623f98",
+            "Version": "0.0.1",
+            "_comment": "CertificateManager"
+        },
+        {
+            "Path": "Gems/ProcessLifeManagement",
+            "Uuid": "698948526ada4d13bada933e2d7ee463",
+            "Version": "0.1.0",
+            "_comment": "ProcessLifeManagement"
+        },
+        {
             "Path": "Gems/UiBasics",
             "Uuid": "6bb61c9e547043f0afc5019d6d460b78",
             "Version": "0.1.0",
             "_comment": "UiBasics"
+        },
+        {
+            "Path": "Gems/GraphicsReflectContext",
+            "Uuid": "81d5967d0b9b41d89754cce68a20882e",
+            "Version": "0.1.0",
+            "_comment": "GraphicsReflectContext"
+        },
+        {
+            "Path": "Gems/ScriptCanvas",
+            "Uuid": "869a0d0ec11a45c299917d45c81555e6",
+            "Version": "0.1.0",
+            "_comment": "ScriptCanvasGem"
+        },
+        {
+            "Path": "Gems/GraphCanvas",
+            "Uuid": "875b6fcbdeea44deaae7984ad9bb6cdc",
+            "Version": "0.1.0",
+            "_comment": "GraphCanvas"
         },
         {
             "Path": "Gems/Snow",
@@ -94,13 +142,12 @@
         {
             "Path": "OpenDiva/Gem",
             "Uuid": "95e41eeb9802469b8f7dd874f19720d9",
-            "Version": "0.1.0",
-            "_comment": "OpenDiva"
+            "Version": "0.1.0"
         },
         {
             "Path": "Gems/PortAudio",
             "Uuid": "96a96b530fa24e0ba3a51daa485e9b16",
-            "Version": "0.1.0",
+            "Version": "3.1.0",
             "_comment": "PortAudio"
         },
         {
@@ -124,20 +171,14 @@
         {
             "Path": "Gems/AlternativeAudio_Libsndfile",
             "Uuid": "a987cb9a5fec4ed2b6266a481d5236f3",
-            "Version": "0.1.0",
+            "Version": "2.0.0",
             "_comment": "AlternativeAudio_Libsndfile"
         },
         {
             "Path": "Gems/AlternativeAudio",
             "Uuid": "b4745a69bade49a3aacc01e4475bdee7",
-            "Version": "0.1.0",
+            "Version": "3.1.0",
             "_comment": "AlternativeAudio"
-        },
-        {
-            "Path": "Gems/UserLoginDefault",
-            "Uuid": "c9c25313197f489a8e9e8e6037fc62eb",
-            "Version": "0.1.0",
-            "_comment": "UserLoginDefault"
         },
         {
             "Path": "Gems/GameEffectSystem",

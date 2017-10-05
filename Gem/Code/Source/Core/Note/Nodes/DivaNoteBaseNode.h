@@ -14,6 +14,8 @@
 
 #include "DivaNoteNodeFactory.h"
 
+#include "../../IMovieExt.h"
+
 namespace OpenDiva {
 	//struct IDivaNodeCallback;
 	//class DivaNode;

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <AzCore\std\functional.h>
+#include "IDivaJudge.h"
+
 namespace OpenDiva {
 
 	typedef AZStd::function<IDivaJudge* (void *)> NewJudgeFunc;

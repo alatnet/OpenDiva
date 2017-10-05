@@ -28,6 +28,7 @@ namespace OpenDiva {
 	}
 
 	void OpenDivaJudge::OnJudge(IDivaJudgeParams params) {
+		if (params.hitscore == eHS_None) return;
 		CLOG("[OnJudge] Begin");
 
 		//tech zone section update
@@ -194,7 +195,7 @@ namespace OpenDiva {
 		EBUS_EVENT(DivaHudScoreBus, SetScore, this->m_score);
 		EBUS_EVENT(DivaHudCompletionBus, SetCompletion, this->m_completion, this->m_totalNotes);
 		EBUS_EVENT(DivaHudCompletionBus, SetRating, this->GetCompletion());
-		EBUS_EVENT(DivaHudHitScoreBus, SetHitScore, params.hitscore, params.wrong);
+		EBUS_EVENT(DivaHudHitScoreBus, SetHitScore, params.nType, params.hitscore, params.wrong);
 
 		//we are done with the note, update which note to judge
 		if (params.hitscore != eHS_None && !params.hold) {

@@ -5,26 +5,28 @@
 #include "OpenDivaGame.h"
 #include "IGameFramework.h"
 #include "IGameRulesSystem.h"
-//#include "OpenDivaNewGameRules.h"
+//#include "OpenDivaGameRules.h"
 #include "IPlatformOS.h"
 #include <functional>
 
 //#include <LyShine/UiComponentTypes.h>
 #include <LyShine/Bus/World/UiCanvasRefBus.h>
-#include <AzFramework\Script\ScriptComponent.h>
-//#include <AzCore\Asset\AssetDatabaseBus.h>
-#include <AzCore\Asset\AssetManagerBus.h>
+#include <LyShine/Bus/UiCanvasBus.h>
+//#include <AzFramework\Script\ScriptComponent.h>
+//#include <AzCore\Asset\AssetManagerBus.h>
 
-#include "Components/Components.h"
-
-//#include <SQLite/SQLiteBus.h>
+//#include "Components/Components.h"
 
 #include <AlternativeAudio\DSP\VolumeDSPBus.h>
 
 #include "Database\DatabaseManager.h"
-#include "Files\SongList.h"
+#include "Listing\Listings.h"
 
 #include <PortAudio\PortAudioUserData.h>
+
+#include <AzCore/std/time.h>
+
+//#define REFRESH_DB_ON_EDITOR_INIT
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +55,22 @@ namespace OpenDiva
 
 		this->constructTesting();
 
-		this->masterVolumeDSP = nullptr;
+		this->m_DivaState = eDS_EngineInit;
+
+		this->m_masterVolumeDSP = nullptr;
+		
+		this->m_pRC = nullptr;
+
+		this->m_intro = nullptr;
+		this->m_menuCanvas.m_ent = nullptr;
+		this->m_menuCanvas.m_active = false;
+		this->m_menuCanvas.m_visible = false;
+		this->m_menuCanvas.m_loaded = false;
+
+		this->iRenderer = nullptr;
+		this->iDraw2d = nullptr;
+		this->iMovieSys = nullptr;
+		this->iSys = nullptr;
     }
 
     OpenDivaGame::~OpenDivaGame()
@@ -94,25 +111,17 @@ namespace OpenDiva
 		//set aliases
 		AZStd::string songAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sSongPath.c_str()));
 		AZStd::string styleAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sStylesPath.c_str()));
-		AZStd::string hudAlias = gEnv->pFileIO->GetAlias("@assets@") + AZStd::string(PathUtil::ToNativePath(FolderStruct::Paths::sHudPath.c_str()));
 		gEnv->pFileIO->SetAlias("@songs@", songAlias.c_str());
 		gEnv->pFileIO->SetAlias("@styles@", styleAlias.c_str());
-		gEnv->pFileIO->SetAlias("@hud@", hudAlias.c_str());
         // Register game rules wrapper.
         //REGISTER_FACTORY(framework, "OpenDivaNewGameRules", OpenDivaNewGameRules, false);
         //IGameRulesSystem* pGameRulesSystem = g_Game->GetIGameFramework()->GetIGameRulesSystem();
         //pGameRulesSystem->RegisterGameRules("DummyRules", "OpenDivaNewGameRules");
 
-        GetISystem()->GetPlatformOS()->UserDoSignIn(0);
+        //GetISystem()->GetPlatformOS()->UserDoSignIn(0);
 
 		//create new input system
 		this->iSys = new CInputSystem();
-		//this->uiSys = new CUIInputSystem();
-
-		//this->inputBusListener = new InputEBusListener();
-		//this->uiSys->AddListener(this->inputBusListener);
-
-		//this->dsfgEventListener = new DSFGEventListener();
 
 		//setup console commands
 		//this->setupCommands();
@@ -123,14 +132,25 @@ namespace OpenDiva
 		//setup testing
 		this->setupTesting();
 
-		this->initLyShine();
-
-		DatabaseManager::Init();
-
 		//this->pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
 
-		//auto channelid = AZ::InputEventNotificationId(Input::ChannelId("default"), Input::ProcessedEventName("Forward"));
+		//Debugging stuff, need to see what cvars are enabled differently between build types.
+		/*struct CVarSink : public ICVarDumpSink {
+			void OnElementFound(ICVar* pCVar) {
+				const char * name = pCVar->GetName();
+				const char * val = pCVar->GetString();
 
+				CLOG("- %s = %s", name, val);
+			}
+		} sink;
+
+		CLOG("Dumping CVars:");
+		gEnv->pConsole->DumpCVars(&sink);*/
+
+		//so that we can load loose files?
+		gEnv->pConsole->GetCVar("sys_PakPriority")->Set(0);
+		gEnv->pConsole->GetCVar("sys_PakLoadModePaks")->Set(0);
+		
 		return true;
     }
 
@@ -165,35 +185,7 @@ namespace OpenDiva
 
 		AZStd::string ret;
 		UiCanvasAssetRefBus::EventResult(ret, this->ent->GetId(), &UiCanvasAssetRefInterface::GetCanvasPathname);
-		CryLog("Canvas Asset Path: %s", ret.c_str());*/
-
-		/*string dbPath = gEnv->pFileIO->GetAlias("@cache@");
-		dbPath += "/testdb.db";
-		SQLite::SQLiteRequestBus::Event(this->ent->GetId(), &SQLite::SQLiteRequestBus::Events::Open, dbPath.c_str());*/
-
-		/*char * errmsg = 0;
-		SQLite::SQLiteRequestBus::Event(
-		this->ent->GetId(),
-		&SQLite::SQLiteRequestBus::Events::Exec,
-		"CREATE TABLE Persons ( \
-		PersonID int, \
-		LastName varchar(255), \
-		FirstName varchar(255), \
-		Address varchar(255), \
-		City varchar(255) \
-		);",
-		[](void * notUsed, int argc, char** argv, char ** azColName) -> int {
-		int i;
-		for (i = 0; i<argc; i++) {
-		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-		}
-		printf("\n");
-		return 0;
-		},
-		nullptr,
-		&errmsg
-		);
-		CryLog("SQLite Err Msg: %s", errmsg);*/
+		CryLog("Canvas Asset Path: %s", ret.c_str());//*/
 
 		//set input configuration
 		/*AZ::Data::AssetId inputAssetId;
@@ -207,10 +199,14 @@ namespace OpenDiva
 		AZ::Data::AssetBus::Event(this->ent->GetId(), &AZ::Data::AssetBus::Events::OnAssetReady, inputAsset);
 		}*/
 
-		//CCryAction *pCryAction = CCryAction::GetCryAction();
 		//CCryAction* pCryAction = static_cast<CCryAction*>(gEnv->pGame->GetIGameFramework());
 
-		SongList::Refresh();
+		this->iRenderer = gEnv->pSystem->GetIRenderer();
+		this->iDraw2d = Draw2dHelper::GetDraw2d();
+		this->iMovieSys = gEnv->pSystem->GetIMovieSystem();
+
+		IConsole* pConsole = gEnv->pSystem->GetIConsole();
+		pConsole->AddCommand("RefreshODDB", OpenDivaGame::RefreshDatabase);
 
         return true;
     }
@@ -232,32 +228,24 @@ namespace OpenDiva
 
     void OpenDivaGame::Shutdown()
     {
-		this->destroyLyShine();
+		this->DestroyMainMenu();
 
 		//destroy testing
 		this->destroyTesting();
 
 		//shutdown input system
 		delete this->iSys;
-		//delete this->uiSys;
-		//delete this->inputBusListener;
-		//delete this->dsfgEventListener;
 
 		//delete the moviesystem that uses audio timing
 		//this->audioMovieSys->RemoveAllSequences();
 		//this->audioMovieSys->Release();
 
+		if (this->m_pRC) delete this->m_pRC;
+
 		gEnv->pFileIO->ClearAlias("@songs@");
 		gEnv->pFileIO->ClearAlias("@styles@");
-		gEnv->pFileIO->ClearAlias("@hud@");
 
-		EBUS_EVENT( //set the master device for alternative audio
-			AlternativeAudio::AlternativeAudioDeviceBus,
-			SetMasterDevice,
-			nullptr
-		);
-
-		this->masterVolumeDSP->Release();
+		this->musicShutdown();
 
         this->~OpenDivaGame();
     }
@@ -276,19 +264,116 @@ namespace OpenDiva
 			break;
 		case ESYSTEM_EVENT_LEVEL_LOAD_END:
 			break;
+		case ESYSTEM_EVENT_EDITOR_ON_INIT:
+			CLOG("Editor On Init Done");
+			if (gEnv->IsEditor()) {
+			#ifdef REFRESH_DB_ON_EDITOR_INIT
+				AZ::JobFunction<AZStd::function<void(void)>> * editorJobFunc =
+					new AZ::JobFunction<AZStd::function<void(void)>>(
+						[&]() -> void { this->RefreshDatabase(nullptr); }
+						, true, nullptr
+					);
+				editorJobFunc->Start();
+			#endif
+				this->m_DivaState = eDS_Editor;
+			}
+			break;
+		case ESYSTEM_EVENT_GAME_POST_INIT_DONE:
+			CLOG("System Post Init Done");
+			if (!gEnv->IsEditor()) {
+				if (this->m_DivaState == eDS_EngineInit) {
+					this->m_DivaState = eDS_Intro;
+					//intro function
+					//also used to setup and initialize data
+					auto introFunc = [&]() -> void {
+						//create a new intro
+						this->m_introMutex.lock();
+						this->m_intro = new OpenDivaIntro();
+						this->m_introMutex.unlock();
+
+						//used to simulate loading, mostly testing...
+						auto delayFunc = [](AZStd::sys_time_t length) -> void {
+							AZStd::sys_time_t start = 0;
+
+							start = AZStd::GetTimeNowSecond();
+							while (true)
+								if (AZStd::GetTimeNowSecond() - start >= length) break;
+						};
+
+						//this->m_introState = eIS_Section1;
+						this->m_intro->SetState(eIS_Section1);
+						//initializing database
+						DatabaseManager::Init();
+
+						bool fullscreen = false;
+						if (DatabaseManager::GetGlobalSetting("fullscreen").compare("true") == 0) fullscreen = true;
+						int resW = AZStd::stoi(DatabaseManager::GetGlobalSetting("resW"));
+						int resH = AZStd::stoi(DatabaseManager::GetGlobalSetting("resH"));
+
+						//set resolution.
+						if ((resW != 0 && resH != 0 && gEnv->pRenderer->GetWidth() != resW && gEnv->pRenderer->GetHeight() != resH) || fullscreen)
+							OpenDivaGame::changeResolution(resW, resH, fullscreen);
+
+						//this->m_introState = eIS_Section2;
+						this->m_intro->SetState(eIS_Section2);
+						delayFunc(4);
+
+						//this->m_introState = eIS_Section3;
+						this->m_intro->SetState(eIS_Section3);
+						//update list of judges
+						JudgeList::Refresh();
+						//update list of styles
+						StylesList::Refresh();
+
+						//this->m_introState = eIS_Section4;
+						this->m_intro->SetState(eIS_Section4);
+						//refreshing song list
+						SongList::Refresh();
+
+						//this->m_introState = eIS_Section5;
+						this->m_intro->SetState(eIS_Section5);
+						delayFunc(4);
+						//load main menu
+						this->LoadMainMenu();
+
+						//load loading screen
+
+						//this->m_introState = eIS_Section6;
+						this->m_intro->SetState(eIS_Section6);
+						delayFunc(4); //delay
+
+						//remove the intro
+						this->m_introMutex.lock();
+						delete this->m_intro;
+						this->m_intro = nullptr;
+						this->m_introMutex.unlock();
+
+						//activate main menu entity
+						this->DisplayMainMenu();
+
+						this->m_DivaState = eDS_MainMenu;
+					};
+
+					//start the intro job
+					AZ::JobFunction<AZStd::function<void(void)>> * introJobFunc = new AZ::JobFunction<AZStd::function<void(void)>>(introFunc, true, nullptr);
+					introJobFunc->Start();
+				}
+			}
+			break;
 		case ESYSTEM_EVENT_LEVEL_GAMEPLAY_START:
+			CLOG("System Gameplay Start");
 			break;
 			//case ESYSTEM_EVENT_FLOW_SYSTEM_REGISTER_EXTERNAL_NODES:
 			//RegisterExternalFlowNodes();
 			//break;
 		case ESYSTEM_EVENT_EDITOR_GAME_MODE_CHANGED: //wparam: 0/1 - exit/enter
-													 //gEnv->IsEditor();
+			//gEnv->IsEditor();
 			if (wparam == 0) { //exit
-							   //this->audioMovieSys->StopSequence(this->testDivaSeq->GetSequence());
-							   //gEnv->pMovieSystem->StopSequence(this->testDivaSeq->GetSequence());
-							   //this->testDivaSeq->Reset(true);
-				gEnv->pMovieSystem->StopSequence(this->testSeq);
-				this->testSeq->Reset(true);
+				//this->audioMovieSys->StopSequence(this->testDivaSeq->GetSequence());
+				//gEnv->pMovieSystem->StopSequence(this->testDivaSeq->GetSequence());
+				//this->testDivaSeq->Reset(true);
+				//gEnv->pMovieSystem->StopSequence(this->testSeq);
+				//this->testSeq->Reset(true);
 			} else { //enter
 			}
 			break;
@@ -298,9 +383,9 @@ namespace OpenDiva
 			}
 			break;
 		case ESYSTEM_EVENT_RESIZE: //resize resources.
-								   //wparam=width, lparam=height
-								   //AZ::Vector2 scale = AZ::Vector2((float)wparam / 1280.0f, (float)lparam / 720.0f);
-								   //this->m_pRC->p_FontResource->setScale(scale);
+			//wparam=width, lparam=height
+			//AZ::Vector2 scale = AZ::Vector2((float)wparam / 1280.0f, (float)lparam / 720.0f);
+			//this->m_pRC->p_FontResource->setScale(scale);
 			break;
 		}
 	}
@@ -325,7 +410,6 @@ namespace OpenDiva
             CryLogAlways("[Profile] Warning: Could not open configuration file");
         }
     }
-
     void OpenDivaGame::ReleaseActionMaps()
     {
         if (m_defaultActionMap && m_gameFramework)
@@ -335,7 +419,6 @@ namespace OpenDiva
             m_defaultActionMap = nullptr;
         }
     }
-
     bool OpenDivaGame::ReadProfile(const XmlNodeRef& rootNode)
     {
         bool successful = false;
@@ -356,7 +439,6 @@ namespace OpenDiva
 
         return successful;
     }
-
     bool OpenDivaGame::ReadProfilePlatform(const XmlNodeRef& platformsNode, OpenDiva::Platform platformId)
     {
         bool successful = false;
@@ -419,7 +501,6 @@ namespace OpenDiva
 
         return successful;
     }
-
     OpenDiva::Platform OpenDivaGame::GetPlatform() const
     {
         OpenDiva::Platform platform = ePlatform_Unknown;
@@ -445,6 +526,7 @@ namespace OpenDiva
 		case eAE_inGame:
 			//end loading screen.
 			//bring up prep menu.
+			CLOG("InGame Start");
 			break;
         case eAE_unloadLevel:
             /*!
@@ -457,20 +539,34 @@ namespace OpenDiva
 
 	//! Called after Render, before PostUpdate.
 	void OpenDivaGame::OnPostUpdate(float fDeltaTime) {
-		//this->audioMovieSys->Render();
-
 		this->renderTesting();
 
-		/*SAnimContext ec;
-		ec.dt = fDeltaTime;
-		this->testDivaSeq->Animate(ec);*/
+		OD_Draw2d::getDraw2D().BeginDraw2d(1280, 720);
+		switch (this->m_DivaState) {
+		case eDS_Intro: 
+			this->m_introMutex.lock();
+			if (this->m_intro) this->m_intro->Render();
+			this->m_introMutex.unlock();
+			break;
+		case eDS_Loading:
+			//render loading screen or use loading screen lyshine canvas?
+			break;
+		//case eDS_SongSetup:
+		//	break;
+		case eDS_Song:
+			//render bg if there is one
+			//this->iDraw2d->DrawImage(0, AZ::Vector2(0, 0), AZ::Vector2(1280, 720));
+			//might move this to DivaAnimationNode.
+			break;
+		}
+		OD_Draw2d::getDraw2D().EndDraw2d();
 	}
 
 	//! Called after Update, but before Render.
 	void OpenDivaGame::OnPreRender() {
 		//if (!this->iMovieSys->IsPlaying(this->testSeq)) this->iMovieSys->PlaySequence(this->testSeq, NULL, false, false, 0, 10);
-		if (!gEnv->pMovieSystem->IsPlaying(this->testSeq)) {
-			this->testSeq->Reset(true);
+		//if (!gEnv->pMovieSystem->IsPlaying(this->testSeq)) {
+		//	this->testSeq->Reset(true);
 			/*this->testSingleNode->Reset();
 			this->testSingleNode2->Reset();*/
 
@@ -480,13 +576,65 @@ namespace OpenDiva
 			this->testDivaSeq->pushbackEffect({ 150,50 }, eEL_Fine);
 			this->testDivaSeq->pushbackEffect({ 200,50 }, eEL_Safe);
 			this->testDivaSeq->pushbackEffect({ 250,50 }, eEL_Sad);*/
-			gEnv->pMovieSystem->PlaySequence(this->testSeq, NULL, false, false);
-		}
+		//	gEnv->pMovieSystem->PlaySequence(this->testSeq, NULL, false, false);
+		//}
 	}
 	
 	void OpenDivaGame::LoadSong(AZStd::string uuid, AZStd::string luuid, bool demo) {
-		CryLog("LoadSong called %s - %s - %i", uuid, luuid, demo);
+		if (this->m_DivaState != eDS_MainMenu) return; //can only use load song from main menu.
 
+		CLOG("LoadSong called %s - %s - %i", uuid, luuid, demo);
+
+		SQLite3::SQLiteDB * sysDb;
+		SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection); //get system db
+		AZ_Assert(sysDb, "sysDb is null.");
+
+		//auto default_style_stmt = sysDb->Prepare_v2("SELECT stuuid, dirname FROM Styles WHERE name = 'Open Diva' LIMIT 1", -1, nullptr);
+
+		//load loading screen
+		this->m_DivaState = eDS_Loading;
+
+		//load song setup lyshine
+		AZStd::string setupUUID = DatabaseManager::GetSetting("setup");
+		//load song grading lyshine
+		AZStd::string gradeUUID = DatabaseManager::GetSetting("grade");
+
+		//style loading
+		AZStd::string notesUUID = DatabaseManager::GetSetting("notes");
+		AZStd::string effectsUUID = DatabaseManager::GetSetting("effects");
+		AZStd::string tailsUUID = DatabaseManager::GetSetting("tails");
+		AZStd::string fontsUUID = DatabaseManager::GetSetting("fonts");
+
+		AZStd::string stylesPath(gEnv->pFileIO->GetAlias("@styles@"));
+
+		/*AZStd::string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
+		AZStd::string path(assetsPath);
+
+		//string path(getcwd(buff, MAX_PATH + 1));
+		path += AZStd::string(FolderStruct::Paths::sStylesPath.c_str()) + "/PPDXXX/";
+
+		AZStd::string noteR(path + AZStd::string(FolderStruct::Folders::sNoteFolder.c_str()));
+		AZStd::string effectR(path + AZStd::string(FolderStruct::Folders::sEffectsFolder.c_str()));
+		AZStd::string tailsR(path + AZStd::string(FolderStruct::Folders::sTailFolder.c_str()));
+		AZStd::string fontsR(path + AZStd::string(FolderStruct::Folders::sFontsFolder.c_str()));;
+
+		this->m_pRC = new ResourceCollection();
+
+		this->m_pRC->p_NoteResource = new NoteResource(noteR.c_str());
+		this->m_pRC->p_TailResource = new TailResource(tailsR.c_str());
+		this->m_pRC->p_EffectResource = new EffectResource(effectR.c_str());
+		this->m_pRC->p_FontResource = new FontResource(fontsR.c_str());
+
+		AZ::Vector2 scale = AZ::Vector2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
+		this->m_pRC->p_FontResource->setScale(scale); */
+
+		//hud loading
+		AZStd::string hudUUID = DatabaseManager::GetSetting("hud");
+
+		//judge loading
+		AZStd::string judgeUUID = DatabaseManager::GetSetting("judge");
+
+		//song loading
 		if (!demo) {
 			AZStd::array<AZStd::string, 4> paths = DatabaseManager::BuildSongPaths(uuid, luuid);
 			paths[0]; //song path
@@ -504,110 +652,176 @@ namespace OpenDiva
 		}
 
 		//set state to before song start
+		this->m_DivaState = eDS_SongSetup;
+
+		//load song setup canvas
 	}
+
+	/*
+	this->iMovieSys = gEnv->pSystem->GetIMovieSystem();
+
+	CryLog("Loading Sequences.");
+	if (this->testSeq == NULL) {
+		CryLog("Creating Test Sequence.");
+		this->testSeq = this->iMovieSys->CreateSequence("DivaSequence", false, 0U, eSequenceType_SequenceComponent);
+		this->testSeq->SetTimeRange(Range(0.0f, 15.0f + BIEZER_TACKON));
+		this->testSeq->SetFlags(IAnimSequence::eSeqFlags_NoAbort | IAnimSequence::eSeqFlags_CutScene | IAnimSequence::eSeqFlags_OutOfRangeConstant | IAnimSequence::eSeqFlags_NoMPSyncingNeeded | IAnimSequence::eSeqFlags_NoSpeed);
+		this->testSeq->AddRef();
+
+		this->testDivaAnimationNode = new DivaAnimationNode(this->m_pRC);
+		this->testDivaAnimationNode->AddRef();
+		this->testSeq->AddNode(this->testDivaAnimationNode);
+
+		this->iSys->AddListener(this->testDivaAnimationNode);
+
+		//this->testSeq->AddTrackEventListener(this->dsfgEventListener);
+
+		NoteFile noteFile("@songs@/Test Group/Test Song/NoteMaps/test.xml");
+
+		SongInfo::Global g = SongInfo::GetGlobal("@songs@/Test Group/Test Song/SongInfo/global.xml");
+		CLOG("Global song info:");
+		CLOG("-Lib: %s", g.lib.c_str());
+		CLOG("-vocal: %s", g.vocal.c_str());
+		CLOG("-melody: %s", g.melody.c_str());
+		CLOG("-song: %s", g.song.c_str());
+
+		if (this->testDivaAnimationNode->InitDemo(g)) CLOG("Demo Initialized.");
+		//if (this->testDivaAnimationNode->InitNotes(&noteFile, g)) CLOG("Notes Initialized.");
+		//if (this->testDivaAnimationNode->InitLyrics(this->lyrics)) CLOG("Lyrics Initialized.");
+		if (this->testDivaAnimationNode->InitAudio(g)) CLOG("Audio Initialized.");
+	}
+	*/
 
 	void OpenDivaGame::PlaySong() {
+		if (this->m_DivaState != eDS_SongSetup) return; //can only use play song from song setup.
+
+		//play diva animation node.
+
 		//set state to song start
+		this->m_DivaState = eDS_Song;
 	}
 
-	//void OpenDivaGame::LoadSong(IConsoleCmdArgs* pCmdArgs) { //first argument is always the command name
-	//	/*if (pCmdArgs->GetArgCount() == 2) {
-	//		this->songName = pCmdArgs->GetArg(1);
+	void OpenDivaGame::LoadMainMenu() {
+		//find canvas
+		SQLite3::SQLiteDB * sysDb;
+		SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection); //get system db
+		AZ_Assert(sysDb, "sysDb is null.");
 
-	//		//XmlNodeRef xmlFile = gEnv->pSystem->LoadXmlFromFile("");
+		AZStd::string mmuuid = DatabaseManager::GetSetting("mainmenu");
+		AZStd::string mainmenuPath = gEnv->pFileIO->GetAlias("@styles@"); //@styles@/<folder>/menu.uicanvas
+		mainmenuPath += "/";
 
-	//		//gEnv->p3DEngine->UnloadLevel();
-	//		//gEnv->p3DEngine->LoadLevel("foldername", "missionname"); //folder name is where level is. mission name is environment info.
+		if (mmuuid.empty()) {
+			//set initial main menu
+			auto stmt = sysDb->Prepare_v2("SELECT stuuid, dirname FROM Styles WHERE name = 'Open Diva' LIMIT 1", -1, nullptr);
 
-	//		//LOOK IN CryAction/LevelSystem.cpp
-	//		//Function LoadLevelInternal!
+			if (stmt->Step() == SQLITE_ROW) {
+				mmuuid = stmt->Column_Text(0);
+				mainmenuPath += stmt->Column_Text(1) + "/Canvas/menu.uicanvas";
+				DatabaseManager::SetSetting("mainmenu", mmuuid);
+			} else {
+				delete stmt;
+				//error out
+			}
 
-	//		//load song
-	//		//load map
-	//	} else {
-	//		CryLog("Error, correct syntax is: g_loadSong songname");
-	//	}*/
+			delete stmt;
+		} else {
+			//get main menu's folder
+			AZStd::string sql = "SELECT dirname FROM Styles WHERE stuuid = '" + mmuuid + "' LIMIT 1";
+			auto stmt = sysDb->Prepare_v2(sql.c_str(), -1, nullptr);
 
-	//	/*if (!this->testSong.isPlaying()) this->testSong.play();
-	//	else this->testSong.stop();*/
+			if (stmt->Step() == SQLITE_ROW) {
+				mainmenuPath += stmt->Column_Text(0) + "/Canvas/menu.uicanvas";
+			} else {
+				delete stmt;
+				//error out
+			}
 
-	//	//if (pCmdArgs->GetArgCount() == 1) this->musicStartStop();
-	//	//else if (pCmdArgs->GetArgCount() == 2) this->musicStream->SetVol(0.5f);
-	//	//else if (pCmdArgs->GetArgCount() == 3) this->musicStream->SetVol(1.0f);
+			delete stmt;
+		}
 
-	//	//if (pCmdArgs->GetArgCount() == 1) {
-	//	//	if (this->testAudioFileID == -1) {
-	//	//		//this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
-	//	//		if (this->testAudioFile != nullptr) EBUS_EVENT_RESULT(this->testAudioFileID, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile);
-	//	//	} else {
-	//	//		if (this->testAudioFile != nullptr) {
-	//	//			EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID);
-	//	//			this->testAudioFileID = -1;
-	//	//			if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-	//	//				EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
-	//	//				this->testAudioFileID2 = -1;
-	//	//			}
-	//	//		}
-	//	//	}
-	//	//} else if (pCmdArgs->GetArgCount() == 2) {
-	//	//	/*if (this->testAudioFileID2 == -1) this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
-	//	//	while (this->testAudioFile2->HasError()) CryLog("testAudioFile2 Error: %s", this->testAudioFile2->GetError().str);*/
+		mainmenuPath = PathUtil::ToNativePath(mainmenuPath.c_str());
 
-	//	//	if (this->testAudioFileID2 == -1 && this->testAudioFile2 != nullptr)
-	//	//		EBUS_EVENT_RESULT(this->testAudioFileID2, AlternativeAudio::AlternativeAudioDeviceBus, PlaySource, this->testAudioFile2);
-	//	//} else if (pCmdArgs->GetArgCount() == 3) {
-	//	//	/*if (this->testAudioFileID2 != -1) {
-	//	//	this->paSystem->StopSource(this->testAudioFileID2);
-	//	//	this->testAudioFileID2 = -1;
-	//	//	}*/
+		if (!gEnv->pFileIO->Exists(mainmenuPath.c_str())) {
+			//error out
+		}
 
-	//	//	if (this->testAudioFileID2 != -1 && this->testAudioFile2 != nullptr) {
-	//	//		EBUS_EVENT(AlternativeAudio::AlternativeAudioDeviceBus, StopSource, this->testAudioFileID2);
-	//	//		this->testAudioFileID2 = -1;
-	//	//	}
-	//	//} else if (pCmdArgs->GetArgCount() == 4 && this->masterVolumeDSP) {
-	//	//	EBUS_EVENT_ID(
-	//	//		this->masterVolumeDSP,
-	//	//		AlternativeAudio::DSP::VolumeDSPBus,
-	//	//		SetVol,
-	//	//		0.5f
-	//	//	);
-	//	//} else if (pCmdArgs->GetArgCount() == 5 && this->masterVolumeDSP) {
-	//	//	EBUS_EVENT_ID(
-	//	//		this->masterVolumeDSP,
-	//	//		AlternativeAudio::DSP::VolumeDSPBus,
-	//	//		SetVol,
-	//	//		1.0f
-	//	//	);
-	//	//}
+		this->m_menuCanvas.m_ent = Util::CreateLyShineCanvasEntity(mainmenuPath, "Open Diva Main Menu");
+		this->m_menuCanvas.m_active = true;
+	}
+	void OpenDivaGame::DisplayMainMenu() {
+		if (this->m_menuCanvas.m_visible) return;
 
-	//	/* else if (pCmdArgs->GetArgCount() == 4) {
-	//		if (this->testAudioFileID != -1) {
-	//			//stop
-	//			this->paSystem->StopSource(this->testAudioFileID);
-	//			this->testAudioFileID = -1;
-	//		} else {
-	//			//play
-	//			this->testAudioFileID = this->paSystem->PlaySource(this->testAudioFile, eAS_Music);
-	//		}
+		if (!this->m_menuCanvas.m_active) {
+			this->m_menuCanvas.m_ent->Activate();
+			this->m_menuCanvas.m_active = true;
+		}
 
-	//		if (this->testAudioFileID2 != -1) {
-	//			//stop
-	//			this->paSystem->StopSource(this->testAudioFileID2);
-	//			this->testAudioFileID = -1;
-	//		} else {
-	//			//play
-	//			this->testAudioFileID2 = this->paSystem->PlaySource(this->testAudioFile2, eAS_SFX);
-	//		}
-	//	}*/
-	//}
-	//void OpenDivaGame::LoadSongRedirect(IConsoleCmdArgs* pCmdArgs) {
-	//	g_Game->LoadSong(pCmdArgs);
-	//}
+		//load canvas
+		if (!this->m_menuCanvas.m_loaded) {
+			EBUS_EVENT_ID_RESULT(this->m_menuCanvas.m_canvasId, this->m_menuCanvas.m_ent->GetId(), UiCanvasAssetRefBus, LoadCanvas);
+			this->m_menuCanvas.m_loaded = true;
+		}
+
+		//enable canvas
+		EBUS_EVENT_ID(this->m_menuCanvas.m_canvasId, UiCanvasBus, SetEnabled, true);
+		this->m_menuCanvas.m_visible = true;
+	}
+	void OpenDivaGame::HideMainMenu() {
+		if (!this->m_menuCanvas.m_visible) return;
+
+		//disable canvas
+		EBUS_EVENT_ID(this->m_menuCanvas.m_canvasId, UiCanvasBus, SetEnabled, false);
+		this->m_menuCanvas.m_visible = false;
+
+		if (this->m_menuCanvas.m_active) {
+			this->m_menuCanvas.m_ent->Deactivate();
+			this->m_menuCanvas.m_active = false;
+		}
+	}
+	void OpenDivaGame::DestroyMainMenu() {
+		if (!this->m_menuCanvas.m_ent) return;
+
+		//disable canvas
+		if (this->m_menuCanvas.m_visible)
+			EBUS_EVENT_ID(this->m_menuCanvas.m_canvasId, UiCanvasBus, SetEnabled, false);
+
+		//unload canvas
+		if (this->m_menuCanvas.m_loaded)
+			EBUS_EVENT_ID(this->m_menuCanvas.m_ent->GetId(), UiCanvasAssetRefBus, UnloadCanvas);
+
+		//deactivate entity
+		if (this->m_menuCanvas.m_active)
+			this->m_menuCanvas.m_ent->Deactivate();
+
+		//delete entity
+		delete this->m_menuCanvas.m_ent;
+
+		this->m_menuCanvas.m_ent = nullptr;
+		this->m_menuCanvas.m_canvasId.SetInvalid();
+		this->m_menuCanvas.m_active = false;
+		this->m_menuCanvas.m_visible = false;
+		this->m_menuCanvas.m_loaded = false;
+	}
+
+	void OpenDivaGame::RefreshDatabase(IConsoleCmdArgs* args) {
+		CLOG("[OpenDiva] Initializing Database.");
+		DatabaseManager::Init();
+
+		//update list of judges
+		CLOG("[OpenDiva] Refreshing Judge Listing.");
+		JudgeList::Refresh();
+		//update list of styles
+		CLOG("[OpenDiva] Refreshing Style Listing.");
+		StylesList::Refresh();
+
+		CLOG("[OpenDiva] Refreshing Song Listing.");
+		SongList::Refresh();
+	}
 
 	void OpenDivaGame::musicInit() {
 		//setup audio devices
-		auto lib = AZ_CRC("PortAudio");
+		auto lib = AZ_CRC("PortAudio", 0x2a7a2a31);
 		long long defaultDeviceId = -1;
 		AlternativeAudio::OAudioDevice* defaultDevice;
 
@@ -620,6 +834,7 @@ namespace OpenDiva
 			GetDefaultPlaybackDevice,
 			lib
 		);
+
 		EBUS_EVENT_RESULT( //create new device with default device id
 			defaultDevice,
 			AlternativeAudio::AlternativeAudioDeviceBus,
@@ -630,29 +845,73 @@ namespace OpenDiva
 			AlternativeAudio::AudioFrame::Type::eT_af2, //audio format
 			nullptr//&userdata //userdata
 		);
+
 		EBUS_EVENT( //set the master device for alternative audio
 			AlternativeAudio::AlternativeAudioDeviceBus,
 			SetMasterDevice,
 			defaultDevice
 		);
+
+		//master volume dsp effect setup
+		EBUS_EVENT(
+			AlternativeAudio::AlternativeAudioDSPBus,
+			AddEffect,
+			AlternativeAudio::AADSPSection::eDS_Output,
+			AZ_CRC("AAVolumeControl", 0x722dd2a9),
+			nullptr,
+			99
+		);
+
+		EBUS_EVENT_RESULT(
+			this->m_masterVolumeDSP,
+			AlternativeAudio::AlternativeAudioDSPBus,
+			GetEffect,
+			AlternativeAudio::AADSPSection::eDS_Output,
+			99
+		);
+
+		this->m_masterVolumeDSP->AddRef();
 	}
 
-	//void OpenDivaGame::setupCommands() {
-	//	//IConsole* pConsole = gEnv->pSystem->GetIConsole();
-	//	//pConsole->AddCommand("loadSong", OpenDivaGame::LoadSongRedirect);
-	//}
+	void OpenDivaGame::musicShutdown() {
+		EBUS_EVENT( //set the master device for alternative audio
+			AlternativeAudio::AlternativeAudioDeviceBus,
+			SetMasterDevice,
+			nullptr
+		);
 
-	/*IDivaJudge * OpenDivaGame::GetJudge() {
-		return nullptr;
-	}*/
+		EBUS_EVENT(
+			AlternativeAudio::AlternativeAudioDSPBus,
+			RemoveEffect,
+			AlternativeAudio::AADSPSection::eDS_Output,
+			99
+		);
+
+		this->m_masterVolumeDSP->Release();
+	}
+
+	void OpenDivaGame::changeResolution(int w, int h, bool f) {
+		#if _RELEASE
+			gEnv->pRenderer->ChangeResolution(w, h, 32, 60, f, false);
+		#else
+			ICVar* fullscreenCVar = gEnv->pConsole->GetCVar("r_fullscreen");
+			ICVar* screenWidthCVar = gEnv->pConsole->GetCVar("r_width");
+			ICVar* screenHeightCVar = gEnv->pConsole->GetCVar("r_height");
+
+			if (f) fullscreenCVar->Set(1);
+			else fullscreenCVar->Set(0);
+			screenWidthCVar->Set(w);
+			screenHeightCVar->Set(h);
+		#endif
+	}
 
 	//TESTING FUNCTIONS
 	void OpenDivaGame::constructTesting() {
 		//this->textColor = ColorF(0.95, 0.63, 0.02, 1.0);
-		this->textColor = ColorF(1.0, 1.0, 1.0, 1.0);
+		//this->textColor = ColorF(1.0, 1.0, 1.0, 1.0);
 
-		this->testSeq = NULL;
-		this->testDivaAnimationNode = NULL;
+		//this->testSeq = NULL;
+		//this->testDivaAnimationNode = NULL;
 		//this->testButtonNode = NULL;
 		//this->testButtonNode2 = NULL;
 		/*this->testSingleNode = NULL;
@@ -674,7 +933,7 @@ namespace OpenDiva
 		/*this->ent->Deactivate();
 		delete this->ent;*/
 
-		this->testFont->Release();
+		//this->testFont->Release();
 		//delete this->testFont;
 		//this->iRenderer->DeleteFont(this->testFont);
 
@@ -686,8 +945,8 @@ namespace OpenDiva
 		delete this->m_pRC->p_RatingResource;
 		delete this->m_pRC->p_RatingResourceFont;*/
 		delete this->m_pRC;
-		delete this->unicodeStr;
-		delete this->testJudge;
+		//delete this->unicodeStr;
+		//delete this->testJudge;
 		//delete this->testDivaSeq;
 
 		//this->testGraph->SetActive(false);
@@ -695,8 +954,8 @@ namespace OpenDiva
 		//this->testGraph->Release();
 
 		//delete this->paSystem;
-		if (this->testAudioFile != nullptr) delete this->testAudioFile;
-		if (this->testAudioFile2 != nullptr) delete this->testAudioFile2;
+		//if (this->testAudioFile != nullptr) delete this->testAudioFile;
+		//if (this->testAudioFile2 != nullptr) delete this->testAudioFile2;
 	}
 
 	void OpenDivaGame::setupTesting() {
@@ -712,9 +971,6 @@ namespace OpenDiva
 
 		/*WIN_HWND hwnd = framework->GetISystem()->GetHWND();
 		framework->GetISystem()->GetViewCamera().GetViewPort();*/
-
-		this->iRenderer = gEnv->pSystem->GetIRenderer();
-		this->iDraw2d = Draw2dHelper::GetDraw2d();
 		//this->textOps = this->iDraw2d->GetDefaultTextOptions();
 
 		//this->renderTarget = this->iRenderer->CreateRenderTarget(800, 600, ETEX_Format::eTF_R32G32B32A32F);
@@ -732,7 +988,11 @@ namespace OpenDiva
 		/*std::string path(getcwd(buff, MAX_PATH + 1));
 		path += "/OpenDiva/Resources/Styles/PPDXXX/";*/
 
-		AZStd::string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
+
+		//-----------------------------
+		//style loading
+		//-----------------------------
+		/*AZStd::string assetsPath(gEnv->pFileIO->GetAlias("@assets@"));
 		AZStd::string path(assetsPath);
 
 		//string path(getcwd(buff, MAX_PATH + 1));
@@ -742,12 +1002,6 @@ namespace OpenDiva
 		AZStd::string effectR(path + AZStd::string(FolderStruct::Folders::sEffectsFolder.c_str()));
 		AZStd::string tailsR(path + AZStd::string(FolderStruct::Folders::sTailFolder.c_str()));
 		AZStd::string fontsR(path + AZStd::string(FolderStruct::Folders::sFontsFolder.c_str()));
-		//std::string ratingR(path + "Ratings");
-
-		/*this->m_pNoteResource = new NoteResource(noteR.c_str());
-		this->m_pTailResource = new TailResource(noteR.c_str());
-		this->m_pEffectResource = new EffectResource(effectR.c_str());
-		this->m_pRatingResource = new RatingResource(ratingR.c_str());*/
 
 		this->m_pRC = new ResourceCollection();
 
@@ -757,21 +1011,22 @@ namespace OpenDiva
 		this->m_pRC->p_FontResource = new FontResource(fontsR.c_str());
 
 		AZ::Vector2 scale = AZ::Vector2(gEnv->pRenderer->GetWidth() / 1280.0f, gEnv->pRenderer->GetHeight() / 720.0f);
-		this->m_pRC->p_FontResource->setScale(scale);
+		this->m_pRC->p_FontResource->setScale(scale);*/
+		//-----------------------------
 
 		//float avgscale = ((gEnv->pRenderer->GetWidth() / 1280.0f) + (gEnv->pRenderer->GetHeight() / 720.0f)) / 2;
 
-		this->testFont = gEnv->pSystem->GetICryFont()->NewFont("NotoSansCJKjp-Regular");
-		this->testFont->Load("Fonts/NotoSansCJKjp/NotoSansCJKjp-Regular.xml");
-		this->testFont->AddRef();
+		//this->testFont = gEnv->pSystem->GetICryFont()->NewFont("NotoSansCJKjp-Regular");
+		//this->testFont->Load("Fonts/NotoSansCJKjp/NotoSansCJKjp-Regular.xml");
+		//this->testFont->AddRef();
 
 		/*this->textOps.font = this->testFont;
 		this->textOps.color = this->textColor.toVec3();
 		this->textOps.effectIndex = 0;*/
 
-		testFontDrawContext.SetSizeIn800x600(false);
-		testFontDrawContext.SetSize(vector2f(24, 24));
-		testFontDrawContext.SetColor(this->textColor);
+		//testFontDrawContext.SetSizeIn800x600(false);
+		//testFontDrawContext.SetSize(vector2f(24, 24));
+		//testFontDrawContext.SetColor(this->textColor);
 		//testFontDrawContext.SetEffect(testFont->GetEffectId("cool"));
 
 		//for (int i = 0; i < testFont->GetNumEffects(); i++) CryLog("[Font Effect] %i - %s", i, testFont->GetEffectName(i));
@@ -784,7 +1039,7 @@ namespace OpenDiva
 		}
 
 		//this->testJudge = new OpenDivaJudge();
-		this->testJudge = DivaJudgeFactory::getFactory().newJudge(judgeNames[0]);
+		//this->testJudge = DivaJudgeFactory::getFactory().newJudge(judgeNames[0]);
 
 		//string notefilepath(getcwd(buff, MAX_PATH + 1));
 		//notefilepath += "/" + OpenDiva::Folders::sOpenDivaFolder + "/Test/testNoteFile.xml";
@@ -798,15 +1053,15 @@ namespace OpenDiva
 		//XmlNodeRef content = unicodeTest->findChild("content");
 		//this->unicodeChar = unicodeTest->getContent();
 
-		this->unicodeStr = new AZStd::string(unicodeTest->getContent());
+		//this->unicodeStr = new AZStd::string(unicodeTest->getContent());
 
 		//music testing
 
-		AZStd::string songpath(assetsPath);
-		songpath += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong.ogg";
+		//AZStd::string songpath(assetsPath);
+		//songpath += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong.ogg";
 
-		AZStd::string songpath2(assetsPath);
-		songpath2 += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong4.ogg";
+		//AZStd::string songpath2(assetsPath);
+		//songpath2 += AZStd::string(FolderStruct::Paths::sSongPath.c_str()) + "/Test Group/Test Song/testSong4.ogg";
 		//CryLog("SongPath: %s", songpath);
 		//CryLog("SongPath c_str: %s", songpath.c_str());
 		/*songpath += "/OpenDiva/Songs/Test Group/Test Song/";
@@ -823,7 +1078,7 @@ namespace OpenDiva
 		//this->testAudioFile = AudioSourceFactory::getFactory().newAudioSource("libsndfile-memory", songpath.c_str());
 		//while (this->testAudioFile->HasError()) CryLog("TestAudioFile Error: %s", this->testAudioFile->GetError().str);
 
-		AZStd::vector<AZStd::pair<AZStd::string, AZ::Crc32>> libs;
+		/*AZStd::vector<AZStd::pair<AZStd::string, AZ::Crc32>> libs;
 		EBUS_EVENT_RESULT(
 			libs,
 			AlternativeAudio::AlternativeAudioSourceBus,
@@ -832,9 +1087,9 @@ namespace OpenDiva
 
 		CryLog("Audio Libraries:");
 		for (AZStd::pair<AZStd::string, AZ::Crc32> lib : libs)
-			CryLog("- %s, %i", lib.first.c_str(), lib.second);
+			CryLog("- %s, %i", lib.first.c_str(), lib.second);*/
 
-		EBUS_EVENT_RESULT(
+		/*EBUS_EVENT_RESULT(
 			this->testAudioFile,
 			AlternativeAudio::AlternativeAudioSourceBus,
 			NewAudioSource,
@@ -858,19 +1113,9 @@ namespace OpenDiva
 		if (this->testAudioFile2 != nullptr) while (this->testAudioFile2->HasError()) CryLog("TestAudioFile2 Error: %s", this->testAudioFile2->GetError().str);
 
 		testAudioFileID = -1;
-		testAudioFileID2 = -1;
-
-		EBUS_EVENT_RESULT(
-			this->masterVolumeDSP,
-			AlternativeAudio::AlternativeAudioDSPBus,
-			NewDSPEffect,
-			AZ_CRC("AAVolumeControl"),
-			nullptr
-		);
-
-		this->masterVolumeDSP->AddRef();
-		//this->testAudioFile->AddEffect(this->masterVolumeDSP, 0);
-		this->testAudioFile->AddEffectFreeSlot(this->masterVolumeDSP);
+		testAudioFileID2 = -1;*/
+		//this->testAudioFile->AddEffect(this->m_masterVolumeDSP, 0);
+		//this->testAudioFile->AddEffectFreeSlot(this->m_masterVolumeDSP);
 
 		/*EBUS_EVENT(
 			AlternativeAudio::AlternativeAudioRequestBus,
@@ -882,29 +1127,12 @@ namespace OpenDiva
 		);*/
 
 		/*EBUS_EVENT_RESULT(
-			this->masterVolumeDSP,
+			this->m_masterVolumeDSP,
 			AlternativeAudio::AlternativeAudioRequestBus,
 			GetDSPEffect,
 			AlternativeAudio::DSPSection::eDS_Output,
 			0
 		);*/
-
-		/*IFlowGraphPtr graph = gEnv->pFlowSystem->CreateFlowGraph(); //create a graph
-		graph->SerializeXML(XmlNodeRef(), true); //reading from xml
-		graph->SetActive(true);
-
-		graph->SetActive(false);
-		graph->UnregisterFromFlowSystem();
-		graph->Release();*/
-
-		/*
-		ILyShine *ls = gEnv->pLyShine;
-		AZ::Entity ent = ls->LoadCanvas("");
-
-		ent.Activate();
-
-		ent.Deactivate();
-		*/
 
 		//-------------------------
 		//Entity Component stuff
@@ -991,7 +1219,6 @@ namespace OpenDiva
 		CryLog("Custom Alias Paths:");
 		CryLog("-Songs: %s", gEnv->pFileIO->GetAlias("@songs@"));
 		CryLog("-Styles: %s", gEnv->pFileIO->GetAlias("@styles@"));
-		CryLog("-Hud: %s", gEnv->pFileIO->GetAlias("@hud@"));
 
 		/*gEnv->pFileIO->FindFiles("@songs@", "*.*",
 			[&](const char* filePath) -> bool {
@@ -1011,65 +1238,6 @@ namespace OpenDiva
 				return true; // continue iterating
 			}
 		);*/
-
-		//int ret;
-		//SQLite3::SQLiteDB * sysDb;
-		////SQLite::SQLiteRequestBus::EventResult(sysDb, AZ::EntityId(0), &SQLite::SQLiteRequestBus::Events::GetConnection);
-		//SQLITE_BUS(sysDb, AZ::EntityId(0), GetConnection);
-		//AZ_Assert(sysDb, "sysDb is null.");
-
-		////int ret;
-		////SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
-		//SQLITEDB_BUS(ret, sysDb, Exec, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
-		//AZ_Assert(ret == SQLITE_OK, "setting foreing keys failed.");
-
-		////create a table
-		////SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "CREATE TABLE System (Col1 int, Col2 varchar(255));", nullptr, nullptr, nullptr);
-		//SQLITEDB_BUS(ret, sysDb, Exec, "CREATE TABLE IF NOT EXISTS System (Col1 int, Col2 varchar(255));", nullptr, nullptr, nullptr);
-		//AZ_Assert(ret == SQLITE_OK, "Create Table Failed.");
-
-		////insert a row
-		////SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(0,'FIRST');", nullptr, nullptr, nullptr);
-		//SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(0,'FIRST');", nullptr, nullptr, nullptr);
-		//AZ_Assert(ret == SQLITE_OK, "Insert 1 Failed.");
-
-		////insert a row
-		////SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(1,'SECOND');", nullptr, nullptr, nullptr);
-		//SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(1,'SECOND');", nullptr, nullptr, nullptr);
-		//AZ_Assert(ret == SQLITE_OK, "Insert 2 Failed.");
-
-		////insert a row
-		////SQLite3::SQLiteDBBus::EventResult(ret, sysDb, &SQLite3::SQLiteDBBus::Events::Exec, "INSERT INTO System (Col1, Col2) VALUES(2,'THIRD');", nullptr, nullptr, nullptr);
-		//SQLITEDB_BUS(ret, sysDb, Exec, "INSERT INTO System (Col1, Col2) VALUES(2,'THIRD');", nullptr, nullptr, nullptr);
-		//AZ_Assert(ret == SQLITE_OK, "Insert 3 Failed.");
-
-		//CryLog("Testing DB Select...");
-		////select all from the table
-		////SQLite3::SQLiteDBBus::EventResult(
-		////	ret,
-		////	sysDb,
-		////	&SQLite3::SQLiteDBBus::Events::Exec,
-		////	"SELECT * FROM System;",
-		////	[](void* cbarg, int argc, char **argv, char **azColName) -> int {
-		////		for (int i = 0; i < argc; i++) CryLog("%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
-		////		return 0;
-		////	},
-		////	nullptr,
-		////	nullptr
-		////);
-		//SQLITEDB_BUS(
-		//	ret,
-		//	sysDb,
-		//	Exec,
-		//	"SELECT * FROM System;",
-		//	[](void* cbarg, int argc, char **argv, char **azColName) -> int {
-		//		for (int i = 0; i < argc; i++) CryLog("%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
-		//		return 0;
-		//	},
-		//	nullptr,
-		//	nullptr
-		//);
-		//AZ_Assert(ret == SQLITE_OK, "Select Failed");
 	}
 
 	void OpenDivaGame::setupFlowgraph() {
@@ -1118,7 +1286,7 @@ namespace OpenDiva
 		//std::shared_ptr<OD_Draw2d> OD_Draw2dPtr = OD_Draw2d::GetPtr();
 
 		//OD_Draw2dPtr->BeginDraw2d(1920, 1080);
-		OD_Draw2d::getDraw2D().BeginDraw2d(1280, 720);
+		//OD_Draw2d::getDraw2D().BeginDraw2d(1280, 720);
 		//OD_Draw2dPtr->BeginDraw2d();
 		//this->iDraw2d->DrawText(musicStr, { 10, 10 }, 12);
 		//this->iDraw2d->DrawText(this->unicodeChar, { 30, 30 }, 24);
@@ -1134,10 +1302,10 @@ namespace OpenDiva
 
 		this->iDraw2d->DrawText(hud, { 10, 10 }, 32);*/
 
-		this->iDraw2d->DrawText(std::to_string(gEnv->pTimer->GetFrameTime()).c_str(), AZ::Vector2(10, 40), 16);
+		//this->iDraw2d->DrawText(std::to_string(gEnv->pTimer->GetFrameTime()).c_str(), AZ::Vector2(10, 40), 16);
 		//this->iDraw2d->DrawText(std::to_string(this->paSystem->GetDeltaTime()).c_str(), AZ::Vector2(10, 60), 16);
 
-		if (this->testAudioFileID != -1 && this->testAudioFile != nullptr) {
+		/*if (this->testAudioFileID != -1 && this->testAudioFile != nullptr) {
 			AlternativeAudio::AudioSourceTime currTime;// = this->paSystem->GetTime(this->testAudioFileID);
 			EBUS_EVENT_RESULT(currTime, AlternativeAudio::AlternativeAudioDeviceBus, GetTime, this->testAudioFileID);
 			if (this->m_prevTime.totalSec != currTime.totalSec) {
@@ -1150,7 +1318,7 @@ namespace OpenDiva
 			this->iDraw2d->DrawText("waiting...", AZ::Vector2(10, 80), 16);
 		}
 
-		OD_Draw2d::getDraw2D().EndDraw2d();
+		OD_Draw2d::getDraw2D().EndDraw2d();*/
 
 		//this->iDraw2d->BeginDraw2d(true);
 		/*if (!this->testSeq->IsPaused()) {
@@ -1176,7 +1344,7 @@ namespace OpenDiva
 	void OpenDivaGame::loadSequences() {
 		this->iMovieSys = gEnv->pSystem->GetIMovieSystem();
 
-		CryLog("Loading Sequences.");
+		/*CryLog("Loading Sequences.");
 		if (this->testSeq == NULL) {
 			CryLog("Creating Test Sequence.");
 			this->testSeq = this->iMovieSys->CreateSequence("DivaSequence", false, 0U, eSequenceType_SequenceComponent);
@@ -1205,7 +1373,7 @@ namespace OpenDiva
 			//if (this->testDivaAnimationNode->InitNotes(&noteFile, g)) CLOG("Notes Initialized.");
 			//if (this->testDivaAnimationNode->InitLyrics(this->lyrics)) CLOG("Lyrics Initialized.");
 			if (this->testDivaAnimationNode->InitAudio(g)) CLOG("Audio Initialized.");
-		}
+		}*/
 
 		/*if (this->testButtonNode2 == NULL) {
 			CryLog("Creating Button Node 2.");
@@ -1372,7 +1540,7 @@ namespace OpenDiva
 	}
 
 	void OpenDivaGame::unloadSequences() {
-		CryLog("Unloading Sequences.");
+		//CryLog("Unloading Sequences.");
 		/*if (this->testButtonNode) {
 			CryLog("Removing Button Node.");
 			this->testSeq->RemoveNode(this->testButtonNode);
@@ -1408,14 +1576,14 @@ namespace OpenDiva
 			this->testHoldNode = NULL;
 		}*/
 
-		if (this->testSeq) {
+		/*if (this->testSeq) {
 			CryLog("Removing Test Sequence.");
 			this->iMovieSys->RemoveSequence(this->testSeq);
 			this->testSeq->Release();
 			this->testSeq = NULL;
 			this->testDivaAnimationNode->Release();
 			this->testDivaAnimationNode = NULL;
-		}
+		}*/
 	}
 
 	void OpenDivaGame::setupLua() {
@@ -1444,85 +1612,6 @@ namespace OpenDiva
 	}
 
 	void OpenDivaGame::unloadLua() {
-	}
-
-	//void OpenDivaGame::testLyShine() {
-		/*CryLog("[testLyShine]");
-
-		char buff[MAX_PATH + 1];
-		string canvaspath(getcwd(buff, MAX_PATH + 1));
-		canvaspath += OpenDiva::Paths::sResourcesPath + "/Hud/PPDXXX/Hud.uicanvas";
-
-		AZ::EntityId id = gEnv->pLyShine->LoadCanvas(canvaspath);
-
-		CryLog("[testLyShine] id: %s", id.ToString().c_str());
-
-		//update flownode
-		EBUS_EVENT(OpenDivaFlowgraphBus::OpenDivaCanvasIDBus, SetHudCanvasID, id);
-
-		UiCanvasInterface* canvas = UiCanvasBus::FindFirstHandler(id);
-		IUiAnimationSystem *animSys = canvas->GetAnimationSystem();
-
-		unsigned int numSequences = animSys->GetNumSequences();
-		CryLog("[testLyShine] Number of Sequences: %i", numSequences);
-
-		if (numSequences > 0) for (int i = 0; i < numSequences; i++) CryLog("-%s", animSys->GetSequence(i)->GetName());
-
-		gEnv->pLyShine->ReleaseCanvas(id);*/
-
-		/*AZ::EntityId canvasEntityId = gEnv->pLyShine->CreateCanvas();
-		UiCanvasInterface* canvas = UiCanvasBus::FindFirstHandler(canvasEntityId);
-		canvas->SetEnabled(true);
-
-		LYSwing::LYPanel * panel = new LYSwing::LYPanel("TEST PANEL", canvas);
-		panel->Init();
-		panel->Activate();
-
-		LYSwing::LYLabel * label = new LYSwing::LYLabel("TEST LABEL", panel);
-		label->Init();
-		label->Activate();
-		label->SetText("TEST TEXT");
-
-		delete label;
-		delete panel;
-
-		gEnv->pLyShine->ReleaseCanvas(canvasEntityId);*/
-	//}
-
-
-
-	void OpenDivaGame::initLyShine() {
-		/*this->canvasEntityId = gEnv->pLyShine->CreateCanvas();
-		this->canvas = UiCanvasBus::FindFirstHandler(this->canvasEntityId);
-		this->canvas->SetEnabled(true);
-
-		this->label = new LYSwing::LYLabel("TEST LABEL", this->canvas);
-		this->label->Init();
-		this->label->Activate();
-		this->label->SetText("TEST TEXT");
-		this->label->SetColor(ColorF(1.0f, 0.0f, 1.0f, 1.0f));
-		this->label->SetTextAlignment(IDraw2d::HAlign::Left, IDraw2d::VAlign::Top);
-		this->label->SetAnchors(UiTransform2dInterface::Anchors(0.0f, 0.0f, 0.0f, 0.0f), false, false);
-		this->label->SetOffsets(UiTransform2dInterface::Offsets(0, 0, 100, 100));
-
-		this->panel = new LYSwing::LYPanel("TEST PANEL", this->canvas);
-		this->panel->Init();
-		this->panel->Activate();
-
-		this->label2 = new LYSwing::LYLabel("TEST LABEL 2", panel);
-		this->label2->Init();
-		this->label2->Activate();
-		this->label2->SetText("TEST TEXT 2");
-		//this->label2->SetFont("Fonts/NotoSansCJKjp/NotoSansCJKjp-Regular.xml");
-		//this->label2->SetFontEffect(0);
-		//this->label2->SetFontSize(32);
-		this->label2->SetColor(ColorF(1.0f, 0.0f, 1.0f, 1.0f));
-		this->label2->SetTextAlignment(IDraw2d::HAlign::Left, IDraw2d::VAlign::Top);
-		this->label2->SetAnchors(UiTransform2dInterface::Anchors(0.0f, 0.0f, 0.0f, 0.0f),false,false);
-		this->label2->SetOffsets(UiTransform2dInterface::Offsets(0, 0, 50, 50));*/
-	}
-	void OpenDivaGame::destroyLyShine() {
-		//gEnv->pLyShine->ReleaseCanvas(this->canvasEntityId);
 	}
 
 } // namespace OpenDivaGame

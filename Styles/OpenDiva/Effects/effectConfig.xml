@@ -1,0 +1,106 @@
+<effectConfig>
+  <!-- Effect System v2 -->
+  <images> <!-- load images once -->
+    <cross img="cross.dds" size="100,100" />
+    <diffuse img="diffuse.dds" size="88,88" />
+    <ringflare img="ringflare.dds" size="200,200" />
+    <loop img="loop.dds" size="70,70" />
+    <nonote img="nonote.dds" size="66,66" />
+    <note img="note.dds" size="75,75" />
+    <ripple img="ripple.dds" size="75,75" />
+    <flare img="flare.dds" size="40,12" />
+  </images>
+
+  <effects>
+    <enote> <!-- Note Entrance -->
+      <effect name="ripple" img="ripple">
+        <anim time="-0.5" x="0" y="0" scale="0.5" rot="0.0" opacity="1.0" />
+        <anim time="0" x="0" y="0" scale="1.0" rot="22.5" opacity="0.5" />
+        <anim time="0.25" x="0" y="0" scale="1.0" rot="45" opacity="0.0" />
+      </effect>
+      <effect name="enote" img="enote"> <!-- special effect definition -->
+        <anim time="-0.5" x="0" y="0" scale="1.0" rot="0.0" opacity="1.0" />
+        <anim time="-0.25" x="0" y="0" scale="1.25" rot="0.0" opacity="1.0" />
+        <anim time="0" x="0" y="0" scale="1.0" rot="0.0" opacity="1.0" />
+      </effect>
+    </enote>
+
+    <cool> <!-- Cool Effect -->
+      <effect name="note" img="note">
+        <anim time="0" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.5" x="0" y="0" scale="1.0" rot="0" opacity="0.0" />
+      </effect>
+      <effect name="ringflare" img="ringflare">
+        <anim time="0.25" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.75" x="0" y="0" scale="0.75" rot="0" opacity="0.0" />
+      </effect>
+      <effect name="loop" img="loop">
+        <anim time="0.0" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.75" x="0" y="0" scale="2.0" rot="0" opacity="0.0" />
+    </effect>
+    </cool>
+
+    <fine> <!-- Fine Effect -->
+      <effect name="flare left" img="flare"> <!-- left -->
+        <anim time="0.0" x="20" y="0" scale="1.0" rot="0.0" opacity="0.5" />
+        <anim time="0.25" x="20" y="0" scale="1.0" rot="0.0" opacity="0.75" />
+        <anim time="0.75" x="40" y="0" scale="1.0" rot="0.0" opacity="0.0" />
+      </effect>
+      <effect name="flare right" img="flare"> <!-- right -->
+        <anim time="0.0" x="-20" y="0" scale="1.0" rot="0.0" opacity="0.5" />
+        <anim time="0.25" x="-20" y="0" scale="1.0" rot="0.0" opacity="0.75" />
+        <anim time="0.75" x="-40" y="0" scale="1.0" rot="0.0" opacity="0.0" />
+      </effect>
+      <effect name="flare up" img="flare"> <!-- up -->
+        <anim time="0.0" x="0" y="20" scale="1.0" rot="90.0" opacity="0.5" />
+        <anim time="0.25" x="0" y="20" scale="1.0" rot="90.0" opacity="0.75" />
+        <anim time="0.75" x="0" y="40" scale="1.0" rot="90.0" opacity="0.0" />
+      </effect>
+      <effect name="flare down" img="flare"> <!-- down -->
+        <anim time="0.0" x="0" y="-20" scale="1.0" rot="90.0" opacity="0.5" />
+        <anim time="0.25" x="0" y="-20" scale="1.0" rot="90.0" opacity="0.75" />
+        <anim time="0.75" x="0" y="-40" scale="1.0" rot="90.0" opacity="0.0" />
+      </effect>
+      <effect name="cross" img="cross">
+        <anim time="0.25" x="0" y="0" scale="0.5" rot="0" opacity="1.0" />
+        <anim time="0.75" x="0" y="0" scale="1.5" rot="-22.5" opacity="0.0" />
+      </effect>
+      <effect name="note" img="note">
+        <anim time="0" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.5" x="0" y="0" scale="1.0" rot="0" opacity="0.0" />
+      </effect>
+    </fine>
+    
+    <safe> <!-- Safe Effect -->
+      <effect name="note" img="note">
+        <anim time="0" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.5" x="0" y="0" scale="1.0" rot="0" opacity="0.0" />
+      </effect>
+    </safe>
+    
+    <sad> <!-- Sad Effect -->
+      <effect name="diffuse" img="diffuse">
+        <anim time="0.25" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.75" x="0" y="0" scale="1.0" rot="0" opacity="0.0" />
+      </effect>
+      <effect name="nonote" img="nonote">
+        <anim time="0" x="0" y="0" scale="0.5" rot="0" opacity="0.75" />
+        <anim time="0.5" x="0" y="0" scale="1.0" rot="0" opacity="0.0" />
+      </effect>
+    </sad>
+  
+    <worse></worse> <!-- Worse Effect (has no effect animation) -->
+
+    <swipeL> <!-- Swipe Left Effect -->
+    </swipeL>
+  
+    <swipeR> <!-- Swipe Right Effect -->
+    </swipeR>
+    
+    <swipeLEXTick> <!-- Swipe Left EX Tick Effect -->
+    </swipeLEXTick>
+  
+    <swipeREXTick> <!-- Swipe Right EX Tick Effect -->
+    </swipeREXTick>
+  </effects>
+</effectConfig>

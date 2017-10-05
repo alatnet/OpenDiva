@@ -10,6 +10,7 @@ namespace OpenDiva {
 		struct Global {
 			AZ::Crc32 hash;
 			bool hasArt;
+			AZStd::string bg;
 			float length;
 			AZStd::pair<unsigned int, unsigned int> bpm;
 			AZStd::string lib, vocal, melody, song;

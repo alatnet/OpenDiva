@@ -25,6 +25,8 @@ namespace OpenDiva {
 		AZStd::string artPath = rootPath + "/SongInfo/art.dds";
 		ret.hasArt = fileIO->Exists(artPath.c_str());
 
+		ret.bg = rootPath + "/bg.dds";
+
 		ret.length = (float)atof(file->findChild("length")->getContent());
 		
 		XmlNodeRef bpm = file->findChild("bpm");

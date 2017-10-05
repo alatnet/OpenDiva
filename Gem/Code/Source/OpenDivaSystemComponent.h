@@ -34,7 +34,7 @@ namespace OpenDiva
         // EditorGameRequestBus interface implementation
         IGameStartup* CreateGameStartup() override;
         IEditorGame* CreateEditorGame() override;
-        const char* GetGameName() const override;
+        //const char* GetGameName() const override;
         ////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////

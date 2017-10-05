@@ -7,9 +7,6 @@
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 
-#include "../Bus/DivaHudBus.h"
-#include "../Bus/DivaEventsBus.h"
-
 namespace OpenDiva {
 	class OpenDivaBusComponent {
 	public:
